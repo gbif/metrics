@@ -1,0 +1,11 @@
+queueName: occurrence_cube_updater
+cubeTable: crawler_occurrence_cube
+columnFamily: dc
+writeBatchSize: 10000
+poolSize: 10
+hbaseConfig: YOUR_LOCATION_OF/conf/hbase-site.xml
+messaging:
+  host: mq.gbif.org
+  virtualHost: /crawler/YOUR_VIRTUAL_HOST
+  username: YOUR_USERNAME
+  password: YOUR_PASSWORD

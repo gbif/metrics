@@ -1,0 +1,23 @@
+The metrics CLI project
+=======================
+
+This provides runnable services that subscribe to occurrence change events, and modify the downstream cubes.
+
+At the time of writing there is the occurrence cube and the density tiles for the maps, but future enhancements 
+will likely include other options.  
+
+To run this, it is expected that you would build the project as a single jar:
+  $ mvn clean assembly:single
+  
+And then run it using a config file.  
+
+Example complete config files are given in the example-conf folder, with placeholders to supply messaging credentials, and the location of the HBase configuration file. 
+
+Examples (note you can pass a standard logback xml file in the properties as shown in the second example):
+
+$ java -Xmx1G -jar target/metrics-cli-0.5-SNAPSHOT-jar-with-dependencies.jar DensityCube --conf ./conf/density-updater.yaml
+$ java -Xmx1G -jar target/metrics-cli-0.5-SNAPSHOT-jar-with-dependencies.jar OccurrenceCube --conf ./conf/occurrence-updater.yaml --log-config /Users/tim/dev/conf/logback-crawler.xml
+
+If you run the application without any parameters, full instructions are given listing the available services.
+
+It should be noted that you can override any property from the configuration file (or omit it) and supply it with the --property-name option.     

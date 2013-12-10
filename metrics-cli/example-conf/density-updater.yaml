@@ -1,0 +1,14 @@
+queueName: density_cube_updater
+cubeTable: crawler_density_cube
+columnFamily: dc
+cubeCounterTable: crawler_density_cube_counter
+cubeLookupTable: crawler_density_cube_lookup
+writeBatchSize: 1000
+numberZooms: 10
+poolSize: 1
+hbaseConfig: YOUR_LOCATION_OF/conf/hbase-site.xml
+messaging:
+  host: mq.gbif.org
+  virtualHost: /crawler/YOUR_VIRTUAL_HOST
+  username: YOUR_USERNAME
+  password: YOUR_PASSWORD
