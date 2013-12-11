@@ -25,7 +25,7 @@
 
   <groupId>org.gbif.metrics</groupId>
   <artifactId>metrics-motherpom</artifactId>
-  <version>0.12-SNAPSHOT</version>
+  <version>0.13-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Metrics :: Mother POM</name>
@@ -37,7 +37,7 @@
     <crawler-coordinator.version>0.3</crawler-coordinator.version>
     <datacube.version>1.2.4-GIT-20130903</datacube.version>
     <findbugs-jsr305.version>2.0.1</findbugs-jsr305.version>
-    <gbif-api.version>0.10</gbif-api.version>
+    <gbif-api.version>0.12-SNAPSHOT</gbif-api.version>
     <gbif-common.version>0.14</gbif-common.version>
     <gbif-common-service.version>0.8</gbif-common-service.version>
     <gbif-common-ws.version>0.11</gbif-common-ws.version>
