@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>11</version>
+    <version>13</version>
   </parent>
 
   <groupId>org.gbif.metrics</groupId>
@@ -30,7 +30,13 @@
 
   <name>Metrics :: Mother POM</name>
   <description>Libraries to handle the accumulation and serving of metrics</description>
-  <url>http://sites.gbif.org/metrics</url>
+  <url>http://github.org/gbif/metrics</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/metrics.git</connection>
+    <url>https://github.com/gbif/metrics</url>
+    <developerConnection>scm:git:git@github.com:gbif/metrics.git</developerConnection>
+  </scm>
 
   <properties>
     <avro.version>1.7.5</avro.version>
@@ -58,30 +64,6 @@
     <jersey.version>1.17.1</jersey.version>
     <servlet-api.version>2.5</servlet-api.version>
   </properties>
-
-  <scm>
-    <connection>scm:svn:http://gbif-metrics.googlecode.com/svn/metrics/trunk</connection>
-    <developerConnection>scm:svn:https://gbif-metrics.googlecode.com/svn/metrics/trunk</developerConnection>
-    <url>http://code.google.com/p/gbif-metrics/source/browse/#svn/metrics/trunk</url>
-  </scm>
-
-  <issueManagement>
-    <system>jira</system>
-    <url>http://dev.gbif.org/issues/browse/MET</url>
-  </issueManagement>
-
-  <ciManagement>
-    <system>jenkins</system>
-    <url>http://builds.gbif.org/job/metrics</url>
-  </ciManagement>
-
-  <distributionManagement>
-    <site>
-      <id>gbif-site</id>
-      <name>Site for the project</name>
-      <url>scp://tools.gbif.org:/var/www/html/sites/metrics</url>
-    </site>
-  </distributionManagement>
 
   <repositories>
     <repository>
