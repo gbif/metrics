@@ -20,12 +20,10 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.12-SNAPSHOT</version>
+    <version>0.13-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.gbif.metrics</groupId>
   <artifactId>metrics-ws-client</artifactId>
-  <version>0.12-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Metrics :: Web service client</name>

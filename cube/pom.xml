@@ -20,20 +20,14 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.12-SNAPSHOT</version>
+    <version>0.13-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.gbif.metrics</groupId>
   <artifactId>cube</artifactId>
   <packaging>jar</packaging>
 
   <name>Metrics :: Cube</name>
   <description>Cube definitions, builders and accessors</description>
-
-  <properties>
-    <yammer.version>2.2.0</yammer.version>
-    <commons-io.version>2.3</commons-io.version>
-  </properties>
 
   <build>
     <plugins>
@@ -81,12 +75,10 @@
     <dependency>
       <groupId>com.yammer.metrics</groupId>
       <artifactId>metrics-ganglia</artifactId>
-      <version>${yammer.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>${commons-io.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -108,10 +100,10 @@
       <groupId>org.gbif.occurrence</groupId>
       <artifactId>occurrence-persistence</artifactId>
     </dependency>
-    <!--  Classifier is not inherited from the parent -->
     <dependency>
       <groupId>com.urbanairship</groupId>
       <artifactId>datacube</artifactId>
+      <!--  Classifier is not inherited from the parent -->
       <classifier>hbase${hbase.version}-hadoop${hadoopMR.version}</classifier>
     </dependency>
     <dependency>

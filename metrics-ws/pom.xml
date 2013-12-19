@@ -20,10 +20,9 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.12-SNAPSHOT</version>
+    <version>0.13-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.gbif.metrics</groupId>
   <artifactId>metrics-ws</artifactId>
   <packaging>war</packaging>
 
