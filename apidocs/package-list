@@ -1,3 +1,2 @@
-org.gbif.metrics.ws.guice
-org.gbif.metrics.ws.resources
-org.gbif.metrics.ws.resources.provider
+org.gbif.metrics.ws.client
+org.gbif.metrics.ws.client.guice
