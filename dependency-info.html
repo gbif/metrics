@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20131220" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Metrics :: CLI - Dependency Information</title>
+    <title>Metrics :: Web service - Dependency Information</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.0.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -50,8 +50,8 @@
         </li>
       <li class="divider ">/</li>
                 <li class="">
-                    <a href="./" title="Metrics :: CLI">
-        Metrics :: CLI</a>
+                    <a href="./" title="Metrics :: Web service">
+        Metrics :: Web service</a>
         </li>
       <li class="divider ">/</li>
         <li class="">Dependency Information</li>
@@ -184,7 +184,7 @@
             </li>
               </ul>
         </li>
-                                                                                      
+                                                                                                                          
       <li>
     
                           <a href="project-reports.html" title="Project Reports">
@@ -263,37 +263,38 @@
 <div class="source">
 <pre>&lt;dependency&gt;
   &lt;groupId&gt;org.gbif.metrics&lt;/groupId&gt;
-  &lt;artifactId&gt;metrics-cli&lt;/artifactId&gt;
+  &lt;artifactId&gt;metrics-ws&lt;/artifactId&gt;
   &lt;version&gt;0.13-SNAPSHOT&lt;/version&gt;
+  &lt;type&gt;war&lt;/type&gt;
 &lt;/dependency&gt;</pre></div></div>
 <div class="section">
 <h3>Apache Buildr<a name="Apache_Buildr"></a></h3><a name="Apache_Buildr"></a>
 <div class="source">
-<pre>'org.gbif.metrics:metrics-cli:jar:0.13-SNAPSHOT'</pre></div></div>
+<pre>'org.gbif.metrics:metrics-ws:war:0.13-SNAPSHOT'</pre></div></div>
 <div class="section">
 <h3>Apache Ant<a name="Apache_Ant"></a></h3><a name="Apache_Ant"></a>
 <div class="source">
-<pre>&lt;dependency org=&quot;org.gbif.metrics&quot; name=&quot;metrics-cli&quot; rev=&quot;0.13-SNAPSHOT&quot;&gt;
-  &lt;artifact name=&quot;metrics-cli&quot; type=&quot;jar&quot; /&gt;
+<pre>&lt;dependency org=&quot;org.gbif.metrics&quot; name=&quot;metrics-ws&quot; rev=&quot;0.13-SNAPSHOT&quot;&gt;
+  &lt;artifact name=&quot;metrics-ws&quot; type=&quot;war&quot; /&gt;
 &lt;/dependency&gt;</pre></div></div>
 <div class="section">
 <h3>Groovy Grape<a name="Groovy_Grape"></a></h3><a name="Groovy_Grape"></a>
 <div class="source">
 <pre>@Grapes(
-@Grab(group='org.gbif.metrics', module='metrics-cli', version='0.13-SNAPSHOT')
+@Grab(group='org.gbif.metrics', module='metrics-ws', version='0.13-SNAPSHOT')
 )</pre></div></div>
 <div class="section">
 <h3>Grails<a name="Grails"></a></h3><a name="Grails"></a>
 <div class="source">
-<pre>compile 'org.gbif.metrics:metrics-cli:0.13-SNAPSHOT'</pre></div></div>
+<pre>compile 'org.gbif.metrics:metrics-ws:0.13-SNAPSHOT'</pre></div></div>
 <div class="section">
 <h3>Leiningen<a name="Leiningen"></a></h3><a name="Leiningen"></a>
 <div class="source">
-<pre>[org.gbif.metrics/metrics-cli &quot;0.13-SNAPSHOT&quot;]</pre></div></div>
+<pre>[org.gbif.metrics/metrics-ws &quot;0.13-SNAPSHOT&quot;]</pre></div></div>
 <div class="section">
 <h3>SBT<a name="SBT"></a></h3><a name="SBT"></a>
 <div class="source">
-<pre>libraryDependencies += &quot;org.gbif.metrics&quot; %% &quot;metrics-cli&quot; % &quot;0.13-SNAPSHOT&quot;</pre></div></div></div>
+<pre>libraryDependencies += &quot;org.gbif.metrics&quot; %% &quot;metrics-ws&quot; % &quot;0.13-SNAPSHOT&quot;</pre></div></div></div>
                   </div>
             </div>
           </div>
