@@ -122,7 +122,7 @@ public class Application {
 
         @Override
         public Integer apply(Occurrence occurrence) {
-          return occurrence.getNubKey();
+          return occurrence.getTaxonKey();
         }
 
       };

@@ -22,11 +22,11 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
 
   @Override
   protected void map(OccurrenceWritable o, IntWritable count, Context context) throws IOException, InterruptedException {
-    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.getIssues() + "] has count[" + o.getCount() + "]");
+    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.hasSpatialIssue() + "] has count[" + o.getCount() + "]");
     o.setCount(count.get()); // cannot be set earlier, since we need to group at the occurrence
-    
+
     // Google only goes +/- 85 degrees and we only want maps with no known issues
-    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && Integer.valueOf(0).equals(o.getIssues())) {
+    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && Integer.valueOf(0).equals(o.hasSpatialIssue())) {
       Set<Integer> taxa =
         Sets.newHashSet(o.getKingdomID(), o.getPhylumID(), o.getClassID(), o.getOrderID(), o.getFamilyID(), o.getGenusID(), o.getSpeciesID(),
           o.getTaxonID());

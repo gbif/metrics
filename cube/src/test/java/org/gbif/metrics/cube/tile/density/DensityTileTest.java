@@ -1,6 +1,7 @@
 package org.gbif.metrics.cube.tile.density;
 
 import org.gbif.api.model.occurrence.Occurrence;
+import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.metrics.cube.tile.density.DensityCubeUtil.Op;
 
 import java.io.IOException;
@@ -95,8 +96,12 @@ public class DensityTileTest {
       Occurrence occurrence =
         mapper
           .readValue(
-            "{\"key\":307075245,\"kingdom\":\"Plantae\",\"phylum\":\"Magnoliophyta\",\"clazz\":\"Magnoliopsida\",\"order\":\"Lamiales\",\"family\":\"Lamiaceae\",\"genus\":\"Stachys\",\"subgenus\":null,\"species\":\"Stachys palustris\",\"kingdomKey\":6,\"phylumKey\":49,\"classKey\":220,\"orderKey\":408,\"familyKey\":2497,\"genusKey\":2927228,\"subgenusKey\":null,\"speciesKey\":2927245,\"occurrenceId\":null,\"institutionCode\":\"Botanical Society of the British Isles\",\"collectionCode\":\"6340\",\"catalogNumber\":\"59935182\",\"datasetKey\":\"086a644d-6cbe-43b7-b7c7-d33d36028d7f\",\"owningOrgKey\":\"07f617d0-c688-11d8-bf62-b8a03c50a862\",\"scientificName\":\"Stachys palustris L.\",\"nubKey\":2927245,\"basisOfRecord\":\"UNKNOWN\",\"longitude\":-5.54387,\"latitude\":55.28758,\"coordinateAccurracyInMeters\":null,\"coordinateAccurracy\":null,\"locality\":\"No site name available\",\"county\":null,\"stateProvince\":null,\"country\":\"GB\",\"continent\":\"Europe\",\"collectorName\":null,\"identifierName\":null,\"identificationDate\":null,\"identificationRemarks\":null,\"identificationReferences\":null,\"occurrenceYear\":1997,\"occurrenceMonth\":null,\"occurrenceDay\":null,\"occurrenceDate\":null,\"altitude\":null,\"depth\":null,\"remarks\":null,\"individualCount\":null,\"sex\":null,\"lifeStage\":null,\"establishmentMeans\":null,\"reproductiveCondition\":null,\"habitat\":null,\"behavior\":null,\"preparations\":null,\"disposition\":null,\"rights\":null,\"citation\":null,\"taxonomicIssue\":0,\"geospatialIssue\":0,\"otherIssue\":0,\"unitQualifier\":null,\"modified\":1368692609000,\"protocol\":\"DWC_ARCHIVE\",\"hostCountry\":\"GB\",\"identifiers\":[],\"images\":[],\"typeDesignations\":[],\"dataProviderId\":null,\"dataResourceId\":null,\"resourceAccessPointId\":null}",
+            "{\"key\":307075245,\"kingdom\":\"Plantae\",\"phylum\":\"Magnoliophyta\",\"clazz\":\"Magnoliopsida\",\"order\":\"Lamiales\",\"family\":\"Lamiaceae\",\"genus\":\"Stachys\",\"subgenus\":null,\"species\":\"Stachys palustris\",\"kingdomKey\":6,\"phylumKey\":49,\"classKey\":220,\"orderKey\":408,\"familyKey\":2497,\"genusKey\":2927228,\"subgenusKey\":null,\"speciesKey\":2927245,\"datasetKey\":\"086a644d-6cbe-43b7-b7c7-d33d36028d7f\",\"publishingOrgKey\":\"07f617d0-c688-11d8-bf62-b8a03c50a862\",\"scientificName\":\"Stachys palustris L.\",\"taxonKey\":2927245,\"basisOfRecord\":\"UNKNOWN\",\"longitude\":-5.54387,\"latitude\":55.28758,\"stateProvince\":null,\"country\":\"GB\",\"continent\":\"EUROPE\",\"year\":1997,\"month\":null,\"day\":null,\"modified\":1368692609000,\"protocol\":\"DWC_ARCHIVE\",\"publishingCountry\":\"GB\"}",
             Occurrence.class);
+      occurrence.getFields().put(DwcTerm.occurrenceID, null);
+      occurrence.getFields().put(DwcTerm.institutionCode, "Botanical Society of the British Isles");
+      occurrence.getFields().put(DwcTerm.collectionCode, "6340");
+      occurrence.getFields().put(DwcTerm.catalogNumber, "59935182");
       int zoom = 5;
       int pixels = 1;
       int iterations = 10;

@@ -22,8 +22,8 @@ import org.apache.hadoop.io.WritableComparable;
  */
 public class OccurrenceWritable implements WritableComparable<OccurrenceWritable> {
 
-  private Integer kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID, taxonID, issues, year, month,
-    count;
+  private Integer kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID, taxonID, year, month, count;
+  private boolean spatialIssue;
   private String publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode;
   private Double latitude, longitude;
   private BasisOfRecord basisOfRecord;
@@ -39,7 +39,8 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public OccurrenceWritable(Integer kingdomID, Integer phylumID, Integer classID, Integer orderID, Integer familyID,
     Integer genusID,
-    Integer speciesID, Integer taxonID, Integer issues, String publishingOrganisationKey, String datasetKey,
+    Integer speciesID, Integer taxonID, boolean spatialIssue,
+    String publishingOrganisationKey, String datasetKey,
     String countryIsoCode, String hostCountryIsoCode, Double latitude,
     Double longitude, Integer year, Integer month, BasisOfRecord basisOfRecord, EndpointType protocol, Integer count) {
     this.kingdomID = kingdomID;
@@ -50,7 +51,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     this.genusID = genusID;
     this.speciesID = speciesID;
     this.taxonID = taxonID;
-    this.issues = issues;
+    this.spatialIssue = spatialIssue;
     this.publishingOrganisationKey = publishingOrganisationKey;
     this.datasetKey = datasetKey;
     this.countryIsoCode = countryIsoCode;
@@ -68,7 +69,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   public static OccurrenceWritable newInstance(Result row) {
     Double latitude = OccurrenceResultReader.getDouble(row, FieldName.I_LATITUDE);
     Double longitude = OccurrenceResultReader.getDouble(row, FieldName.I_LONGITUDE);
-    Integer issues = OccurrenceResultReader.getInteger(row, FieldName.I_GEOSPATIAL_ISSUE);
     Integer kingdomID = OccurrenceResultReader.getInteger(row, FieldName.I_KINGDOM_ID);
     Integer phylumID = OccurrenceResultReader.getInteger(row, FieldName.I_PHYLUM_ID);
     Integer classID = OccurrenceResultReader.getInteger(row, FieldName.I_CLASS_ID);
@@ -88,11 +88,16 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     BasisOfRecord bor = borc.toEnum(borAsInt);
     EndpointType protocol = EndpointType.valueOf(OccurrenceResultReader.getString(row, FieldName.PROTOCOL));
     return new OccurrenceWritable(kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID,
-      taxonID, issues, publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude, longitude,
+      taxonID, hasSpatialIssue(row), publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude, longitude,
       year, month, bor, protocol, 1);
   }
 
-  @Override
+  public static boolean hasSpatialIssue(Result row) {
+    Integer issues = OccurrenceResultReader.getInteger(row, FieldName.I_GEOSPATIAL_ISSUE);
+    return issues == null ? true : issues!=0;
+  }
+
+    @Override
   public int compareTo(OccurrenceWritable that) {
     return ComparisonChain.start()
       .compare(this.kingdomID, that.kingdomID, Ordering.natural().nullsLast())
@@ -103,7 +108,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
       .compare(this.genusID, that.genusID, Ordering.natural().nullsLast())
       .compare(this.speciesID, that.speciesID, Ordering.natural().nullsLast())
       .compare(this.taxonID, that.taxonID, Ordering.natural().nullsLast())
-      .compare(this.issues, that.issues, Ordering.natural().nullsLast())
+      .compare(this.spatialIssue, that.spatialIssue, Ordering.natural().nullsLast())
       .compare(this.publishingOrganisationKey, that.publishingOrganisationKey, Ordering.natural().nullsLast())
       .compare(this.datasetKey, that.datasetKey, Ordering.natural().nullsLast())
       .compare(this.countryIsoCode, that.countryIsoCode, Ordering.natural().nullsLast())
@@ -122,19 +127,24 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   public boolean equals(Object object) {
     if (object instanceof OccurrenceWritable) {
       OccurrenceWritable that = (OccurrenceWritable) object;
-      return Objects.equal(this.kingdomID, that.kingdomID) && Objects.equal(this.phylumID, that.phylumID)
-        && Objects.equal(this.classID, that.classID) && Objects.equal(this.orderID, that.orderID)
+      return Objects.equal(this.kingdomID, that.kingdomID)
+        && Objects.equal(this.phylumID, that.phylumID)
+        && Objects.equal(this.classID, that.classID)
+        && Objects.equal(this.orderID, that.orderID)
         && Objects.equal(this.familyID, that.familyID)
-        && Objects.equal(this.genusID, that.genusID) && Objects.equal(this.speciesID, that.speciesID)
+        && Objects.equal(this.genusID, that.genusID)
+        && Objects.equal(this.speciesID, that.speciesID)
         && Objects.equal(this.taxonID, that.taxonID)
-        && Objects.equal(this.issues, that.issues) && Objects.equal(this.year, that.year)
+        && Objects.equal(this.spatialIssue, that.spatialIssue)
+        && Objects.equal(this.year, that.year)
         && Objects.equal(this.month, that.month)
         && Objects.equal(this.publishingOrganisationKey, that.publishingOrganisationKey)
         && Objects.equal(this.datasetKey, that.datasetKey)
         && Objects.equal(this.countryIsoCode, that.countryIsoCode)
         && Objects.equal(this.hostCountryIsoCode, that.hostCountryIsoCode)
         && Objects.equal(this.latitude, that.latitude)
-        && Objects.equal(this.longitude, that.longitude) && Objects.equal(this.basisOfRecord, that.basisOfRecord)
+        && Objects.equal(this.longitude, that.longitude)
+        && Objects.equal(this.basisOfRecord, that.basisOfRecord)
         && Objects.equal(this.count, that.count)
         && Objects.equal(this.protocol, that.protocol);
     }
@@ -162,60 +172,46 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     return datasetKey;
   }
 
-
   public Integer getFamilyID() {
     return familyID;
   }
-
 
   public Integer getGenusID() {
     return genusID;
   }
 
-
   public String getHostCountryIsoCode() {
     return hostCountryIsoCode;
   }
 
-
-  public Integer getIssues() {
-    return issues;
+  public boolean hasSpatialIssue() {
+    return spatialIssue;
   }
-
 
   public Integer getKingdomID() {
     return kingdomID;
   }
 
-
   public Double getLatitude() {
     return latitude;
   }
-
 
   public Double getLongitude() {
     return longitude;
   }
 
-
   public Integer getMonth() {
     return month;
   }
-
 
   public Integer getOrderID() {
     return orderID;
   }
 
-
   public Integer getPhylumID() {
     return phylumID;
   }
 
-
-  /**
-   * @return the protocol
-   */
   public EndpointType getProtocol() {
     return protocol;
   }
@@ -239,8 +235,8 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID, taxonID, issues, year,
-      month, publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude, longitude,
+    return Objects.hashCode(kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID, taxonID, spatialIssue,
+      year, month, publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude, longitude,
       basisOfRecord, count, protocol);
   }
 
@@ -255,7 +251,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     genusID = readInt(in);
     speciesID = readInt(in);
     taxonID = readInt(in);
-    issues = readInt(in);
+    spatialIssue = readBool(in);
     publishingOrganisationKey = readString(in);
     datasetKey = readString(in);
     countryIsoCode = readString(in);
@@ -274,21 +270,17 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     this.basisOfRecord = basisOfRecord;
   }
 
-
   public void setClassID(Integer classID) {
     this.classID = classID;
   }
-
 
   public void setCount(Integer count) {
     this.count = count;
   }
 
-
   public void setCountryIsoCode(String countryIsoCode) {
     this.countryIsoCode = countryIsoCode;
   }
-
 
   public void setDatasetKey(String datasetKey) {
     this.datasetKey = datasetKey;
@@ -298,20 +290,17 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     this.familyID = familyID;
   }
 
-
   public void setGenusID(Integer genusID) {
     this.genusID = genusID;
   }
-
 
   public void setHostCountryIsoCode(String hostCountryIsoCode) {
     this.hostCountryIsoCode = hostCountryIsoCode;
   }
 
-  public void setIssues(Integer issues) {
-    this.issues = issues;
+  public void setSpatialIssue(boolean spatialIssue) {
+    this.spatialIssue = spatialIssue;
   }
-
 
   public void setKingdomID(Integer kingdomID) {
     this.kingdomID = kingdomID;
@@ -362,14 +351,18 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("super", super.toString()).add("kingdomID", kingdomID)
+    return Objects.toStringHelper(this).add("super", super.toString())
+      .add("kingdomID", kingdomID)
       .add("phylumID", phylumID).add("classID", classID)
-      .add("orderID", orderID).add("familyID", familyID).add("genusID", genusID).add("speciesID", speciesID)
+      .add("orderID", orderID).add("familyID", familyID)
+      .add("genusID", genusID).add("speciesID", speciesID)
       .add("taxonID", taxonID)
-      .add("issues", issues).add("year", year).add("month", month)
+      .add("spatialIssue", spatialIssue)
+      .add("year", year).add("month", month)
       .add("publishingOrganisationKey", publishingOrganisationKey)
       .add("datasetKey", datasetKey)
-      .add("countryIsoCode", countryIsoCode).add("hostCountryIsoCode", hostCountryIsoCode)
+      .add("countryIsoCode", countryIsoCode)
+      .add("hostCountryIsoCode", hostCountryIsoCode)
       .add("latitude", latitude).add("longitude", longitude)
       .add("basisOfRecord", basisOfRecord)
       .add("count", count)
@@ -387,7 +380,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     write(out, genusID);
     write(out, speciesID);
     write(out, taxonID);
-    write(out, issues);
+    write(out, spatialIssue);
     write(out, publishingOrganisationKey);
     write(out, datasetKey);
     write(out, countryIsoCode);
@@ -412,6 +405,10 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     return (v == NULL_INT) ? null : v;
   }
 
+  private boolean readBool(DataInput in) throws IOException {
+    return in.readBoolean();
+  }
+
   private String readString(DataInput in) throws IOException {
     String v = in.readUTF();
     return (NULL_STRING.equals(v)) ? null : v;
@@ -425,6 +422,10 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   private void write(DataOutput out, Integer i) throws IOException {
     int v = (i == null) ? NULL_INT : i;
     out.writeInt(v);
+  }
+
+  private void write(DataOutput out, boolean b) throws IOException {
+    out.writeBoolean(b);
   }
 
   private void write(DataOutput out, String s) throws IOException {

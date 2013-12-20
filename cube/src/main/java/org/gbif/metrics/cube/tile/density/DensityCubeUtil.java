@@ -15,7 +15,6 @@ import com.urbanairship.datacube.WriteBuilder;
  * format of occurrences (which have kingdomKey, phylumKey etc) and the mutations that need to happen to the tiles.
  */
 public class DensityCubeUtil {
-
   public static enum Op {
     ADDITION, SUBTRACTION
   }
@@ -27,7 +26,7 @@ public class DensityCubeUtil {
     int pixelsPerCluster, Op op, Occurrence o) {
     DensityTile.Builder b = DensityTile.builder(z, x, y, pixelsPerCluster);
     int count = (op == Op.SUBTRACTION) ? -1 : 1;
-    b.collect(Layer.inferFrom(o.getBasisOfRecord(), o.getOccurrenceYear()), o.getLatitude(), o.getLongitude(), count);
+    b.collect(Layer.inferFrom(o.getBasisOfRecord(), o.getYear()), o.getLatitude(), o.getLongitude(), count);
     DensityTile tile = b.build();
     WriteBuilder wb =
       new WriteBuilder(DensityCube.INSTANCE).at(DensityCube.ZOOM, z).at(DensityCube.TILE_X, x)
@@ -38,20 +37,20 @@ public class DensityCubeUtil {
   /**
    * For the given occurrence, determines the mutations (addresses and operations) that need
    * to be applied.
-   * 
-   * @param occurrence The denormalized representation
+   *
+   * @param o The denormalized representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
    */
   public static Batch<DensityTile> cubeMutations(Occurrence o, Op op, int zoom, int pixelsPerCluster) {
     Double latitude = o.getLatitude();
     Double longitude = o.getLongitude();
-    Integer issues = o.getGeospatialIssue();
     Batch<DensityTile> batch = new Batch<DensityTile>();
-    if (MercatorProjectionUtil.isPlottable(latitude, longitude) && Integer.valueOf(0).equals(issues)) {
+
+    if (!o.hasSpatialIssue() && MercatorProjectionUtil.isPlottable(latitude, longitude)) {
       Set<Integer> taxa =
         Sets.newHashSet(o.getKingdomKey(), o.getPhylumKey(), o.getClassKey(), o.getOrderKey(), o.getFamilyKey(),
-          o.getGenusKey(), o.getSpeciesKey(), o.getNubKey());
+          o.getGenusKey(), o.getSpeciesKey(), o.getTaxonKey());
 
       // locate the tile
       int tileX = MercatorProjectionUtil.toTileX(o.getLongitude(), zoom);
@@ -63,8 +62,8 @@ public class DensityCubeUtil {
           addMutations(batch, TileContentType.TAXON, String.valueOf(id), tileX, tileY, zoom, pixelsPerCluster, op, o);
         }
       }
-      if (o.getOwningOrgKey() != null) {
-        addMutations(batch, TileContentType.PUBLISHER, String.valueOf(o.getOwningOrgKey()), tileX, tileY, zoom,
+      if (o.getPublishingOrgKey() != null) {
+        addMutations(batch, TileContentType.PUBLISHER, String.valueOf(o.getPublishingOrgKey()), tileX, tileY, zoom,
           pixelsPerCluster, op, o);
       }
       if (o.getDatasetKey() != null) {
@@ -75,8 +74,8 @@ public class DensityCubeUtil {
         addMutations(batch, TileContentType.COUNTRY, o.getCountry().getIso2LetterCode(), tileX, tileY, zoom,
           pixelsPerCluster, op, o);
       }
-      if (o.getHostCountry() != null) {
-        addMutations(batch, TileContentType.PUBLISHING_COUNTRY, o.getHostCountry().getIso2LetterCode(), tileX, tileY, zoom,
+      if (o.getPublishingCountry() != null) {
+        addMutations(batch, TileContentType.PUBLISHING_COUNTRY, o.getPublishingCountry().getIso2LetterCode(), tileX, tileY, zoom,
           pixelsPerCluster, op, o);
       }
     }

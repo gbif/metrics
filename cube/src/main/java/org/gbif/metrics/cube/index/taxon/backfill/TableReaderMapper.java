@@ -42,7 +42,7 @@ public class TableReaderMapper extends TableMapper<Key, IntWritable> {
         insertIfPresent(nubs, o.getGenusKey());
         insertIfPresent(nubs, o.getSubgenusKey());
         insertIfPresent(nubs, o.getSpeciesKey());
-        insertIfPresent(nubs, o.getNubKey());
+        insertIfPresent(nubs, o.getTaxonKey());
         for (Integer i : nubs) {
           Key k = new Key(o.getDatasetKey(), i);
           context.setStatus(k.toString());

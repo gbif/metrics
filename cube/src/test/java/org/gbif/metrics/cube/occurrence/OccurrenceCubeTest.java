@@ -128,23 +128,24 @@ public class OccurrenceCubeTest {
     Integer species, Integer nub,
     UUID dataset, BasisOfRecord bor, Country country, Integer year, Double latitude, Double longitude,
     EndpointType protocol) {
-    return Occurrence.builder()
-      .key(key)
-      .kingdomKey(kingdom)
-      .phylumKey(phylum)
-      .classKey(classs)
-      .orderKey(order)
-      .familyKey(family)
-      .genusKey(genus)
-      .speciesKey(species)
-      .nubKey(nub)
-      .datasetKey(dataset)
-      .basisOfRecord(bor)
-      .country(country)
-      .occurrenceYear(year)
-      .latitude(latitude)
-      .longitude(longitude)
-      .protocol(protocol)
-      .build();
+    Occurrence occ = new Occurrence();
+    occ.setKey(key);
+    occ.setKingdomKey(kingdom);
+    occ.setPhylumKey(phylum);
+    occ.setClassKey(classs);
+    occ.setOrderKey(order);
+    occ.setFamilyKey(family);
+    occ.setGenusKey(genus);
+    occ.setSpeciesKey(species);
+    occ.setTaxonKey(nub);
+    occ.setDatasetKey(dataset);
+    occ.setBasisOfRecord(bor);
+    occ.setCountry(country);
+    occ.setYear(year);
+    occ.setLatitude(latitude);
+    occ.setLongitude(longitude);
+    occ.setProtocol(protocol);
+
+    return occ;
   }
 }

@@ -49,7 +49,7 @@ public class OccurrenceAddressUtil {
   /**
    * For the given occurrence, determines the mutations (addresses and operations) that need
    * to be applied.
-   * 
+   *
    * @param occurrence The denormalized representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -65,14 +65,14 @@ public class OccurrenceAddressUtil {
     m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getNubKey(), op));
+    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
     return new Batch<LongOp>(m);
   }
 
   /**
    * For the given occurrence writable, determines the mutations (addresses and operations) that need
    * to be applied.
-   * 
+   *
    * @param occurrence The writable representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -102,9 +102,9 @@ public class OccurrenceAddressUtil {
     addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);
     addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);
     addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);
-    addEnumDimension(wb, occurrence.getHostCountry(), HOST_COUNTRY);
+    addEnumDimension(wb, occurrence.getPublishingCountry(), HOST_COUNTRY);
     addIntDimension(wb, nubKey, NUB_KEY);
-    addIntDimension(wb, occurrence.getOccurrenceYear(), YEAR);
+    addIntDimension(wb, occurrence.getYear(), YEAR);
     return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();
   }
 
@@ -125,17 +125,17 @@ public class OccurrenceAddressUtil {
   }
 
   private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, Occurrence occurrence,
-    Dimension<Boolean> isGeoreferenced) {
-    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null &&
-      (occurrence.getGeospatialIssue() == null || 0 == occurrence.getGeospatialIssue())) ? wb.at(IS_GEOREFERENCED, true) : wb
-     .at(IS_GEOREFERENCED, false);  }
+                                                         Dimension<Boolean> isGeoreferenced) {
+    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
+      wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
+  }
 
   private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence,
-    Dimension<Boolean> isGeoreferenced) {
-    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null &&
-      0 == occurrence.getIssues()) ? wb.at(IS_GEOREFERENCED, true) : wb
-     .at(IS_GEOREFERENCED, false);  }
-  
+                                                         Dimension<Boolean> isGeoreferenced) {
+    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
+      wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
+  }
+
   private static WriteBuilder addUUIDDimension(WriteBuilder wb, UUID i, Dimension<UUID> dim) {
     return (i != null) ? wb.at(dim, i) : wb;
   }

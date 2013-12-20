@@ -32,10 +32,9 @@ public class LocationCollectorMapper extends TableMapper<OccurrenceWritable, Int
 
     Double latitude = OccurrenceResultReader.getDouble(row, FieldName.I_LATITUDE);
     Double longitude = OccurrenceResultReader.getDouble(row, FieldName.I_LONGITUDE);
-    Integer issues = OccurrenceResultReader.getInteger(row, FieldName.I_GEOSPATIAL_ISSUE);
 
     // Google only goes +/- 85 degrees and we only want maps with no known issues
-    if (MercatorProjectionUtil.isPlottable(latitude, longitude) && Integer.valueOf(0).equals(issues)) {
+    if (!OccurrenceWritable.hasSpatialIssue(row) && MercatorProjectionUtil.isPlottable(latitude, longitude)) {
 
       // Note: Make sure everything read here is in the getScanner() in BackFillCallback!
       Integer kingdomID = OccurrenceResultReader.getInteger(row, FieldName.I_KINGDOM_ID);
@@ -60,7 +59,7 @@ public class LocationCollectorMapper extends TableMapper<OccurrenceWritable, Int
       context.getCounter(bor).increment(1);
 
       context.write(new OccurrenceWritable(kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID,
-        taxonID, issues, publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude,
+        taxonID, false, publishingOrganisationKey, datasetKey, countryIsoCode, hostCountryIsoCode, latitude,
         longitude, year, null, // month
         bor, protocol, 1), ONE);
     }

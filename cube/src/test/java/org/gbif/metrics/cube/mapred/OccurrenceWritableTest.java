@@ -22,7 +22,7 @@ public class OccurrenceWritableTest {
   @Test
   public void testSerDe() {
     OccurrenceWritable o =
-      new OccurrenceWritable(1, null, null, null, null, null, null, 1, 0, null, "1", null, "GB", 0.89, null, 2012, 12,
+      new OccurrenceWritable(1, null, null, null, null, null, null, 1, false, null, "1", null, "GB", 0.89, null, 2012, 12,
         BasisOfRecord.FOSSIL_SPECIMEN, EndpointType.DWC_ARCHIVE, 1);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutput out = new DataOutputStream(baos);
@@ -49,13 +49,13 @@ public class OccurrenceWritableTest {
   @Test
   public void testCompareTo() {
     OccurrenceWritable o1 =
-      new OccurrenceWritable(1, null, null, null, null, null, null, 1, 0, null, "1", null, "GB", 0.89, null, 1, 12,
+      new OccurrenceWritable(1, null, null, null, null, null, null, 1, false, null, "1", null, "GB", 0.89, null, 1, 12,
         BasisOfRecord.FOSSIL_SPECIMEN, EndpointType.DWC_ARCHIVE, 1);
     OccurrenceWritable o2 =
-      new OccurrenceWritable(1, null, null, null, null, null, null, 1, 0, null, "1", null, "GB", 0.89, null, 1, 12,
+      new OccurrenceWritable(1, null, null, null, null, null, null, 1, false, null, "1", null, "GB", 0.89, null, 1, 12,
         BasisOfRecord.FOSSIL_SPECIMEN, EndpointType.DWC_ARCHIVE, 1);
     OccurrenceWritable o3 =
-      new OccurrenceWritable(1, null, null, 10, null, null, null, 1, 0, null, "1", "GB", null, 0.89, null, 1, 12,
+      new OccurrenceWritable(1, null, null, 10, null, null, null, 1, false, null, "1", "GB", null, 0.89, null, 1, 12,
         BasisOfRecord.FOSSIL_SPECIMEN, EndpointType.DWC_ARCHIVE, 1);
     assertEquals(0, o1.compareTo(o2));
     assertTrue(o1.compareTo(o3) > 0);
