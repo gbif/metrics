@@ -1,0 +1,10 @@
+org.gbif.metrics.cube.index.common
+org.gbif.metrics.cube.index.taxon.backfill
+org.gbif.metrics.cube.mapred
+org.gbif.metrics.cube.occurrence
+org.gbif.metrics.cube.tile
+org.gbif.metrics.cube.tile.density
+org.gbif.metrics.cube.tile.io
+org.gbif.metrics.ws.client
+org.gbif.metrics.ws.resources
+org.gbif.metrics.ws.resources.provider

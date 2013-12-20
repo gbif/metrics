@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.metrics.cube.index.common;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.io.IOException;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.apache.hadoop.io.IntWritable;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import org.apache.hadoop.io.WritableComparable;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import org.apache.hadoop.mapreduce.Reducer;<a name="line.7"></a>
+<span class="sourceLineNo">008</span><a name="line.8"></a>
+<span class="sourceLineNo">009</span>/**<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Sums the INTs and emits by the same key.<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * This is intended as a combiner, to improve the efficiency of the total operation.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>public class Combiner&lt;T&gt; extends Reducer&lt;WritableComparable&lt;T&gt;, IntWritable, WritableComparable&lt;T&gt;, IntWritable&gt; {<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>  private final IntWritable i = new IntWritable();<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>  @Override<a name="line.17"></a>
+<span class="sourceLineNo">018</span>  protected void reduce(WritableComparable&lt;T&gt; key, Iterable&lt;IntWritable&gt; value, Context context) throws IOException,<a name="line.18"></a>
+<span class="sourceLineNo">019</span>    InterruptedException {<a name="line.19"></a>
+<span class="sourceLineNo">020</span>    int total = 0;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    for (IntWritable i : value) {<a name="line.21"></a>
+<span class="sourceLineNo">022</span>      total += i.get();<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    }<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    context.setStatus("Key[" + key.toString() + "], Count[" + total + "]");<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    i.set(total);<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    context.write(key, i);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  }<a name="line.27"></a>
+<span class="sourceLineNo">028</span>}<a name="line.28"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
