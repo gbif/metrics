@@ -1,2 +1,1 @@
-org.gbif.metrics.ws.resources
-org.gbif.metrics.ws.resources.provider
+org.gbif.metrics.ws.client
