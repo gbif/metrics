@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.metrics.cube.occurrence;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.vocabulary.BasisOfRecord;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.api.vocabulary.Country;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.gbif.api.vocabulary.EndpointType;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import org.gbif.metrics.cube.bucketer.BasisOfRecordBucketer;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import org.gbif.metrics.cube.bucketer.CountryBucketer;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import org.gbif.metrics.cube.bucketer.EndpointTypeBucketer;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.gbif.metrics.cube.bucketer.UUIDBucketer;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import java.util.List;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import java.util.Map;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import java.util.UUID;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import com.google.common.collect.ImmutableList;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import com.google.common.collect.ImmutableList.Builder;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import com.google.common.collect.ImmutableMap;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import com.google.common.collect.ImmutableSet;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import com.urbanairship.datacube.DataCube;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import com.urbanairship.datacube.Dimension;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import com.urbanairship.datacube.DimensionAndBucketType;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import com.urbanairship.datacube.Rollup;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import com.urbanairship.datacube.bucketers.BigEndianIntBucketer;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import com.urbanairship.datacube.bucketers.BooleanBucketer;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import com.urbanairship.datacube.ops.LongOp;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * The INTERNAL data cube definition for occurrence records.  <a name="line.28"></a>
+<span class="sourceLineNo">029</span> * This is the low level representation and changes should be carefully considered in advance considering the following: <a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;ol&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;li&gt;All public API Dimensions should be declared here and with the correct type&lt;/li&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;li&gt;The API mapping must be complete&lt;/li&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;/ol&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * <a name="line.34"></a>
+<span class="sourceLineNo">035</span> * Note: It was by design to expose different objects in the public API, as the datacube objects are too complex, and <a name="line.35"></a>
+<span class="sourceLineNo">036</span> * datacube brings in too many dependencies.  This also included the acceptance of collision in class names, but this is <a name="line.36"></a>
+<span class="sourceLineNo">037</span> * constrained to a 2 places (here, and the HTTP parameter mapping in the web services) which was deemed acceptable for a nice<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * public API. <a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class OccurrenceCube {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  // number of bytes needed to store the types <a name="line.41"></a>
+<span class="sourceLineNo">042</span>  private final static int INT_BYTES = 4;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  private final static int BOOLEAN_BYTES = 1;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  <a name="line.44"></a>
+<span class="sourceLineNo">045</span>  // NOTE: Ensure that these are in sync with the public API, including the correct types<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  // No ID substitution in place, and all dimensions are optional <a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public static final Dimension&lt;Country&gt; COUNTRY = new Dimension&lt;Country&gt;("country", new CountryBucketer(), false, CountryBucketer.BYTES, true);<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final Dimension&lt;Integer&gt; YEAR = new Dimension&lt;Integer&gt;("year", new BigEndianIntBucketer(), false, INT_BYTES, true);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public static final Dimension&lt;Boolean&gt; IS_GEOREFERENCED = new Dimension&lt;Boolean&gt;("georeferenced", new BooleanBucketer(), false, BOOLEAN_BYTES, true);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  public static final Dimension&lt;BasisOfRecord&gt; BASIS_OF_RECORD = new Dimension&lt;BasisOfRecord&gt;("basisOfRecord", new BasisOfRecordBucketer(), false, BasisOfRecordBucketer.BYTES, true);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static final Dimension&lt;Country&gt; HOST_COUNTRY = new Dimension&lt;Country&gt;("hostCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static final Dimension&lt;UUID&gt; DATASET_KEY = new Dimension&lt;UUID&gt;("datasetKey", new UUIDBucketer(), false, UUIDBucketer.BYTES, true);  <a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final Dimension&lt;Integer&gt; NUB_KEY = new Dimension&lt;Integer&gt;("nubKey", new BigEndianIntBucketer(), false, INT_BYTES, true);  <a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static final Dimension&lt;EndpointType&gt; PROTOCOL = new Dimension&lt;EndpointType&gt;("protocol", new EndpointTypeBucketer(), false, EndpointTypeBucketer.BYTES,true);<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>  // Index mapping the public API cube dimensions to the internal datacube dimensions<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  // NOTE: Ensure ALL public API mappings are covered<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  public static final Map&lt;org.gbif.api.model.metrics.cube.Dimension&lt;?&gt;, Dimension&lt;?&gt;&gt; API_MAPPING = <a name="line.58"></a>
+<span class="sourceLineNo">059</span>    ImmutableMap.&lt;org.gbif.api.model.metrics.cube.Dimension&lt;?&gt;, Dimension&lt;?&gt;&gt;builder()<a name="line.59"></a>
+<span class="sourceLineNo">060</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.IS_GEOREFERENCED, IS_GEOREFERENCED)<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.BASIS_OF_RECORD, BASIS_OF_RECORD)<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.COUNTRY, COUNTRY)<a name="line.62"></a>
+<span class="sourceLineNo">063</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.HOST_COUNTRY, HOST_COUNTRY)<a name="line.63"></a>
+<span class="sourceLineNo">064</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.DATASET_KEY, DATASET_KEY)      <a name="line.64"></a>
+<span class="sourceLineNo">065</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.NUB_KEY, NUB_KEY)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.PROTOCOL, PROTOCOL)<a name="line.66"></a>
+<span class="sourceLineNo">067</span>      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.YEAR, YEAR)<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    .build();<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    <a name="line.69"></a>
+<span class="sourceLineNo">070</span>  // Singleton instance <a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public static final DataCube&lt;LongOp&gt; INSTANCE = newInstance();<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  // Not for instantiation<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  private OccurrenceCube() {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  }<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  <a name="line.76"></a>
+<span class="sourceLineNo">077</span>  /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * This uses the CubeIo as defined in the public API to construct an internal DataCube definition.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * @return A new instance of the cube<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  private static DataCube&lt;LongOp&gt; newInstance() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    // Dimensions as defined in the public API<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    List&lt;Dimension&lt;?&gt;&gt; dimensions = <a name="line.83"></a>
+<span class="sourceLineNo">084</span>      ImmutableList.&lt;Dimension&lt;?&gt;&gt;copyOf(API_MAPPING.values()); // defensive copy<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    <a name="line.85"></a>
+<span class="sourceLineNo">086</span>    // Rollups generated as defined in the public API<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    // This could be done manually, but by using the API definition, we safeguard against developer oversight<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    Builder&lt;Rollup&gt; b = ImmutableList.&lt;Rollup&gt;builder();<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    for (org.gbif.api.model.metrics.cube.Rollup r : org.gbif.api.model.metrics.cube.OccurrenceCube.ROLLUPS) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      com.google.common.collect.ImmutableSet.Builder&lt;DimensionAndBucketType&gt; sb = ImmutableSet.&lt;DimensionAndBucketType&gt;builder();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      for (org.gbif.api.model.metrics.cube.Dimension&lt;?&gt; d : r.getDimensions()) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        sb.add(new DimensionAndBucketType(API_MAPPING.get(d)));<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      b.add(new Rollup(sb.build()));<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    List&lt;Rollup&gt; rollups = b.build();<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    return new DataCube&lt;LongOp&gt;(dimensions, rollups);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>}<a name="line.100"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

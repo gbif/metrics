@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.metrics.cube.tile.density;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.model.occurrence.Occurrence;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.dwc.terms.DwcTerm;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.gbif.metrics.cube.tile.density.DensityCubeUtil.Op;<a name="line.5"></a>
+<span class="sourceLineNo">006</span><a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.io.IOException;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import java.util.Map;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.Map.Entry;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.google.common.collect.ImmutableMap;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import com.urbanairship.datacube.Address;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import com.urbanairship.datacube.Batch;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.codehaus.jackson.map.ObjectMapper;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.junit.Test;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.junit.Assert.assertEquals;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.junit.Assert.assertTrue;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.junit.Assert.fail;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>public class DensityTileTest {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>  @Test<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  public void cellId() {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    assertEquals(10, DensityTile.toCellId(129, 129, 64));<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    assertEquals(36, DensityTile.toCellId(129, 129, 32));<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  }<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>  /**<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   * Simple API illustration<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  @Test<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public void testCell() {<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    DensityTile tile =<a name="line.36"></a>
+<span class="sourceLineNo">037</span>      DensityTile.builder(0, 0, 0, 64)<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        // Z, X, Y, ClusterSize<a name="line.38"></a>
+<span class="sourceLineNo">039</span>        .collect(Layer.SP_NO_YEAR, -0.1d, 0.1d, 1)<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        // lat, lng, count<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        .collect(Layer.SP_2000_2010, -0.1d, 0.1d, 1000).collect(Layer.OBS_PRE_1900, -0.1d, 0.1d, 1)<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        .collect(Layer.SP_NO_YEAR, -0.1d, 0.1d, 2).build();<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>    assertEquals(3, tile.cell(Layer.SP_NO_YEAR, 2, 2));<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    assertEquals(0, tile.cell(Layer.SP_NO_YEAR, 0, 0));<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    assertEquals(1, tile.cell(Layer.OBS_PRE_1900, 2, 2));<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    assertEquals(1000, tile.cell(Layer.SP_2000_2010, 2, 2));<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    assertEquals(3, tile.layers().size());<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>    try {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>      byte[] b = tile.serialize();<a name="line.51"></a>
+<span class="sourceLineNo">052</span>      tile = DensityTile.DESERIALIZE(b);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>      assertEquals(3, tile.cell(Layer.SP_NO_YEAR, 2, 2));<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      assertEquals(0, tile.cell(Layer.SP_NO_YEAR, 0, 0));<a name="line.54"></a>
+<span class="sourceLineNo">055</span>      assertEquals(1, tile.cell(Layer.OBS_PRE_1900, 2, 2));<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      assertEquals(1000, tile.cell(Layer.SP_2000_2010, 2, 2));<a name="line.56"></a>
+<span class="sourceLineNo">057</span>      assertEquals(3, tile.layers().size());<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    } catch (IOException e) {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      fail(e.getMessage());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  }<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>  @Test<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  public void testDownscale() {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    Map&lt;Layer, Map&lt;Integer, Integer&gt;&gt; layers =<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      ImmutableMap.&lt;Layer, Map&lt;Integer, Integer&gt;&gt;builder()<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        .put(Layer.FOSSIL, ImmutableMap.&lt;Integer, Integer&gt;of(514, 1, 515, 1))<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        .build();<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    DensityTile tile1px = new DensityTile(0, 0, 0, 1, layers);<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>    DensityTile tile2px = tile1px.downscale(2);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    assertEquals("Should still have only 1 layer", 1, tile2px.layers().size());<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    assertEquals("Downsizing should have merged adjacent cells", 1, tile2px.layers().get(Layer.FOSSIL).size());<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    assertEquals("Downsizing should have accumulated adjacent counts", Integer.valueOf(2),<a name="line.74"></a>
+<span class="sourceLineNo">075</span>      tile2px.layers().get(Layer.FOSSIL).get(129)); // the new key<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    DensityTile tile4px = tile1px.downscale(4);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    assertEquals("Should still have only 1 layer", 1, tile4px.layers().size());<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    assertEquals("Downsizing should have merged adjacent cells", 1, tile4px.layers().get(Layer.FOSSIL).size());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    assertEquals("Downsizing should have accumulated adjacent counts", Integer.valueOf(2),<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      tile4px.layers().get(Layer.FOSSIL).get(0)); // the new key<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>    // test the 2-4 downscale<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    tile4px = tile2px.downscale(4);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    assertEquals("Should still have only 1 layer", 1, tile4px.layers().size());<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    assertEquals("Downsizing should have merged adjacent cells", 1, tile4px.layers().get(Layer.FOSSIL).size());<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    assertEquals("Downsizing should have accumulated adjacent counts", Integer.valueOf(2),<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      tile4px.layers().get(Layer.FOSSIL).get(0)); // the new key<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>  @Test<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  public void testDelete() {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    ObjectMapper mapper = new ObjectMapper();<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    try {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      Batch&lt;DensityTile&gt; update = new Batch&lt;DensityTile&gt;();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      Occurrence occurrence =<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        mapper<a name="line.97"></a>
+<span class="sourceLineNo">098</span>          .readValue(<a name="line.98"></a>
+<span class="sourceLineNo">099</span>            "{\"key\":307075245,\"kingdom\":\"Plantae\",\"phylum\":\"Magnoliophyta\",\"clazz\":\"Magnoliopsida\",\"order\":\"Lamiales\",\"family\":\"Lamiaceae\",\"genus\":\"Stachys\",\"subgenus\":null,\"species\":\"Stachys palustris\",\"kingdomKey\":6,\"phylumKey\":49,\"classKey\":220,\"orderKey\":408,\"familyKey\":2497,\"genusKey\":2927228,\"subgenusKey\":null,\"speciesKey\":2927245,\"datasetKey\":\"086a644d-6cbe-43b7-b7c7-d33d36028d7f\",\"publishingOrgKey\":\"07f617d0-c688-11d8-bf62-b8a03c50a862\",\"scientificName\":\"Stachys palustris L.\",\"taxonKey\":2927245,\"basisOfRecord\":\"UNKNOWN\",\"longitude\":-5.54387,\"latitude\":55.28758,\"stateProvince\":null,\"country\":\"GB\",\"continent\":\"EUROPE\",\"year\":1997,\"month\":null,\"day\":null,\"modified\":1368692609000,\"protocol\":\"DWC_ARCHIVE\",\"publishingCountry\":\"GB\"}",<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            Occurrence.class);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>      occurrence.getFields().put(DwcTerm.occurrenceID, null);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>      occurrence.getFields().put(DwcTerm.institutionCode, "Botanical Society of the British Isles");<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      occurrence.getFields().put(DwcTerm.collectionCode, "6340");<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      occurrence.getFields().put(DwcTerm.catalogNumber, "59935182");<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      int zoom = 5;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      int pixels = 1;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      int iterations = 10;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      for (int i = 0; i &lt; iterations; i++) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        update.putAll(DensityCubeUtil.cubeMutations(occurrence, Op.ADDITION, zoom, pixels));<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>      for (Entry&lt;Address, DensityTile&gt; e : update.getMap().entrySet()) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        // accumulate the count of the tile and ensure it has data<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        assertTrue("Tile should have content", totalCount(e.getValue()) &gt; 0);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      }<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      for (int i = 0; i &lt; iterations; i++) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        update.putAll(DensityCubeUtil.cubeMutations(occurrence, Op.SUBTRACTION, zoom, pixels));<a name="line.117"></a>
+<span class="sourceLineNo">118</span>      }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      for (Entry&lt;Address, DensityTile&gt; e : update.getMap().entrySet()) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>        // accumulate the count of the tile and ensure it has data<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        assertTrue("Tile should have no content", totalCount(e.getValue()) == 0);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>    } catch (Exception e) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      fail(e.getMessage());<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>  private final int totalCount(DensityTile tile) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    int total = 0;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    for (Entry&lt;Layer, Map&lt;Integer, Integer&gt;&gt; e : tile.layers().entrySet()) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      for (Integer count : e.getValue().values()) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>        total += count;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      }<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    return total;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>}<a name="line.139"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

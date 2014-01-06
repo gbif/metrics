@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.metrics.ws.resources.provider;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.exception.ServiceUnavailableException;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.api.model.metrics.cube.Dimension;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.gbif.metrics.cube.occurrence.OccurrenceCube;<a name="line.5"></a>
+<span class="sourceLineNo">006</span><a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.util.List;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import java.util.Map.Entry;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import java.util.UUID;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.ws.rs.core.Context;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.ws.rs.core.MultivaluedMap;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.ws.rs.ext.Provider;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import com.google.common.annotations.VisibleForTesting;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import com.google.common.base.Preconditions;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import com.google.common.collect.ImmutableMap;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import com.google.inject.Singleton;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import com.sun.jersey.api.core.HttpContext;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import com.sun.jersey.api.model.Parameter;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import com.sun.jersey.core.spi.component.ComponentContext;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import com.sun.jersey.core.spi.component.ComponentScope;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import com.sun.jersey.spi.inject.Injectable;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import com.sun.jersey.spi.inject.InjectableProvider;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import com.urbanairship.datacube.ReadBuilder;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * A provider that will convert parameters from the request into an INTERNAL cube reader.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>@Provider<a name="line.31"></a>
+<span class="sourceLineNo">032</span>@Singleton<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public class OccurrenceCubeReaderProvider implements InjectableProvider&lt;ProvidedOccurrenceCubeReader, Parameter&gt; {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>  // Provides an index to lookup the API Dimension by the HTTP parameter key<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  private static final ImmutableMap&lt;String, Dimension&lt;?&gt;&gt; PARAM_INDEX;<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>  static {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    ImmutableMap.Builder&lt;String, Dimension&lt;?&gt;&gt; b = new ImmutableMap.Builder&lt;String, Dimension&lt;?&gt;&gt;();<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    for (Dimension&lt;?&gt; d : org.gbif.api.model.metrics.cube.OccurrenceCube.DIMENSIONS) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      b.put(d.getKey(), d);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    PARAM_INDEX = b.build();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  @Context<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  private final HttpContext hc;<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public OccurrenceCubeReaderProvider(@Context HttpContext hc) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    this.hc = hc;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  // The type casting is actually checked at runtime, and there _appears_ to be no way of<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  // checking the enum, hence the rawtypes and unchecked warnings suppression.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  @SuppressWarnings({"unchecked", "rawtypes"})<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  @VisibleForTesting<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  ReadBuilder build(MultivaluedMap&lt;String, String&gt; params) throws ServiceUnavailableException, IllegalArgumentException {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    ReadBuilder b = new ReadBuilder(OccurrenceCube.INSTANCE);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    for (Entry&lt;String, List&lt;String&gt;&gt; param : params.entrySet()) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>      // We only accept 1 value per parameter<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      String k = param.getKey();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      String v = param.getValue().iterator().next();<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>      // callback is a reserved word in the API and invokes the JS callback hack<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      // JQuery also inserts _ when using the callback=?<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      if ("callback".equalsIgnoreCase(k) || "_".equalsIgnoreCase(k)) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        continue;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>      Dimension&lt;?&gt; dim = PARAM_INDEX.get(k);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>      Preconditions.checkArgument(dim != null, "Unknown parameter found in the request, does not map to a dimension: "<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        + k);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>      Class&lt;?&gt; type = dim.getType();<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>      // translate the API dimension to the internal dimension, typing the value<a name="line.75"></a>
+<span class="sourceLineNo">076</span>      // Note: The API_MAPPING might be determined at runtime, with the cube's implementing an interface allowing that<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      // to be read.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      com.urbanairship.datacube.Dimension&lt;?&gt; internalDim = OccurrenceCube.API_MAPPING.get(dim);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      if (internalDim == null) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        throw new ServiceUnavailableException("Unable to convert address in the cube.  No dimension exists for "<a name="line.80"></a>
+<span class="sourceLineNo">081</span>          + dim.getKey());<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      } else if (String.class == type) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        b.at(internalDim, v);<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>      } else if (Integer.class == type) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        b.at(internalDim, Integer.valueOf(v));<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>      } else if (Float.class == type) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        b.at(internalDim, Float.valueOf(v));<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>      } else if (Double.class == type) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        b.at(internalDim, Double.valueOf(v));<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>      } else if (Boolean.class == type) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>        b.at(internalDim, Boolean.valueOf(v));<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>      } else if (UUID.class == type) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        b.at(internalDim, UUID.fromString(v));<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>      } else if (Enum.class.isAssignableFrom(type)) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        b.at(internalDim, Enum.valueOf((Class&lt;Enum&gt;) dim.getType(), v));<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>      } else {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        throw new ServiceUnavailableException("Dimension is of unknown type: " + type);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    return b;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>  @Override<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  public Injectable&lt;ReadBuilder&gt; getInjectable(ComponentContext ic, ProvidedOccurrenceCubeReader a, Parameter c) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    return new Injectable&lt;ReadBuilder&gt;() {<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>      @Override<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      public ReadBuilder getValue() {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        return build(hc.getUriInfo().getQueryParameters());<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    };<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>  @Override<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public ComponentScope getScope() {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    return ComponentScope.PerRequest;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>  }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>}<a name="line.125"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

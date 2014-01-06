@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.metrics.cube.occurrence;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.model.occurrence.Occurrence;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.api.vocabulary.Country;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.gbif.metrics.cube.mapred.OccurrenceWritable;<a name="line.5"></a>
+<span class="sourceLineNo">006</span><a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.util.Map;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import java.util.UUID;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import com.google.common.base.Strings;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import com.google.common.collect.Maps;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import com.urbanairship.datacube.Address;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import com.urbanairship.datacube.Batch;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import com.urbanairship.datacube.Dimension;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import com.urbanairship.datacube.WriteBuilder;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import com.urbanairship.datacube.ops.LongOp;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.BASIS_OF_RECORD;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.COUNTRY;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.DATASET_KEY;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.HOST_COUNTRY;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.IS_GEOREFERENCED;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.NUB_KEY;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.PROTOCOL;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import static org.gbif.metrics.cube.occurrence.OccurrenceCube.YEAR;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * A utility class to encapsulate the logic needed to convert between the denormalized<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * format of occurrences (which have kingdomKey, phylumKey etc) and the normalized format<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * used by the occurrence cube (which uses only a nubKey).<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * This class uses the occurrence cube rollup definitions to determine which cube addresses<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * are to be updated for a given record. This is only necessary due to the normalization<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * that is required to for the taxonomic ranks that are all merged into a single nub key.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * Brief explanation:<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * - Imagine a record from dataset:1 with kingdom:1 and phylum:2<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * - Imagine the cube counts "by dataset", "records by nubKey" and "records by dataset by nubKey"<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * We need to update the following cube addresses:<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * - "dataset:1"<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * - "nubKey:1"<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * - "nubKey:2"<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * - "dataset:1,nubKey:1"<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * - "dataset:1,nubKey:2"<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * You cannot update the cube 2 times for each taxon, or else the dataset count will be 2 in this<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * example.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * This is the problem this class addresses, by providing the addresses for a single occurrence record.<a name="line.45"></a>
+<span class="sourceLineNo">046</span> */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>public class OccurrenceAddressUtil {<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * For the given occurrence, determines the mutations (addresses and operations) that need<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * to be applied.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   *<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * @param occurrence The denormalized representation<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * @param op That is going to be applied to the cube<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * @return The batch of updates to apply<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  public static Batch&lt;LongOp&gt; cubeMutation(Occurrence occurrence, LongOp op) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    // Needs mutability, since we rely on overwriting as a lazy distinction mechanism<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    // such as for when speciesKey = nubKey<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    Map&lt;Address, LongOp&gt; m = Maps.newHashMap();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getKingdomKey(), op));<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getPhylumKey(), op));<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getClassKey(), op));<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderKey(), op));<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyKey(), op));<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusKey(), op));<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesKey(), op));<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    return new Batch&lt;LongOp&gt;(m);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * For the given occurrence writable, determines the mutations (addresses and operations) that need<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   * to be applied.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * @param occurrence The writable representation<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * @param op That is going to be applied to the cube<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * @return The batch of updates to apply<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  public static Batch&lt;LongOp&gt; cubeMutation(OccurrenceWritable occurrence, LongOp op) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    // Needs mutability, since we rely on overwriting as a lazy distinction mechanism<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    // such as for when speciesKey = nubKey<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    Map&lt;Address, LongOp&gt; m = Maps.newHashMap();<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getKingdomID(), op));<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getPhylumID(), op));<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getClassID(), op));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderID(), op));<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyID(), op));<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusID(), op));<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesID(), op));<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonID(), op));<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    return new Batch&lt;LongOp&gt;(m);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * For the given taxon, returns all the updates to be applied to the cube<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  private static Map&lt;Address, LongOp&gt; mutationsForTaxon(Occurrence occurrence, Integer nubKey, LongOp op) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    addEnumDimension(wb, occurrence.getCountry(), COUNTRY);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    addEnumDimension(wb, occurrence.getPublishingCountry(), HOST_COUNTRY);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    addIntDimension(wb, nubKey, NUB_KEY);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    addIntDimension(wb, occurrence.getYear(), YEAR);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>  /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * For the given taxon, returns all the updates to be applied to the cube<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  private static Map&lt;Address, LongOp&gt; mutationsForTaxon(OccurrenceWritable occurrence, Integer nubKey, LongOp op) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    addCountryEnumDimension(wb, occurrence.getCountryIsoCode(), COUNTRY);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    addCountryEnumDimension(wb, occurrence.getHostCountryIsoCode(), HOST_COUNTRY);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    addIntDimension(wb, nubKey, NUB_KEY);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    addIntDimension(wb, occurrence.getYear(), YEAR);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, Occurrence occurrence,<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                                                         Dimension&lt;Boolean&gt; isGeoreferenced) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    return (occurrence.getLatitude() != null &amp;&amp; occurrence.getLongitude() != null &amp;&amp; !occurrence.hasSpatialIssue()) ?<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence,<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                                                         Dimension&lt;Boolean&gt; isGeoreferenced) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    return (occurrence.getLatitude() != null &amp;&amp; occurrence.getLongitude() != null &amp;&amp; !occurrence.hasSpatialIssue()) ?<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>  private static WriteBuilder addUUIDDimension(WriteBuilder wb, UUID i, Dimension&lt;UUID&gt; dim) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    return (i != null) ? wb.at(dim, i) : wb;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>  private static WriteBuilder addUUIDDimension(WriteBuilder wb, String s, Dimension&lt;UUID&gt; dim) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    return (s != null) ? wb.at(dim, UUID.fromString(s)) : wb;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  }<a name="line.145"></a>
+<span class="sourceLineNo">146</span><a name="line.146"></a>
+<span class="sourceLineNo">147</span>  private static WriteBuilder addIntDimension(WriteBuilder wb, Integer i, Dimension&lt;Integer&gt; dim) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    return (i != null) ? wb.at(dim, i) : wb;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>  private static &lt;T extends Enum&lt;?&gt;&gt; WriteBuilder addEnumDimension(WriteBuilder wb, T e, Dimension&lt;T&gt; dim) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    return (e != null) ? wb.at(dim, e) : wb;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>  private static &lt;T extends Enum&lt;?&gt;&gt; WriteBuilder addCountryEnumDimension(WriteBuilder wb, String s,<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    Dimension&lt;Country&gt; dim) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    if (!Strings.isNullOrEmpty(s)) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>      Country c = Country.fromIsoCode(s);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      return (c != null) ? wb.at(dim, c) : wb; // skip unparsable countries<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    return wb;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>}<a name="line.163"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
