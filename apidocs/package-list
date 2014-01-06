@@ -1,4 +1,3 @@
-org.gbif.metrics.cli
 org.gbif.metrics.cube
 org.gbif.metrics.cube.bucketer
 org.gbif.metrics.cube.index.common
@@ -21,8 +20,3 @@ org.gbif.metrics.cube.tile.density.io
 org.gbif.metrics.cube.tile.io
 org.gbif.metrics.cube.tile.point
 org.gbif.metrics.cube.util
-org.gbif.metrics.ws.client
-org.gbif.metrics.ws.client.guice
-org.gbif.metrics.ws.guice
-org.gbif.metrics.ws.resources
-org.gbif.metrics.ws.resources.provider
