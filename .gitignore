@@ -7,3 +7,6 @@ target/
 *.jar
 *.war
 *.ear
+
+# logs
+metrics-ws/logs/

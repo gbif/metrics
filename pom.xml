@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>13</version>
+    <version>14</version>
   </parent>
 
   <groupId>org.gbif.metrics</groupId>
@@ -417,4 +417,5 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
 </project>
