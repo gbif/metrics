@@ -26,7 +26,7 @@
   <artifactId>metrics-ws</artifactId>
   <packaging>war</packaging>
 
-  <name>Metrics :: Web service</name>
+  <name>Metrics Web service</name>
   <description>Metrics web service</description>
 
   <build>
@@ -143,7 +143,7 @@
   </dependencies>
   <profiles>
     <profile>
-      <id>staging</id>
+      <id>dev</id>
       <properties>
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
