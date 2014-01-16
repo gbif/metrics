@@ -90,7 +90,19 @@
     </repository>
   </repositories>
 
+  <properties>
+    <guava-cli.version>15.0</guava-cli.version><!-- needs to match gbif-cli -->
+  </properties>
+
   <dependencies>
+    <!-- module specific -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava-cli.version}</version>
+    </dependency>
+
+    <!-- from parent -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -103,10 +115,6 @@
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
