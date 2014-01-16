@@ -7,7 +7,6 @@ import org.gbif.metrics.cube.HBaseCubes;
 
 import java.util.concurrent.TimeUnit;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.urbanairship.datacube.AsyncException;
 import com.urbanairship.datacube.Batch;
 import com.urbanairship.datacube.Op;
