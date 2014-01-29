@@ -142,6 +142,22 @@
     </dependency>
   </dependencies>
   <profiles>
+    <!--
+     A uat deploy profile. It has no missing passwords.
+    -->
+    <profile>
+      <id>uat</id>
+      <properties>
+        <ganglia.server>130.226.238.237</ganglia.server>
+        <ganglia.port>8649</ganglia.port>
+        <occurrence-cube.table>uat_occurrence_cube</occurrence-cube.table>
+        <taxon.occurrence_dataset.table>uat_dataset_taxon_cube</taxon.occurrence_dataset.table>
+        <country.occurrence_dataset.table>uat_dataset_country_cube</country.occurrence_dataset.table>
+      </properties>
+    </profile>
+    <!--
+     A dev deploy profile. It has no missing passwords.
+    -->
     <profile>
       <id>dev</id>
       <properties>
@@ -152,6 +168,9 @@
         <country.occurrence_dataset.table>appdev_dataset_country_cube</country.occurrence_dataset.table>
       </properties>
     </profile>
+    <!--
+     A prod deploy profile. It has no missing passwords.
+    -->
     <profile>
       <id>prod</id>
       <properties>
