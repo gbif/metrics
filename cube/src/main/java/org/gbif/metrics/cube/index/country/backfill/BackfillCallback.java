@@ -2,8 +2,8 @@ package org.gbif.metrics.cube.index.country.backfill;
 
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.index.common.Combiner;
-import org.gbif.occurrencestore.common.model.constants.FieldName;
-import org.gbif.occurrencestore.persistence.hbase.HBaseFieldUtil;
+import org.gbif.occurrence.common.constants.FieldName;
+import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
 
 import java.io.IOException;
 
@@ -71,7 +71,7 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the TableReaderMapper wants
-    addFieldToScan(scan, FieldName.I_ISO_COUNTRY_CODE);
+    addFieldToScan(scan, FieldName.I_COUNTRY);
     addFieldToScan(scan, FieldName.DATASET_KEY);
     return scan;
   }

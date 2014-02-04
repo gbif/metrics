@@ -2,8 +2,8 @@ package org.gbif.metrics.cube.tile.io;
 
 /**
  * For indicating the source of content for a tile.
- * Note that we use the terminology PUBLISHING_COUNTRY whereas the Occurrence projects use HOST_COUNTRY.
- * This is because it really is the publishing country and not the hosting country and it is envisaged that 
+ * Note that we use the terminology PUBLISHING_COUNTRY whereas the Occurrence projects use PUBLISHING_COUNTRY.
+ * This is because it really is the publishing country and not the hosting country and it is envisaged that
  * the occurrence projects will be renamed.
  * Be aware that calling hashCode() on an ENUM is not consistent across JVMs!
  */

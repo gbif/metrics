@@ -7,7 +7,6 @@ import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.urbanairship.datacube.Address;
 import com.urbanairship.datacube.Batch;
@@ -18,10 +17,10 @@ import com.urbanairship.datacube.ops.LongOp;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.BASIS_OF_RECORD;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.COUNTRY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.DATASET_KEY;
-import static org.gbif.metrics.cube.occurrence.OccurrenceCube.HOST_COUNTRY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.IS_GEOREFERENCED;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.NUB_KEY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.PROTOCOL;
+import static org.gbif.metrics.cube.occurrence.OccurrenceCube.PUBLISHING_COUNTRY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.YEAR;
 
 /**
@@ -64,6 +63,7 @@ public class OccurrenceAddressUtil {
     m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusKey(), op));
+    m.putAll(mutationsForTaxon(occurrence, occurrence.getSubgenusKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
     return new Batch<LongOp>(m);
@@ -87,6 +87,7 @@ public class OccurrenceAddressUtil {
     m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderID(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyID(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusID(), op));
+    m.putAll(mutationsForTaxon(occurrence, occurrence.getSubgenusID(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesID(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonID(), op));
     return new Batch<LongOp>(m);
@@ -102,7 +103,7 @@ public class OccurrenceAddressUtil {
     addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);
     addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);
     addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);
-    addEnumDimension(wb, occurrence.getPublishingCountry(), HOST_COUNTRY);
+    addEnumDimension(wb, occurrence.getPublishingCountry(), PUBLISHING_COUNTRY);
     addIntDimension(wb, nubKey, NUB_KEY);
     addIntDimension(wb, occurrence.getYear(), YEAR);
     return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();
@@ -113,12 +114,12 @@ public class OccurrenceAddressUtil {
    */
   private static Map<Address, LongOp> mutationsForTaxon(OccurrenceWritable occurrence, Integer nubKey, LongOp op) {
     WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);
-    addCountryEnumDimension(wb, occurrence.getCountryIsoCode(), COUNTRY);
+    addCountryEnumDimension(wb, occurrence.getCountry(), COUNTRY);
     addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);
     addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);
     addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);
     addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);
-    addCountryEnumDimension(wb, occurrence.getHostCountryIsoCode(), HOST_COUNTRY);
+    addCountryEnumDimension(wb, occurrence.getPublishingCountry(), PUBLISHING_COUNTRY);
     addIntDimension(wb, nubKey, NUB_KEY);
     addIntDimension(wb, occurrence.getYear(), YEAR);
     return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();
@@ -132,16 +133,12 @@ public class OccurrenceAddressUtil {
 
   private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence,
                                                          Dimension<Boolean> isGeoreferenced) {
-    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
+    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !OccurrenceWritable.hasSpatialIssue(occurrence.getIssues())) ?
       wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
   }
 
   private static WriteBuilder addUUIDDimension(WriteBuilder wb, UUID i, Dimension<UUID> dim) {
     return (i != null) ? wb.at(dim, i) : wb;
-  }
-
-  private static WriteBuilder addUUIDDimension(WriteBuilder wb, String s, Dimension<UUID> dim) {
-    return (s != null) ? wb.at(dim, UUID.fromString(s)) : wb;
   }
 
   private static WriteBuilder addIntDimension(WriteBuilder wb, Integer i, Dimension<Integer> dim) {
@@ -152,12 +149,8 @@ public class OccurrenceAddressUtil {
     return (e != null) ? wb.at(dim, e) : wb;
   }
 
-  private static <T extends Enum<?>> WriteBuilder addCountryEnumDimension(WriteBuilder wb, String s,
+  private static <T extends Enum<?>> WriteBuilder addCountryEnumDimension(WriteBuilder wb, Country c,
     Dimension<Country> dim) {
-    if (!Strings.isNullOrEmpty(s)) {
-      Country c = Country.fromIsoCode(s);
-      return (c != null) ? wb.at(dim, c) : wb; // skip unparsable countries
-    }
-    return wb;
+    return c == null ? wb : wb.at(dim, c);
   }
 }

@@ -25,64 +25,64 @@ import com.urbanairship.datacube.bucketers.BooleanBucketer;
 import com.urbanairship.datacube.ops.LongOp;
 
 /**
- * The INTERNAL data cube definition for occurrence records.  
- * This is the low level representation and changes should be carefully considered in advance considering the following: 
+ * The INTERNAL data cube definition for occurrence records.
+ * This is the low level representation and changes should be carefully considered in advance considering the following:
  * <ol>
  * <li>All public API Dimensions should be declared here and with the correct type</li>
  * <li>The API mapping must be complete</li>
  * </ol>
- * 
- * Note: It was by design to expose different objects in the public API, as the datacube objects are too complex, and 
- * datacube brings in too many dependencies.  This also included the acceptance of collision in class names, but this is 
+ *
+ * Note: It was by design to expose different objects in the public API, as the datacube objects are too complex, and
+ * datacube brings in too many dependencies.  This also included the acceptance of collision in class names, but this is
  * constrained to a 2 places (here, and the HTTP parameter mapping in the web services) which was deemed acceptable for a nice
- * public API. 
+ * public API.
  */
 public class OccurrenceCube {
-  // number of bytes needed to store the types 
+  // number of bytes needed to store the types
   private final static int INT_BYTES = 4;
   private final static int BOOLEAN_BYTES = 1;
-  
+
   // NOTE: Ensure that these are in sync with the public API, including the correct types
-  // No ID substitution in place, and all dimensions are optional 
+  // No ID substitution in place, and all dimensions are optional
   public static final Dimension<Country> COUNTRY = new Dimension<Country>("country", new CountryBucketer(), false, CountryBucketer.BYTES, true);
   public static final Dimension<Integer> YEAR = new Dimension<Integer>("year", new BigEndianIntBucketer(), false, INT_BYTES, true);
   public static final Dimension<Boolean> IS_GEOREFERENCED = new Dimension<Boolean>("georeferenced", new BooleanBucketer(), false, BOOLEAN_BYTES, true);
   public static final Dimension<BasisOfRecord> BASIS_OF_RECORD = new Dimension<BasisOfRecord>("basisOfRecord", new BasisOfRecordBucketer(), false, BasisOfRecordBucketer.BYTES, true);
-  public static final Dimension<Country> HOST_COUNTRY = new Dimension<Country>("hostCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);
-  public static final Dimension<UUID> DATASET_KEY = new Dimension<UUID>("datasetKey", new UUIDBucketer(), false, UUIDBucketer.BYTES, true);  
-  public static final Dimension<Integer> NUB_KEY = new Dimension<Integer>("nubKey", new BigEndianIntBucketer(), false, INT_BYTES, true);  
+  public static final Dimension<Country> PUBLISHING_COUNTRY = new Dimension<Country>("publishingCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);
+  public static final Dimension<UUID> DATASET_KEY = new Dimension<UUID>("datasetKey", new UUIDBucketer(), false, UUIDBucketer.BYTES, true);
+  public static final Dimension<Integer> NUB_KEY = new Dimension<Integer>("nubKey", new BigEndianIntBucketer(), false, INT_BYTES, true);
   public static final Dimension<EndpointType> PROTOCOL = new Dimension<EndpointType>("protocol", new EndpointTypeBucketer(), false, EndpointTypeBucketer.BYTES,true);
 
   // Index mapping the public API cube dimensions to the internal datacube dimensions
   // NOTE: Ensure ALL public API mappings are covered
-  public static final Map<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>> API_MAPPING = 
+  public static final Map<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>> API_MAPPING =
     ImmutableMap.<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>>builder()
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.IS_GEOREFERENCED, IS_GEOREFERENCED)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.BASIS_OF_RECORD, BASIS_OF_RECORD)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.COUNTRY, COUNTRY)
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.HOST_COUNTRY, HOST_COUNTRY)
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.DATASET_KEY, DATASET_KEY)      
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.HOST_COUNTRY, PUBLISHING_COUNTRY)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.DATASET_KEY, DATASET_KEY)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.NUB_KEY, NUB_KEY)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.PROTOCOL, PROTOCOL)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.YEAR, YEAR)
     .build();
-    
-  // Singleton instance 
+
+  // Singleton instance
   public static final DataCube<LongOp> INSTANCE = newInstance();
 
   // Not for instantiation
   private OccurrenceCube() {
   }
-  
+
   /**
    * This uses the CubeIo as defined in the public API to construct an internal DataCube definition.
    * @return A new instance of the cube
    */
   private static DataCube<LongOp> newInstance() {
     // Dimensions as defined in the public API
-    List<Dimension<?>> dimensions = 
+    List<Dimension<?>> dimensions =
       ImmutableList.<Dimension<?>>copyOf(API_MAPPING.values()); // defensive copy
-    
+
     // Rollups generated as defined in the public API
     // This could be done manually, but by using the API definition, we safeguard against developer oversight
     Builder<Rollup> b = ImmutableList.<Rollup>builder();

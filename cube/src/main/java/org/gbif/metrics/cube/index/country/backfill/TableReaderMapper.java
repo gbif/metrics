@@ -1,7 +1,7 @@
 package org.gbif.metrics.cube.index.country.backfill;
 
 import org.gbif.api.model.occurrence.Occurrence;
-import org.gbif.occurrencestore.persistence.util.OccurrenceBuilder;
+import org.gbif.occurrence.persistence.util.OccurrenceBuilder;
 
 import java.io.IOException;
 

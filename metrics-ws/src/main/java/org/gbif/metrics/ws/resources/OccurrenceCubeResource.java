@@ -250,7 +250,7 @@ public class OccurrenceCubeResource {
   private Map<Country, Long> getCountryMap(Country country, boolean isPublishingCountry) {
     ReadBuilder b = new ReadBuilder(OccurrenceCube.INSTANCE);
     if (isPublishingCountry) {
-      b.at(OccurrenceCube.HOST_COUNTRY, country);
+      b.at(OccurrenceCube.PUBLISHING_COUNTRY, country);
     } else {
       b.at(OccurrenceCube.COUNTRY, country);
     }
@@ -267,7 +267,7 @@ public class OccurrenceCubeResource {
           if (isPublishingCountry) {
             b.at(OccurrenceCube.COUNTRY, c);
           } else {
-            b.at(OccurrenceCube.HOST_COUNTRY, c);
+            b.at(OccurrenceCube.PUBLISHING_COUNTRY, c);
           }
 
           long cnt = lookup(address);
@@ -318,7 +318,7 @@ public class OccurrenceCubeResource {
 
   /**
    * Simple lookup utility
-   * 
+   *
    * @param a To lookup
    * @return The count, which may be calculated to be 0
    * @throws IOException On communication to the cube (typically an HBase layer)

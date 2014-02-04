@@ -1,9 +1,8 @@
 package org.gbif.metrics.cube.occurrence.backfill;
 
-
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
-import org.gbif.occurrencestore.common.model.constants.FieldName;
-import org.gbif.occurrencestore.persistence.hbase.HBaseFieldUtil;
+import org.gbif.occurrence.common.constants.FieldName;
+import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
 
 import java.io.IOException;
 
@@ -60,26 +59,27 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the CubeWriterMapper wants
-    addFieldToScan(scan, FieldName.I_KINGDOM_ID);
-    addFieldToScan(scan, FieldName.I_PHYLUM_ID);
-    addFieldToScan(scan, FieldName.I_CLASS_ID);
-    addFieldToScan(scan, FieldName.I_ORDER_ID);
-    addFieldToScan(scan, FieldName.I_FAMILY_ID);
-    addFieldToScan(scan, FieldName.I_GENUS_ID);
-    addFieldToScan(scan, FieldName.I_SPECIES_ID);
-    addFieldToScan(scan, FieldName.I_NUB_ID);
-    addFieldToScan(scan, FieldName.DATASET_KEY);
-    addFieldToScan(scan, FieldName.I_ISO_COUNTRY_CODE);
-    addFieldToScan(scan, FieldName.HOST_COUNTRY);
     addFieldToScan(scan, FieldName.I_LATITUDE);
     addFieldToScan(scan, FieldName.I_LONGITUDE);
+    addFieldToScan(scan, FieldName.I_KINGDOM_KEY);
+    addFieldToScan(scan, FieldName.I_PHYLUM_KEY);
+    addFieldToScan(scan, FieldName.I_CLASS_KEY);
+    addFieldToScan(scan, FieldName.I_ORDER_KEY);
+    addFieldToScan(scan, FieldName.I_FAMILY_KEY);
+    addFieldToScan(scan, FieldName.I_GENUS_KEY);
+    addFieldToScan(scan, FieldName.I_SUBGENUS_KEY);
+    addFieldToScan(scan, FieldName.I_SPECIES_KEY);
+    addFieldToScan(scan, FieldName.I_TAXON_KEY);
+    addFieldToScan(scan, FieldName.PUB_ORG_KEY);
+    addFieldToScan(scan, FieldName.DATASET_KEY);
+    addFieldToScan(scan, FieldName.I_COUNTRY);
+    addFieldToScan(scan, FieldName.PUB_COUNTRY);
     addFieldToScan(scan, FieldName.I_YEAR);
     addFieldToScan(scan, FieldName.I_MONTH);
     addFieldToScan(scan, FieldName.I_BASIS_OF_RECORD);
-    addFieldToScan(scan, FieldName.HOST_COUNTRY);
-    addFieldToScan(scan, FieldName.OWNING_ORG_KEY);
     addFieldToScan(scan, FieldName.PROTOCOL);
-    addFieldToScan(scan, FieldName.I_GEOSPATIAL_ISSUE);
+    addFieldToScan(scan, FieldName.I_TYPE_STATUS);
+    //TODO: add issues column once known
     return scan;
   }
 }

@@ -3,6 +3,7 @@ package org.gbif.metrics.cube.tile.io;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.UUID;
 
 import com.google.common.base.Objects;
 import org.apache.hadoop.io.WritableComparable;
@@ -26,6 +27,14 @@ public class TileKeyWritable implements WritableComparable<TileKeyWritable> {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  public TileKeyWritable(TileContentType type, Enum<?> key, int x, int y, int z) {
+    this(type, key == null ? null : key.name(), x, y, z);
+  }
+
+  public TileKeyWritable(TileContentType type, UUID key, int x, int y, int z) {
+    this(type, key == null ? null : key.toString(), x, y, z);
   }
 
   @Override

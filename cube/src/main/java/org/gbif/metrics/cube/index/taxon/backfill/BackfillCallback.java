@@ -2,8 +2,8 @@ package org.gbif.metrics.cube.index.taxon.backfill;
 
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.index.common.Combiner;
-import org.gbif.occurrencestore.common.model.constants.FieldName;
-import org.gbif.occurrencestore.persistence.hbase.HBaseFieldUtil;
+import org.gbif.occurrence.common.constants.FieldName;
+import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
 
 import java.io.IOException;
 
@@ -71,14 +71,15 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the TableReaderMapper wants
-    addFieldToScan(scan, FieldName.I_KINGDOM_ID);
-    addFieldToScan(scan, FieldName.I_PHYLUM_ID);
-    addFieldToScan(scan, FieldName.I_CLASS_ID);
-    addFieldToScan(scan, FieldName.I_ORDER_ID);
-    addFieldToScan(scan, FieldName.I_FAMILY_ID);
-    addFieldToScan(scan, FieldName.I_GENUS_ID);
-    addFieldToScan(scan, FieldName.I_SPECIES_ID);
-    addFieldToScan(scan, FieldName.I_NUB_ID);
+    addFieldToScan(scan, FieldName.I_KINGDOM_KEY);
+    addFieldToScan(scan, FieldName.I_PHYLUM_KEY);
+    addFieldToScan(scan, FieldName.I_CLASS_KEY);
+    addFieldToScan(scan, FieldName.I_ORDER_KEY);
+    addFieldToScan(scan, FieldName.I_FAMILY_KEY);
+    addFieldToScan(scan, FieldName.I_GENUS_KEY);
+    addFieldToScan(scan, FieldName.I_SUBGENUS_KEY);
+    addFieldToScan(scan, FieldName.I_SPECIES_KEY);
+    addFieldToScan(scan, FieldName.I_TAXON_KEY);
     addFieldToScan(scan, FieldName.DATASET_KEY);
     return scan;
   }

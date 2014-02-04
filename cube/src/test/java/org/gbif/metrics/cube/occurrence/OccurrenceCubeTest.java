@@ -92,7 +92,7 @@ public class OccurrenceCubeTest {
       0L,
       getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.BASIS_OF_RECORD,
         BasisOfRecord.FOSSIL_SPECIMEN)
-        .at(OccurrenceCube.HOST_COUNTRY, Country.AFGHANISTAN)));
+        .at(OccurrenceCube.PUBLISHING_COUNTRY, Country.AFGHANISTAN)));
   }
 
   @Test

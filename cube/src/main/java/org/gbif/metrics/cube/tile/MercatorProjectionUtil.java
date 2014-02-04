@@ -1,5 +1,7 @@
 package org.gbif.metrics.cube.tile;
 
+import org.gbif.metrics.cube.mapred.OccurrenceWritable;
+
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -59,11 +61,15 @@ public class MercatorProjectionUtil {
 
   /**
    * Google maps cover +/- 85 degrees only.
-   * 
+   *
    * @return true if the location is plottable on a map
    */
   public static boolean isPlottable(Double lat, Double lng) {
     return (lat != null && lng != null && lat >= -85d && lat <= 85d && lng >= -180 && lng <= 180);
+  }
+
+  public static boolean isPlottable(OccurrenceWritable occ) {
+    return isPlottable(occ.getLatitude(), occ.getLongitude());
   }
 
   /**

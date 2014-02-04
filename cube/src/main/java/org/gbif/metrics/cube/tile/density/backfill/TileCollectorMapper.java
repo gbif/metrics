@@ -22,14 +22,14 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
 
   @Override
   protected void map(OccurrenceWritable o, IntWritable count, Context context) throws IOException, InterruptedException {
-    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.hasSpatialIssue() + "] has count[" + o.getCount() + "]");
+    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.getIssues() + "] has count[" + o.getCount() + "]");
     o.setCount(count.get()); // cannot be set earlier, since we need to group at the occurrence
 
     // Google only goes +/- 85 degrees and we only want maps with no known issues
-    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && Integer.valueOf(0).equals(o.hasSpatialIssue())) {
+    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && !OccurrenceWritable.hasSpatialIssue(o.getIssues())) {
       Set<Integer> taxa =
-        Sets.newHashSet(o.getKingdomID(), o.getPhylumID(), o.getClassID(), o.getOrderID(), o.getFamilyID(), o.getGenusID(), o.getSpeciesID(),
-          o.getTaxonID());
+        Sets.newHashSet(o.getKingdomID(), o.getPhylumID(), o.getClassID(), o.getOrderID(), o.getFamilyID(),
+                        o.getGenusID(), o.getSubgenusID(), o.getSpeciesID(), o.getTaxonID());
 
       for (int z = 0; z < numberZooms; z++) {
         context.setStatus("Lat[" + o.getLatitude() + "] lng[" + o.getLongitude() + "] zoom[" + z + " of " + numberZooms + "]");
@@ -48,11 +48,11 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
         if (o.getDatasetKey() != null) {
           context.write(new TileKeyWritable(TileContentType.DATASET, o.getDatasetKey(), tileX, tileY, z), o);
         }
-        if (o.getCountryIsoCode() != null && o.getCountryIsoCode().length() == 2) {
-          context.write(new TileKeyWritable(TileContentType.COUNTRY, o.getCountryIsoCode(), tileX, tileY, z), o);
+        if (o.getCountry() != null) {
+          context.write(new TileKeyWritable(TileContentType.COUNTRY, o.getCountry(), tileX, tileY, z), o);
         }
-        if (o.getHostCountryIsoCode() != null && o.getHostCountryIsoCode().length() == 2) {
-          context.write(new TileKeyWritable(TileContentType.PUBLISHING_COUNTRY, o.getHostCountryIsoCode(), tileX, tileY, z), o);
+        if (o.getPublishingCountry() != null) {
+          context.write(new TileKeyWritable(TileContentType.PUBLISHING_COUNTRY, o.getPublishingCountry(), tileX, tileY, z), o);
         }
       }
     }
