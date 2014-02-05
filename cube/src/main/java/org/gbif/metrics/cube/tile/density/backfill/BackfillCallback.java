@@ -3,6 +3,7 @@ package org.gbif.metrics.cube.tile.density.backfill;
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 import org.gbif.metrics.cube.tile.io.TileKeyWritable;
+import org.gbif.metrics.cube.util.ScanUtils;
 import org.gbif.occurrence.common.constants.FieldName;
 import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
 
@@ -110,25 +111,10 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCacheBlocks(false); // not needed for efficient scanning
 
     // Optimize the scan by bringing back only what the TileCollectMapper wants
-    addFieldToScan(scan, FieldName.I_LATITUDE);
-    addFieldToScan(scan, FieldName.I_LONGITUDE);
-    addFieldToScan(scan, FieldName.I_KINGDOM_KEY);
-    addFieldToScan(scan, FieldName.I_PHYLUM_KEY);
-    addFieldToScan(scan, FieldName.I_CLASS_KEY);
-    addFieldToScan(scan, FieldName.I_ORDER_KEY);
-    addFieldToScan(scan, FieldName.I_FAMILY_KEY);
-    addFieldToScan(scan, FieldName.I_GENUS_KEY);
-    addFieldToScan(scan, FieldName.I_SUBGENUS_KEY);
-    addFieldToScan(scan, FieldName.I_SPECIES_KEY);
-    addFieldToScan(scan, FieldName.I_TAXON_KEY);
-    addFieldToScan(scan, FieldName.PUB_ORG_KEY);
-    addFieldToScan(scan, FieldName.DATASET_KEY);
-    addFieldToScan(scan, FieldName.I_COUNTRY);
-    addFieldToScan(scan, FieldName.PUB_COUNTRY);
-    addFieldToScan(scan, FieldName.I_YEAR);
-    addFieldToScan(scan, FieldName.I_MONTH);
-    addFieldToScan(scan, FieldName.I_BASIS_OF_RECORD);
-    addFieldToScan(scan, FieldName.PROTOCOL);
+    ScanUtils.addTaxonomyColumns(scan);
+    ScanUtils.addSpatialIssueColumns(scan);
+    ScanUtils.addCoordinateColumns(scan);
+    ScanUtils.addOtherColumns(scan);
     return scan;
   }
 }
