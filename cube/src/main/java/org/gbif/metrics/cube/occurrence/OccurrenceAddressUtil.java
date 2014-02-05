@@ -2,6 +2,7 @@ package org.gbif.metrics.cube.occurrence;
 
 import org.gbif.api.model.occurrence.Occurrence;
 import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 
 import java.util.Map;
@@ -57,15 +58,10 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getKingdomKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getPhylumKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getClassKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getSubgenusKey(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesKey(), op));
     m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
+    for (Rank r : Rank.DWC_RANKS) {
+      m.putAll(mutationsForTaxon(occurrence, occurrence.getHigherRankKey(r), op));
+    }
     return new Batch<LongOp>(m);
   }
 
@@ -81,15 +77,10 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getKingdomID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getPhylumID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getClassID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getOrderID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getFamilyID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getGenusID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getSubgenusID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getSpeciesID(), op));
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonID(), op));
+    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
+    for (Rank r : Rank.DWC_RANKS) {
+      m.putAll(mutationsForTaxon(occurrence, occurrence.getHigherRankKey(r), op));
+    }
     return new Batch<LongOp>(m);
   }
 
@@ -133,7 +124,7 @@ public class OccurrenceAddressUtil {
 
   private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence,
                                                          Dimension<Boolean> isGeoreferenced) {
-    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !OccurrenceWritable.hasSpatialIssue(occurrence.getIssues())) ?
+    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
       wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
   }
 

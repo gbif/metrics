@@ -26,10 +26,10 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
     o.setCount(count.get()); // cannot be set earlier, since we need to group at the occurrence
 
     // Google only goes +/- 85 degrees and we only want maps with no known issues
-    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && !OccurrenceWritable.hasSpatialIssue(o.getIssues())) {
+    if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && !o.hasSpatialIssue()) {
       Set<Integer> taxa =
-        Sets.newHashSet(o.getKingdomID(), o.getPhylumID(), o.getClassID(), o.getOrderID(), o.getFamilyID(),
-                        o.getGenusID(), o.getSubgenusID(), o.getSpeciesID(), o.getTaxonID());
+        Sets.newHashSet(o.getKingdomKey(), o.getPhylumKey(), o.getClassKey(), o.getOrderKey(), o.getFamilyKey(),
+                        o.getGenusKey(), o.getSubgenusKey(), o.getSpeciesKey(), o.getTaxonKey());
 
       for (int z = 0; z < numberZooms; z++) {
         context.setStatus("Lat[" + o.getLatitude() + "] lng[" + o.getLongitude() + "] zoom[" + z + " of " + numberZooms + "]");
@@ -42,8 +42,8 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
             context.write(new TileKeyWritable(TileContentType.TAXON, String.valueOf(id), tileX, tileY, z), o);
           }
         }
-        if (o.getPublishingOrganisationKey() != null) {
-          context.write(new TileKeyWritable(TileContentType.PUBLISHER, o.getPublishingOrganisationKey(), tileX, tileY, z), o);
+        if (o.getPubOrgKey() != null) {
+          context.write(new TileKeyWritable(TileContentType.PUBLISHER, o.getPubOrgKey(), tileX, tileY, z), o);
         }
         if (o.getDatasetKey() != null) {
           context.write(new TileKeyWritable(TileContentType.DATASET, o.getDatasetKey(), tileX, tileY, z), o);

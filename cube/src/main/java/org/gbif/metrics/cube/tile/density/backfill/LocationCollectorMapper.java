@@ -2,6 +2,7 @@ package org.gbif.metrics.cube.tile.density.backfill;
 
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 import org.gbif.metrics.cube.tile.MercatorProjectionUtil;
+import org.gbif.occurrence.persistence.util.OccurrenceBuilder;
 
 import java.io.IOException;
 
@@ -24,9 +25,9 @@ public class LocationCollectorMapper extends TableMapper<OccurrenceWritable, Int
   @Override
   protected void map(ImmutableBytesWritable key, Result row, Context context) throws IOException, InterruptedException {
 
-    OccurrenceWritable occ = OccurrenceWritable.newInstance(row);
+    OccurrenceWritable occ = new OccurrenceWritable(OccurrenceBuilder.buildOccurrence(row), 1);
     // Google only goes +/- 85 degrees and we only want maps with no known issues
-    if (!OccurrenceWritable.hasSpatialIssue(occ.getIssues()) && MercatorProjectionUtil.isPlottable(occ)) {
+    if (!occ.hasSpatialIssue() && MercatorProjectionUtil.isPlottable(occ)) {
       context.getCounter(occ.getBasisOfRecord()).increment(1);
       context.write(occ, ONE);
     }

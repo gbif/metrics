@@ -20,7 +20,7 @@ public class OccurrenceWritableCombiner extends Reducer<OccurrenceWritable, IntW
     for (IntWritable i : value) {
       total += i.get();
     }
-    context.setStatus("Occurrence from dataset[" + key.getDatasetKey() + "],  Taxon[" + key.getTaxonID() + "], Count["
+    context.setStatus("Occurrence from dataset[" + key.getDatasetKey() + "],  Taxon[" + key.getTaxonKey() + "], Count["
       + total + "]");
     i.set(total);
     context.write(key, i);

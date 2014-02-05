@@ -1,11 +1,13 @@
 package org.gbif.metrics.cube.mapred;
 
+import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.model.occurrence.Occurrence;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
-import org.gbif.occurrence.common.constants.FieldName;
-import org.gbif.occurrence.persistence.OccurrenceResultReader;
+import org.gbif.api.vocabulary.Rank;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,6 +16,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
@@ -21,17 +25,17 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.io.WritableComparable;
 
 /**
  * A container object for use in MR, that encapsulates the fields needed to locate similar records
  * at the same point. Effectively this is analogous to set of GROUP BY fields.
  */
-public class OccurrenceWritable implements WritableComparable<OccurrenceWritable> {
+public class OccurrenceWritable implements WritableComparable<OccurrenceWritable>, LinneanClassificationKeys {
 
-  private Integer kingdomID, phylumID, classID, orderID, familyID, genusID, subgenusID, speciesID, taxonID, year, month, count;
-  private UUID publishingOrganisationKey, datasetKey;
+  private Integer kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, subgenusKey, speciesKey, taxonKey;
+  private Integer year, month, count;
+  private UUID pubOrgKey, datasetKey;
   private Double latitude, longitude;
   private Country country, publishingCountry;
   private BasisOfRecord basisOfRecord;
@@ -46,95 +50,36 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public OccurrenceWritable() {
   }
-
-  public OccurrenceWritable(Integer kingdomID, Integer phylumID, Integer classID, Integer orderID, Integer familyID,
-    Integer genusID, Integer subgenusID,
-    Integer speciesID, Integer taxonID, Set<OccurrenceIssue> issues,
-    UUID publishingOrganisationKey, UUID datasetKey,
-    Country country, Country publishingCountry, Double latitude,
-    Double longitude, Integer year, Integer month, BasisOfRecord basisOfRecord, EndpointType protocol, Integer count) {
-    this.kingdomID = kingdomID;
-    this.phylumID = phylumID;
-    this.classID = classID;
-    this.orderID = orderID;
-    this.familyID = familyID;
-    this.genusID = genusID;
-    this.subgenusID = subgenusID;
-    this.speciesID = speciesID;
-    this.taxonID = taxonID;
-    this.issues = issues;
-    this.publishingOrganisationKey = publishingOrganisationKey;
-    this.datasetKey = datasetKey;
-    this.country = country;
-    this.publishingCountry = publishingCountry;
-    this.latitude = latitude;
-    this.longitude = longitude;
-    this.year = year;
-    this.month = month;
-    this.basisOfRecord = basisOfRecord;
+  public OccurrenceWritable(Occurrence occ, Integer count) {
+    taxonKey = occ.getTaxonKey();
+    ClassificationUtils.copyLinneanClassificationKeys(occ, this);
+    year = occ.getTaxonKey();
+    month = occ.getTaxonKey();
     this.count = count;
-    this.protocol = protocol;
+    pubOrgKey = occ.getPublishingOrgKey();
+    datasetKey = occ.getDatasetKey();
+    latitude = occ.getLatitude();
+    longitude = occ.getLongitude();
+    country = occ.getCountry();
+    publishingCountry = occ.getPublishingCountry();
+    basisOfRecord = occ.getBasisOfRecord();
+    protocol = occ.getProtocol();
+    issues = occ.getIssues();
   }
 
-  // Utility builder
-  public static OccurrenceWritable newInstance(Result row) {
-    Double latitude = OccurrenceResultReader.getDouble(row, FieldName.I_LATITUDE);
-    Double longitude = OccurrenceResultReader.getDouble(row, FieldName.I_LONGITUDE);
-    Integer kingdomID = OccurrenceResultReader.getInteger(row, FieldName.I_KINGDOM_KEY);
-    Integer phylumID = OccurrenceResultReader.getInteger(row, FieldName.I_PHYLUM_KEY);
-    Integer classID = OccurrenceResultReader.getInteger(row, FieldName.I_CLASS_KEY);
-    Integer orderID = OccurrenceResultReader.getInteger(row, FieldName.I_ORDER_KEY);
-    Integer familyID = OccurrenceResultReader.getInteger(row, FieldName.I_FAMILY_KEY);
-    Integer genusID = OccurrenceResultReader.getInteger(row, FieldName.I_GENUS_KEY);
-    Integer subgenusID = OccurrenceResultReader.getInteger(row, FieldName.I_SUBGENUS_KEY);
-    Integer speciesID = OccurrenceResultReader.getInteger(row, FieldName.I_SPECIES_KEY);
-    // taxon != species (it may be a higher taxon, or might be a subspecies)
-    Integer taxonID = OccurrenceResultReader.getInteger(row, FieldName.I_TAXON_KEY);
-    UUID publishingOrganisationKey = toUUID(row, FieldName.PUB_ORG_KEY);
-    UUID datasetKey = toUUID(row, FieldName.DATASET_KEY);
-    Country country = toEnum(OccurrenceResultReader.getString(row, FieldName.I_COUNTRY), Country.class);
-    Country pubCountry = toEnum(OccurrenceResultReader.getString(row, FieldName.PUB_COUNTRY), Country.class);
-    Integer year = OccurrenceResultReader.getInteger(row, FieldName.I_YEAR);
-    Integer month = OccurrenceResultReader.getInteger(row, FieldName.I_MONTH);
-    BasisOfRecord bor = BasisOfRecord.valueOf(OccurrenceResultReader.getString(row, FieldName.I_BASIS_OF_RECORD));
-    EndpointType protocol = EndpointType.valueOf(OccurrenceResultReader.getString(row, FieldName.PROTOCOL));
-
-    //TODO: read issues from hbase row
-    Set<OccurrenceIssue> issues = Sets.newHashSet();
-
-    return new OccurrenceWritable(kingdomID, phylumID, classID, orderID, familyID, genusID, subgenusID, speciesID,
-      taxonID, issues, publishingOrganisationKey, datasetKey, country, pubCountry, latitude, longitude,
-      year, month, bor, protocol, 1);
-  }
-
-  private static UUID toUUID(Result row, FieldName field) {
-    return toUUID(OccurrenceResultReader.getString(row, field));
-  }
-
-  private static UUID toUUID(String uuidString) {
-    if (!Strings.isNullOrEmpty(uuidString)) {
-      try {
-        return UUID.fromString(uuidString);
-      } catch (IllegalArgumentException e) {
-        // swallow
-      }
-    }
-    return null;
-  }
-
-    @Override
+  @Override
   public int compareTo(OccurrenceWritable that) {
     return ComparisonChain.start()
-      .compare(this.kingdomID, that.kingdomID, Ordering.natural().nullsLast())
-      .compare(this.phylumID, that.phylumID, Ordering.natural().nullsLast())
-      .compare(this.classID, that.classID, Ordering.natural().nullsLast())
-      .compare(this.orderID, that.orderID, Ordering.natural().nullsLast())
-      .compare(this.familyID, that.familyID, Ordering.natural().nullsLast())
-      .compare(this.genusID, that.genusID, Ordering.natural().nullsLast())
-      .compare(this.subgenusID, that.subgenusID, Ordering.natural().nullsLast())
-      .compare(this.speciesID, that.speciesID, Ordering.natural().nullsLast())
-      .compare(this.taxonID, that.taxonID, Ordering.natural().nullsLast())
-      .compare(this.publishingOrganisationKey, that.publishingOrganisationKey, Ordering.natural().nullsLast())
+      .compare(this.kingdomKey, that.kingdomKey, Ordering.natural().nullsLast())
+      .compare(this.phylumKey, that.phylumKey, Ordering.natural().nullsLast())
+      .compare(this.classKey, that.classKey, Ordering.natural().nullsLast())
+      .compare(this.orderKey, that.orderKey, Ordering.natural().nullsLast())
+      .compare(this.familyKey, that.familyKey, Ordering.natural().nullsLast())
+      .compare(this.genusKey, that.genusKey, Ordering.natural().nullsLast())
+      .compare(this.subgenusKey, that.subgenusKey, Ordering.natural().nullsLast())
+      .compare(this.speciesKey, that.speciesKey, Ordering.natural().nullsLast())
+      .compare(this.taxonKey, that.taxonKey, Ordering.natural().nullsLast())
+      .compare(this.pubOrgKey, that.pubOrgKey, Ordering.natural().nullsLast())
       .compare(this.datasetKey, that.datasetKey, Ordering.natural().nullsLast())
       .compare(this.country, that.country, Ordering.natural().nullsLast())
       .compare(this.publishingCountry, that.publishingCountry, Ordering.natural().nullsLast())
@@ -153,19 +98,19 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   public boolean equals(Object object) {
     if (object instanceof OccurrenceWritable) {
       OccurrenceWritable that = (OccurrenceWritable) object;
-      return Objects.equal(this.kingdomID, that.kingdomID)
-        && Objects.equal(this.phylumID, that.phylumID)
-        && Objects.equal(this.classID, that.classID)
-        && Objects.equal(this.orderID, that.orderID)
-        && Objects.equal(this.familyID, that.familyID)
-        && Objects.equal(this.genusID, that.genusID)
-        && Objects.equal(this.subgenusID, that.subgenusID)
-        && Objects.equal(this.speciesID, that.speciesID)
-        && Objects.equal(this.taxonID, that.taxonID)
+      return Objects.equal(this.kingdomKey, that.kingdomKey)
+        && Objects.equal(this.phylumKey, that.phylumKey)
+        && Objects.equal(this.classKey, that.classKey)
+        && Objects.equal(this.orderKey, that.orderKey)
+        && Objects.equal(this.familyKey, that.familyKey)
+        && Objects.equal(this.genusKey, that.genusKey)
+        && Objects.equal(this.subgenusKey, that.subgenusKey)
+        && Objects.equal(this.speciesKey, that.speciesKey)
+        && Objects.equal(this.taxonKey, that.taxonKey)
         && Objects.equal(this.issues, that.issues)
         && Objects.equal(this.year, that.year)
         && Objects.equal(this.month, that.month)
-        && Objects.equal(this.publishingOrganisationKey, that.publishingOrganisationKey)
+        && Objects.equal(this.pubOrgKey, that.pubOrgKey)
         && Objects.equal(this.datasetKey, that.datasetKey)
         && Objects.equal(this.country, that.country)
         && Objects.equal(this.publishingCountry, that.publishingCountry)
@@ -178,7 +123,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     return false;
   }
 
-  public static boolean hasSpatialIssue(Set<OccurrenceIssue> issues) {
+  public boolean hasSpatialIssue() {
     for (OccurrenceIssue rule : OccurrenceIssue.GEOSPATIAL_RULES) {
       if (issues.contains(rule)) {
         return true;
@@ -189,25 +134,25 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(kingdomID, phylumID, classID, orderID, familyID, genusID, speciesID, taxonID, issues,
-      year, month, publishingOrganisationKey, datasetKey, country, publishingCountry, latitude, longitude,
+    return Objects.hashCode(kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, speciesKey, taxonKey, issues,
+      year, month, pubOrgKey, datasetKey, country, publishingCountry, latitude, longitude,
       basisOfRecord, count, protocol);
   }
 
 
   @Override
   public void readFields(DataInput in) throws IOException {
-    kingdomID = readInt(in);
-    phylumID = readInt(in);
-    classID = readInt(in);
-    orderID = readInt(in);
-    familyID = readInt(in);
-    subgenusID = readInt(in);
-    genusID = readInt(in);
-    speciesID = readInt(in);
-    taxonID = readInt(in);
+    kingdomKey = readInt(in);
+    phylumKey = readInt(in);
+    classKey = readInt(in);
+    orderKey = readInt(in);
+    familyKey = readInt(in);
+    subgenusKey = readInt(in);
+    genusKey = readInt(in);
+    speciesKey = readInt(in);
+    taxonKey = readInt(in);
     issues = readIssueSet(in);
-    publishingOrganisationKey = readUuid(in);
+    pubOrgKey = readUuid(in);
     datasetKey = readUuid(in);
     country = readEnum(in, Country.class);
     publishingCountry = readEnum(in, Country.class);
@@ -223,19 +168,19 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("super", super.toString())
-      .add("kingdomID", kingdomID)
-      .add("phylumID", phylumID)
-      .add("classID", classID)
-      .add("orderID", orderID)
-      .add("familyID", familyID)
-      .add("genusID", genusID)
-      .add("subgenusID", subgenusID)
-      .add("speciesID", speciesID)
-      .add("taxonID", taxonID)
+      .add("kingdomKey", kingdomKey)
+      .add("phylumKey", phylumKey)
+      .add("classKey", classKey)
+      .add("orderKey", orderKey)
+      .add("familyKey", familyKey)
+      .add("genusKey", genusKey)
+      .add("subgenusKey", subgenusKey)
+      .add("speciesKey", speciesKey)
+      .add("taxonKey", taxonKey)
       .add("issues", issues)
       .add("year", year)
       .add("month", month)
-      .add("publishingOrganisationKey", publishingOrganisationKey)
+      .add("pubOrgKey", pubOrgKey)
       .add("datasetKey", datasetKey)
       .add("country", country)
       .add("publishingCountry", publishingCountry)
@@ -249,17 +194,17 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   @Override
   public void write(DataOutput out) throws IOException {
-    write(out, kingdomID);
-    write(out, phylumID);
-    write(out, classID);
-    write(out, orderID);
-    write(out, familyID);
-    write(out, genusID);
-    write(out, subgenusID);
-    write(out, speciesID);
-    write(out, taxonID);
+    write(out, kingdomKey);
+    write(out, phylumKey);
+    write(out, classKey);
+    write(out, orderKey);
+    write(out, familyKey);
+    write(out, genusKey);
+    write(out, subgenusKey);
+    write(out, speciesKey);
+    write(out, taxonKey);
     write(out, issues);
-    write(out, publishingOrganisationKey);
+    write(out, pubOrgKey);
     write(out, datasetKey);
     write(out, country);
     write(out, publishingCountry);
@@ -312,6 +257,17 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     return (NULL_STRING.equals(v)) ? null : toUUID(v);
   }
 
+  private static UUID toUUID(String uuidString) {
+    if (!Strings.isNullOrEmpty(uuidString)) {
+      try {
+        return UUID.fromString(uuidString);
+      } catch (IllegalArgumentException e) {
+        // swallow
+      }
+    }
+    return null;
+  }
+
   private Set<OccurrenceIssue> readIssueSet(DataInput in) throws IOException {
     Set<OccurrenceIssue> issues = Sets.newHashSet();
 
@@ -359,76 +315,82 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     out.writeUTF(v);
   }
 
-  public Integer getKingdomID() {
-    return kingdomID;
+  public Integer getKingdomKey() {
+    return kingdomKey;
   }
 
-  public void setKingdomID(Integer kingdomID) {
-    this.kingdomID = kingdomID;
+  public void setKingdomKey(Integer kingdomKey) {
+    this.kingdomKey = kingdomKey;
   }
 
-  public Integer getPhylumID() {
-    return phylumID;
+  public Integer getPhylumKey() {
+    return phylumKey;
   }
 
-  public void setPhylumID(Integer phylumID) {
-    this.phylumID = phylumID;
+  public void setPhylumKey(Integer phylumKey) {
+    this.phylumKey = phylumKey;
   }
 
-  public Integer getClassID() {
-    return classID;
+  public Integer getClassKey() {
+    return classKey;
   }
 
-  public void setClassID(Integer classID) {
-    this.classID = classID;
+  public void setClassKey(Integer classKey) {
+    this.classKey = classKey;
   }
 
-  public Integer getOrderID() {
-    return orderID;
+  public Integer getOrderKey() {
+    return orderKey;
   }
 
-  public void setOrderID(Integer orderID) {
-    this.orderID = orderID;
+  public void setOrderKey(Integer orderKey) {
+    this.orderKey = orderKey;
   }
 
-  public Integer getFamilyID() {
-    return familyID;
+  public Integer getFamilyKey() {
+    return familyKey;
   }
 
-  public void setFamilyID(Integer familyID) {
-    this.familyID = familyID;
+  public void setFamilyKey(Integer familyKey) {
+    this.familyKey = familyKey;
   }
 
-  public Integer getGenusID() {
-    return genusID;
+  public Integer getGenusKey() {
+    return genusKey;
   }
 
-  public void setGenusID(Integer genusID) {
-    this.genusID = genusID;
+  public void setGenusKey(Integer genusKey) {
+    this.genusKey = genusKey;
   }
 
-  public Integer getSubgenusID() {
-    return subgenusID;
+  public Integer getSubgenusKey() {
+    return subgenusKey;
   }
 
-  public void setSubgenusID(Integer subgenusID) {
-    this.subgenusID = subgenusID;
+  public void setSubgenusKey(Integer subgenusKey) {
+    this.subgenusKey = subgenusKey;
   }
 
-  public Integer getSpeciesID() {
-    return speciesID;
+  @Nullable
+  @Override
+  public Integer getHigherRankKey(Rank rank) {
+    return ClassificationUtils.getHigherRankKey(this, rank);
   }
 
-  public void setSpeciesID(Integer speciesID) {
-    this.speciesID = speciesID;
+  public Integer getSpeciesKey() {
+    return speciesKey;
   }
 
-  public Integer getTaxonID() {
-    return taxonID;
+  public void setSpeciesKey(Integer speciesKey) {
+    this.speciesKey = speciesKey;
   }
 
-  public void setTaxonID(Integer taxonID) {
-    this.taxonID = taxonID;
+  public Integer getTaxonKey() {
+    return taxonKey;
+  }
+
+  public void setTaxonKey(Integer taxonKey) {
+    this.taxonKey = taxonKey;
   }
 
   public Integer getYear() {
@@ -455,12 +417,12 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     this.count = count;
   }
 
-  public UUID getPublishingOrganisationKey() {
-    return publishingOrganisationKey;
+  public UUID getPubOrgKey() {
+    return pubOrgKey;
   }
 
-  public void setPublishingOrganisationKey(UUID publishingOrganisationKey) {
-    this.publishingOrganisationKey = publishingOrganisationKey;
+  public void setPubOrgKey(UUID pubOrgKey) {
+    this.pubOrgKey = pubOrgKey;
   }
 
   public UUID getDatasetKey() {

@@ -2,6 +2,7 @@ package org.gbif.metrics.cube.occurrence.backfill;
 
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 import org.gbif.metrics.cube.occurrence.OccurrenceAddressUtil;
+import org.gbif.occurrence.persistence.util.OccurrenceBuilder;
 
 import java.io.IOException;
 
@@ -26,17 +27,17 @@ public class TableReaderMapper extends TableMapper<ImmutableBytesWritable, IntWr
 
   @Override
   protected void map(ImmutableBytesWritable key, Result row, Context context) throws IOException, InterruptedException {
-    
-    OccurrenceWritable o = OccurrenceWritable.newInstance(row);
-    
+
+    OccurrenceWritable o = new OccurrenceWritable(OccurrenceBuilder.buildOccurrence(row), 1);
+
     // determine the address
     Batch<LongOp> addresses = OccurrenceAddressUtil.cubeMutation(o, new LongOp(1));
     for (Address a : addresses.getMap().keySet()) {
       byte[] rowKey = ArrayUtils.addAll(CUBE_NAME, a.toKey(null));
-      KEY.set(rowKey);  
+      KEY.set(rowKey);
       context.write(KEY, ONE);
     }
-    context.setStatus("Occurrence from dataset[" + o.getDatasetKey() + "] produced [" + addresses.getMap().size() + "] cube mutations");    
+    context.setStatus("Occurrence from dataset[" + o.getDatasetKey() + "] produced [" + addresses.getMap().size() + "] cube mutations");
   }
 
   @Override
