@@ -161,7 +161,7 @@ public class OccurrenceCubeResource {
     try {
       for (Kingdom kingdom : Kingdom.values()) {
         final Address address =
-          new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, kingdom.nubUsageID()).build();
+          new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, kingdom.nubUsageID()).build();
         distribution.put(kingdom, lookup(address));
       }
     } catch (IllegalArgumentException e) {

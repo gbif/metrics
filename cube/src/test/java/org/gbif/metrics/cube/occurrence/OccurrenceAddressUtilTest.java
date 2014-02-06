@@ -5,6 +5,7 @@ import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Continent;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.EndpointType;
+import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.TypeStatus;
 
 import java.util.Set;
@@ -53,6 +54,8 @@ public class OccurrenceAddressUtilTest {
     occ.setYear(1992);
     occ.setMonth(1);
     occ.setDay(31);
+    occ.getIssues().add(OccurrenceIssue.TYPE_STATUS_INVALID);
+    occ.getIssues().add(OccurrenceIssue.ALTITUDE_NON_NUMERIC);
 
     Batch<LongOp> updates = OccurrenceAddressUtil.cubeMutation(occ, new LongOp(1));
 
@@ -62,7 +65,7 @@ public class OccurrenceAddressUtilTest {
     for (Address a : updates.getMap().keySet()) {
       Dimension<?> singleDim = singleDimensionAddress(a);
       if (singleDim != null) {
-        if (OccurrenceCube.NUB_KEY.equals(singleDim)) {
+        if (OccurrenceCube.TAXON_KEY.equals(singleDim)) {
           nubCounter++;
         } else if (addressed.contains(singleDim)){
           System.out.println("Warning, single dimension "+singleDim+" used multiple times");

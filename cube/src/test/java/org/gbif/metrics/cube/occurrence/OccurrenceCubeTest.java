@@ -78,10 +78,10 @@ public class OccurrenceCubeTest {
     cubeIo.flush();
 
     // Tests that NUB KEY are correctly normalized
-    Assert.assertEquals(3L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 1)));
-    Assert.assertEquals(2L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 7)));
-    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 8)));
-    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 9)));
+    Assert.assertEquals(3L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 1)));
+    Assert.assertEquals(2L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 7)));
+    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 8)));
+    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 9)));
 
     // Assertion that normalization of taxa don't incorrectly screw counts (http://dev.gbif.org/issues/browse/MET-11)
     Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.DATASET_KEY, ds2)));
@@ -105,12 +105,12 @@ public class OccurrenceCubeTest {
     cubeIo.writeAsync(OccurrenceAddressUtil.cubeMutation(o1, new LongOp(1)));
     cubeIo.writeAsync(OccurrenceAddressUtil.cubeMutation(o1, new LongOp(1)));
     cubeIo.flush();
-    Assert.assertEquals(2L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 1)));
+    Assert.assertEquals(2L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 1)));
     Assert.assertEquals(2L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.DATASET_KEY, ds1)));
 
     cubeIo.writeAsync(OccurrenceAddressUtil.cubeMutation(o1, new LongOp(-1)));
     cubeIo.flush();
-    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.NUB_KEY, 1)));
+    Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.TAXON_KEY, 1)));
     Assert.assertEquals(1L, getCount(new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.DATASET_KEY, ds1)));
   }
 

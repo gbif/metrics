@@ -26,7 +26,7 @@ public class CubeDimensionProviderTest {
   private Address getInternallyBuilt() {
     return new ReadBuilder(org.gbif.metrics.cube.occurrence.OccurrenceCube.INSTANCE)
       .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.BASIS_OF_RECORD, BasisOfRecord.OBSERVATION)
-      .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.NUB_KEY, 212)
+      .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.TAXON_KEY, 212)
       .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.DATASET_KEY, DS)
       .build();
   }

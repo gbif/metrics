@@ -1,13 +1,15 @@
 package org.gbif.metrics.cube.occurrence;
 
 import org.gbif.api.model.occurrence.Occurrence;
-import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.urbanairship.datacube.Address;
 import com.urbanairship.datacube.Batch;
@@ -18,10 +20,12 @@ import com.urbanairship.datacube.ops.LongOp;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.BASIS_OF_RECORD;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.COUNTRY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.DATASET_KEY;
+import static org.gbif.metrics.cube.occurrence.OccurrenceCube.ISSUE;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.IS_GEOREFERENCED;
-import static org.gbif.metrics.cube.occurrence.OccurrenceCube.NUB_KEY;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.PROTOCOL;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.PUBLISHING_COUNTRY;
+import static org.gbif.metrics.cube.occurrence.OccurrenceCube.TAXON_KEY;
+import static org.gbif.metrics.cube.occurrence.OccurrenceCube.TYPE_STATUS;
 import static org.gbif.metrics.cube.occurrence.OccurrenceCube.YEAR;
 
 /**
@@ -58,9 +62,13 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
-    for (Rank r : Rank.DWC_RANKS) {
-      m.putAll(mutationsForTaxon(occurrence, occurrence.getHigherRankKey(r), op));
+    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList(null) :
+                                                                      Lists.newArrayList(occurrence.getIssues());
+    for (OccurrenceIssue issue : issues) {
+      m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getTaxonKey(), issue, op));
+      for (Rank r : Rank.DWC_RANKS) {
+        m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getHigherRankKey(r), issue, op));
+      }
     }
     return new Batch<LongOp>(m);
   }
@@ -77,9 +85,13 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    m.putAll(mutationsForTaxon(occurrence, occurrence.getTaxonKey(), op));
-    for (Rank r : Rank.DWC_RANKS) {
-      m.putAll(mutationsForTaxon(occurrence, occurrence.getHigherRankKey(r), op));
+    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList(null) :
+      Lists.newArrayList(occurrence.getIssues());
+    for (OccurrenceIssue issue : issues) {
+      m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getTaxonKey(), issue, op));
+      for (Rank r : Rank.DWC_RANKS) {
+        m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getHigherRankKey(r), issue, op));
+      }
     }
     return new Batch<LongOp>(m);
   }
@@ -87,43 +99,45 @@ public class OccurrenceAddressUtil {
   /**
    * For the given taxon, returns all the updates to be applied to the cube
    */
-  private static Map<Address, LongOp> mutationsForTaxon(Occurrence occurrence, Integer nubKey, LongOp op) {
+  private static Map<Address, LongOp> mutationsForTaxonAndIssue(Occurrence occurrence, Integer nubKey, OccurrenceIssue issue, LongOp op) {
     WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);
     addEnumDimension(wb, occurrence.getCountry(), COUNTRY);
     addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);
-    addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);
     addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);
     addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);
     addEnumDimension(wb, occurrence.getPublishingCountry(), PUBLISHING_COUNTRY);
-    addIntDimension(wb, nubKey, NUB_KEY);
     addIntDimension(wb, occurrence.getYear(), YEAR);
+    addIntDimension(wb, nubKey, TAXON_KEY);
+    addEnumDimension(wb, occurrence.getTypeStatus(), TYPE_STATUS);
+    addGeoreferencingDimension(wb, occurrence);
+    addEnumDimension(wb, issue, ISSUE);
     return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();
   }
 
   /**
    * For the given taxon, returns all the updates to be applied to the cube
    */
-  private static Map<Address, LongOp> mutationsForTaxon(OccurrenceWritable occurrence, Integer nubKey, LongOp op) {
+  private static Map<Address, LongOp> mutationsForTaxonAndIssue(OccurrenceWritable occurrence, Integer nubKey, OccurrenceIssue issue, LongOp op) {
     WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);
-    addCountryEnumDimension(wb, occurrence.getCountry(), COUNTRY);
+    addEnumDimension(wb, occurrence.getCountry(), COUNTRY);
     addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);
-    addGeoreferencingDimension(wb, occurrence, IS_GEOREFERENCED);
     addEnumDimension(wb, occurrence.getBasisOfRecord(), BASIS_OF_RECORD);
     addUUIDDimension(wb, occurrence.getDatasetKey(), DATASET_KEY);
-    addCountryEnumDimension(wb, occurrence.getPublishingCountry(), PUBLISHING_COUNTRY);
-    addIntDimension(wb, nubKey, NUB_KEY);
+    addEnumDimension(wb, occurrence.getPublishingCountry(), PUBLISHING_COUNTRY);
     addIntDimension(wb, occurrence.getYear(), YEAR);
+    addIntDimension(wb, nubKey, TAXON_KEY);
+    addEnumDimension(wb, occurrence.getTypeStatus(), TYPE_STATUS);
+    addGeoreferencingDimension(wb, occurrence);
+    addEnumDimension(wb, issue, ISSUE);
     return OccurrenceCube.INSTANCE.getWrites(wb, op).getMap();
   }
 
-  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, Occurrence occurrence,
-                                                         Dimension<Boolean> isGeoreferenced) {
+  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, Occurrence occurrence) {
     return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
       wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
   }
 
-  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence,
-                                                         Dimension<Boolean> isGeoreferenced) {
+  private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, OccurrenceWritable occurrence) {
     return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
       wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
   }
@@ -140,8 +154,4 @@ public class OccurrenceAddressUtil {
     return (e != null) ? wb.at(dim, e) : wb;
   }
 
-  private static <T extends Enum<?>> WriteBuilder addCountryEnumDimension(WriteBuilder wb, Country c,
-    Dimension<Country> dim) {
-    return c == null ? wb : wb.at(dim, c);
-  }
 }

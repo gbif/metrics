@@ -3,9 +3,13 @@ package org.gbif.metrics.cube.occurrence;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.EndpointType;
+import org.gbif.api.vocabulary.OccurrenceIssue;
+import org.gbif.api.vocabulary.TypeStatus;
 import org.gbif.metrics.cube.bucketer.BasisOfRecordBucketer;
 import org.gbif.metrics.cube.bucketer.CountryBucketer;
 import org.gbif.metrics.cube.bucketer.EndpointTypeBucketer;
+import org.gbif.metrics.cube.bucketer.OccurrenceIssueBucketer;
+import org.gbif.metrics.cube.bucketer.TypeStatusBucketer;
 import org.gbif.metrics.cube.bucketer.UUIDBucketer;
 
 import java.util.List;
@@ -50,21 +54,25 @@ public class OccurrenceCube {
   public static final Dimension<BasisOfRecord> BASIS_OF_RECORD = new Dimension<BasisOfRecord>("basisOfRecord", new BasisOfRecordBucketer(), false, BasisOfRecordBucketer.BYTES, true);
   public static final Dimension<Country> PUBLISHING_COUNTRY = new Dimension<Country>("publishingCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);
   public static final Dimension<UUID> DATASET_KEY = new Dimension<UUID>("datasetKey", new UUIDBucketer(), false, UUIDBucketer.BYTES, true);
-  public static final Dimension<Integer> NUB_KEY = new Dimension<Integer>("nubKey", new BigEndianIntBucketer(), false, INT_BYTES, true);
+  public static final Dimension<Integer> TAXON_KEY = new Dimension<Integer>("taxonKey", new BigEndianIntBucketer(), false, INT_BYTES, true);
   public static final Dimension<EndpointType> PROTOCOL = new Dimension<EndpointType>("protocol", new EndpointTypeBucketer(), false, EndpointTypeBucketer.BYTES,true);
+  public static final Dimension<TypeStatus> TYPE_STATUS = new Dimension<TypeStatus>("typeStatus", new TypeStatusBucketer(), false, TypeStatusBucketer.BYTES,true);
+  public static final Dimension<OccurrenceIssue> ISSUE = new Dimension<OccurrenceIssue>("issue", new OccurrenceIssueBucketer(), false, OccurrenceIssueBucketer.BYTES,true);
 
   // Index mapping the public API cube dimensions to the internal datacube dimensions
   // NOTE: Ensure ALL public API mappings are covered
   public static final Map<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>> API_MAPPING =
     ImmutableMap.<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>>builder()
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.IS_GEOREFERENCED, IS_GEOREFERENCED)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.GEOREFERENCED, IS_GEOREFERENCED)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.BASIS_OF_RECORD, BASIS_OF_RECORD)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.COUNTRY, COUNTRY)
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.HOST_COUNTRY, PUBLISHING_COUNTRY)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.PUBLISHING_COUNTRY, PUBLISHING_COUNTRY)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.DATASET_KEY, DATASET_KEY)
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.NUB_KEY, NUB_KEY)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.TAXON_KEY, TAXON_KEY)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.PROTOCOL, PROTOCOL)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.YEAR, YEAR)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.TYPE_STATUS, TYPE_STATUS)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.ISSUE, ISSUE)
     .build();
 
   // Singleton instance

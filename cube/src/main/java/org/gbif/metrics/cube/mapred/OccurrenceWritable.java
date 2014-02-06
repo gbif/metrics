@@ -8,6 +8,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TypeStatus;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -40,6 +41,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   private Country country, publishingCountry;
   private BasisOfRecord basisOfRecord;
   private EndpointType protocol;
+  private TypeStatus typeStatus;
   private Set<OccurrenceIssue> issues = Sets.newHashSet();
 
   private static final int NULL_INT = -1;
@@ -88,6 +90,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
       .compare(this.basisOfRecord, that.basisOfRecord, Ordering.natural().nullsLast())
       .compare(this.count, that.count, Ordering.natural().nullsLast())
       .compare(this.protocol, that.protocol, Ordering.natural().nullsLast())
+      .compare(this.typeStatus, that.typeStatus, Ordering.natural().nullsLast())
       .compare(this.issues, that.issues, Ordering.<OccurrenceIssue>natural().lexicographical())
       .result();
   }
@@ -115,7 +118,8 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
         && Objects.equal(this.longitude, that.longitude)
         && Objects.equal(this.basisOfRecord, that.basisOfRecord)
         && Objects.equal(this.count, that.count)
-        && Objects.equal(this.protocol, that.protocol);
+        && Objects.equal(this.protocol, that.protocol)
+        && Objects.equal(this.typeStatus, that.typeStatus);
     }
     return false;
   }
@@ -133,7 +137,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   public int hashCode() {
     return Objects.hashCode(kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, speciesKey, taxonKey, issues,
       year, pubOrgKey, datasetKey, country, publishingCountry, latitude, longitude,
-      basisOfRecord, count, protocol);
+      basisOfRecord, count, protocol, typeStatus);
   }
 
 
@@ -159,6 +163,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     basisOfRecord = readEnum(in, BasisOfRecord.class);
     count = readInt(in);
     protocol = readEnum(in, EndpointType.class);
+    typeStatus = readEnum(in, TypeStatus.class);
   }
 
   @Override
@@ -183,7 +188,9 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
       .add("longitude", longitude)
       .add("basisOfRecord", basisOfRecord)
       .add("count", count)
-      .add("protocol", protocol).toString();
+      .add("protocol", protocol)
+      .add("typeStatus", typeStatus)
+      .toString();
   }
 
 
@@ -209,6 +216,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     write(out, basisOfRecord);
     write(out, count);
     write(out, protocol);
+    write(out, typeStatus);
   }
 
 
@@ -473,5 +481,13 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public void setIssues(Set<OccurrenceIssue> issues) {
     this.issues = issues;
+  }
+
+  public TypeStatus getTypeStatus() {
+    return typeStatus;
+  }
+
+  public void setTypeStatus(TypeStatus typeStatus) {
+    this.typeStatus = typeStatus;
   }
 }
