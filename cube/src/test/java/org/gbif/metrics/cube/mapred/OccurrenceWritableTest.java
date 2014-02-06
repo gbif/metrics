@@ -35,7 +35,6 @@ public class OccurrenceWritableTest {
       o.readFields(new DataInputStream(bais));
       assertEquals(new Integer(1), o.getKingdomKey());
       assertEquals(new Integer(2012), o.getYear());
-      assertEquals(new Integer(12), o.getMonth());
       assertEquals(Country.UNITED_KINGDOM, o.getPublishingCountry());
       assertNull(o.getPhylumKey());
       assertEquals(0.89d, o.getLatitude().doubleValue(), 0.0001);
@@ -58,7 +57,6 @@ public class OccurrenceWritableTest {
     ow.setLatitude(0.89);
     ow.setLongitude(null);
     ow.setYear(2012);
-    ow.setMonth(12);
     ow.setCount(1);
     return ow;
   }

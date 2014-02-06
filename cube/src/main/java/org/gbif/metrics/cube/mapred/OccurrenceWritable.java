@@ -34,7 +34,7 @@ import org.apache.hadoop.io.WritableComparable;
 public class OccurrenceWritable implements WritableComparable<OccurrenceWritable>, LinneanClassificationKeys {
 
   private Integer kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, subgenusKey, speciesKey, taxonKey;
-  private Integer year, month, count;
+  private Integer year, count;
   private UUID pubOrgKey, datasetKey;
   private Double latitude, longitude;
   private Country country, publishingCountry;
@@ -50,12 +50,11 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public OccurrenceWritable() {
   }
-  public OccurrenceWritable(Occurrence occ, Integer count) {
+  public OccurrenceWritable(Occurrence occ, Integer cnt) {
     taxonKey = occ.getTaxonKey();
     ClassificationUtils.copyLinneanClassificationKeys(occ, this);
-    year = occ.getTaxonKey();
-    month = occ.getTaxonKey();
-    this.count = count;
+    year = occ.getYear();
+    count = cnt;
     pubOrgKey = occ.getPublishingOrgKey();
     datasetKey = occ.getDatasetKey();
     latitude = occ.getLatitude();
@@ -86,7 +85,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
       .compare(this.latitude, that.latitude, Ordering.natural().nullsLast())
       .compare(this.longitude, that.longitude, Ordering.natural().nullsLast())
       .compare(this.year, that.year, Ordering.natural().nullsLast())
-      .compare(this.month, that.month, Ordering.natural().nullsLast())
       .compare(this.basisOfRecord, that.basisOfRecord, Ordering.natural().nullsLast())
       .compare(this.count, that.count, Ordering.natural().nullsLast())
       .compare(this.protocol, that.protocol, Ordering.natural().nullsLast())
@@ -109,7 +107,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
         && Objects.equal(this.taxonKey, that.taxonKey)
         && Objects.equal(this.issues, that.issues)
         && Objects.equal(this.year, that.year)
-        && Objects.equal(this.month, that.month)
         && Objects.equal(this.pubOrgKey, that.pubOrgKey)
         && Objects.equal(this.datasetKey, that.datasetKey)
         && Objects.equal(this.country, that.country)
@@ -135,7 +132,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
   @Override
   public int hashCode() {
     return Objects.hashCode(kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, speciesKey, taxonKey, issues,
-      year, month, pubOrgKey, datasetKey, country, publishingCountry, latitude, longitude,
+      year, pubOrgKey, datasetKey, country, publishingCountry, latitude, longitude,
       basisOfRecord, count, protocol);
   }
 
@@ -159,7 +156,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     latitude = readDouble(in);
     longitude = readDouble(in);
     year = readInt(in);
-    month = readInt(in);
     basisOfRecord = readEnum(in, BasisOfRecord.class);
     count = readInt(in);
     protocol = readEnum(in, EndpointType.class);
@@ -179,7 +175,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
       .add("taxonKey", taxonKey)
       .add("issues", issues)
       .add("year", year)
-      .add("month", month)
       .add("pubOrgKey", pubOrgKey)
       .add("datasetKey", datasetKey)
       .add("country", country)
@@ -211,7 +206,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     write(out, latitude);
     write(out, longitude);
     write(out, year);
-    write(out, month);
     write(out, basisOfRecord);
     write(out, count);
     write(out, protocol);
@@ -399,14 +393,6 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public void setYear(Integer year) {
     this.year = year;
-  }
-
-  public Integer getMonth() {
-    return month;
-  }
-
-  public void setMonth(Integer month) {
-    this.month = month;
   }
 
   public Integer getCount() {
