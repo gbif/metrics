@@ -21,7 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 /**
- * A simple Grizzly based WS IT test 
+ * A simple Grizzly based WS IT test
  */
 public class CubeWsClientIT extends BaseResourceTest {
   private static final String PROPERTIES_FILE = "metrics.properties";
@@ -29,14 +29,14 @@ public class CubeWsClientIT extends BaseResourceTest {
   // should this change then we are really in trouble
   private static final int ANIMALIA_KEY = 1;
   private CubeService wsClient; // under test
-  
+
   public CubeWsClientIT() {
     super("org.gbif.metrics.ws.resources", CONTEXT, MetricsWsServletListener.class);
   }
-  
+
   @Before
   public void init() throws IOException {
-    // This uses UrlBindingModule to dynamically set the named property (metrics.ws.url) taking into account that the 
+    // This uses UrlBindingModule to dynamically set the named property (metrics.ws.url) taking into account that the
     // port might have been set at runtime with system properties (hence the metrics-ws.url is omitted
     // in the properties)
     Injector clientInjector = Guice.createInjector(
@@ -44,25 +44,25 @@ public class CubeWsClientIT extends BaseResourceTest {
       new MetricsWsClientModule(PropertiesUtil.loadProperties(PROPERTIES_FILE)));
     wsClient = clientInjector.getInstance(CubeService.class);
   }
-  
+
   /**
    * This simply does lookups to verify we can read something without error.
    * This is an IT of the total wiring, and not intended to check any business logic of the cube.
    */
   @Ignore("Tried to connect to table outside Grizzly that no longer existed throwing TableNotFoundException")
   public void basicLookup() {
-    wsClient.get(new ReadBuilder().at(OccurrenceCube.NUB_KEY, ANIMALIA_KEY));
+    wsClient.get(new ReadBuilder().at(OccurrenceCube.TAXON_KEY, ANIMALIA_KEY));
     wsClient.get(new ReadBuilder().at(OccurrenceCube.DATASET_KEY, UUID.randomUUID()));
     wsClient.get(new ReadBuilder());
   }
-  
+
   /**
    * An IT to simply check the scheme can be read, and that some rollups exist.
    * Is not meant to test any business logic.
    */
   @Test
   public void schema() {
-    assertTrue("CubeIo schema says no rollups which can't be true", 
+    assertTrue("CubeIo schema says no rollups which can't be true",
       wsClient.getSchema().size() > 0);
   }
 }
