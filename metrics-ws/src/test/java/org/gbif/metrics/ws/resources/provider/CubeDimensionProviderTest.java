@@ -37,7 +37,7 @@ public class CubeDimensionProviderTest {
     OccurrenceCubeReaderProvider b = new OccurrenceCubeReaderProvider(null);
     MultivaluedMap<String, String> m = new MultivaluedMapImpl();
     m.add(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.toString());
-    m.add(OccurrenceCube.NUB_KEY.getKey(), "212");
+    m.add(OccurrenceCube.TAXON_KEY.getKey(), "212");
     m.add(OccurrenceCube.DATASET_KEY.getKey(), DS.toString());
     ReadBuilder rb = b.build(m);
     assertEquals(getInternallyBuilt(), rb.build());
