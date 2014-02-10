@@ -142,8 +142,8 @@ public class OccurrenceCubeTest {
     occ.setBasisOfRecord(bor);
     occ.setCountry(country);
     occ.setYear(year);
-    occ.setLatitude(latitude);
-    occ.setLongitude(longitude);
+    occ.setDecimalLatitude(latitude);
+    occ.setDecimalLongitude(longitude);
     occ.setProtocol(protocol);
 
     return occ;

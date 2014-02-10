@@ -19,12 +19,12 @@ public class OccurrenceComparisonUtil {
    * True if the subset of fields of occurrence, that are interesting to metrics and cube-updating, are the same.
    */
   public static boolean equivalent(Occurrence occ1, Occurrence occ2) {
-    //TODO: Do we need to compare the holy triple too?
-/*
-       && Objects.equal(occ1.getInstitutionCode(), occ2.getInstitutionCode())
-       && Objects.equal(occ1.getCollectionCode(), occ2.getCollectionCode())
-       && Objects.equal(occ1.getCatalogNumber(), occ2.getCatalogNumber())
-*/
+    // TODO: Do we need to compare the holy triple too?
+    /*
+     * && Objects.equal(occ1.getInstitutionCode(), occ2.getInstitutionCode())
+     * && Objects.equal(occ1.getCollectionCode(), occ2.getCollectionCode())
+     * && Objects.equal(occ1.getCatalogNumber(), occ2.getCatalogNumber())
+     */
 
     return Objects.equal(occ1.getKey(), occ2.getKey())
       && Objects.equal(occ1.getDatasetKey(), occ2.getDatasetKey())
@@ -39,8 +39,8 @@ public class OccurrenceComparisonUtil {
       && Objects.equal(occ1.getSpeciesKey(), occ2.getSpeciesKey())
       && Objects.equal(occ1.getScientificName(), occ2.getScientificName())
       && Objects.equal(occ1.hasSpatialIssue(), occ2.hasSpatialIssue())
-      && Objects.equal(occ1.getLatitude(), occ2.getLatitude())
-      && Objects.equal(occ1.getLongitude(), occ2.getLongitude())
+      && Objects.equal(occ1.getDecimalLatitude(), occ2.getDecimalLatitude())
+      && Objects.equal(occ1.getDecimalLongitude(), occ2.getDecimalLongitude())
       && Objects.equal(occ1.getCountry(), occ2.getCountry())
       && Objects.equal(occ1.getPublishingCountry(), occ2.getPublishingCountry())
       && Objects.equal(occ1.getProtocol(), occ2.getProtocol());

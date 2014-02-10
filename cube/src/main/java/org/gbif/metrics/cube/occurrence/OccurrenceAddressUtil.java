@@ -53,7 +53,7 @@ public class OccurrenceAddressUtil {
   /**
    * For the given occurrence, determines the mutations (addresses and operations) that need
    * to be applied.
-   *
+   * 
    * @param occurrence The denormalized representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -63,7 +63,7 @@ public class OccurrenceAddressUtil {
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
     List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList(null) :
-                                                                      Lists.newArrayList(occurrence.getIssues());
+      Lists.newArrayList(occurrence.getIssues());
     for (OccurrenceIssue issue : issues) {
       m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getTaxonKey(), issue, op));
       for (Rank r : Rank.DWC_RANKS) {
@@ -76,7 +76,7 @@ public class OccurrenceAddressUtil {
   /**
    * For the given occurrence writable, determines the mutations (addresses and operations) that need
    * to be applied.
-   *
+   * 
    * @param occurrence The writable representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -99,7 +99,8 @@ public class OccurrenceAddressUtil {
   /**
    * For the given taxon, returns all the updates to be applied to the cube
    */
-  private static Map<Address, LongOp> mutationsForTaxonAndIssue(Occurrence occurrence, Integer nubKey, OccurrenceIssue issue, LongOp op) {
+  private static Map<Address, LongOp> mutationsForTaxonAndIssue(Occurrence occurrence, Integer nubKey,
+    OccurrenceIssue issue, LongOp op) {
     WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);
     addEnumDimension(wb, occurrence.getCountry(), COUNTRY);
     addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);
@@ -117,7 +118,8 @@ public class OccurrenceAddressUtil {
   /**
    * For the given taxon, returns all the updates to be applied to the cube
    */
-  private static Map<Address, LongOp> mutationsForTaxonAndIssue(OccurrenceWritable occurrence, Integer nubKey, OccurrenceIssue issue, LongOp op) {
+  private static Map<Address, LongOp> mutationsForTaxonAndIssue(OccurrenceWritable occurrence, Integer nubKey,
+    OccurrenceIssue issue, LongOp op) {
     WriteBuilder wb = new WriteBuilder(OccurrenceCube.INSTANCE);
     addEnumDimension(wb, occurrence.getCountry(), COUNTRY);
     addEnumDimension(wb, occurrence.getProtocol(), PROTOCOL);
@@ -133,7 +135,8 @@ public class OccurrenceAddressUtil {
   }
 
   private static WriteBuilder addGeoreferencingDimension(WriteBuilder wb, Occurrence occurrence) {
-    return (occurrence.getLatitude() != null && occurrence.getLongitude() != null && !occurrence.hasSpatialIssue()) ?
+    return (occurrence.getDecimalLatitude() != null && occurrence.getDecimalLongitude() != null && !occurrence
+      .hasSpatialIssue()) ?
       wb.at(IS_GEOREFERENCED, true) : wb.at(IS_GEOREFERENCED, false);
   }
 

@@ -35,7 +35,7 @@ public class OccurrenceAddressUtilTest {
     occ.setTypeStatus(TypeStatus.HOLOTYPE);
     occ.setDatasetKey(datasetKey);
     occ.setKey(1);
-    occ.setAltitude(110);
+    occ.setElevation(110);
     occ.setDepth(10);
     occ.setBasisOfRecord(BasisOfRecord.PRESERVED_SPECIMEN);
     occ.setTaxonKey(1000);
@@ -67,8 +67,8 @@ public class OccurrenceAddressUtilTest {
       if (singleDim != null) {
         if (OccurrenceCube.TAXON_KEY.equals(singleDim)) {
           nubCounter++;
-        } else if (addressed.contains(singleDim)){
-          System.out.println("Warning, single dimension "+singleDim+" used multiple times");
+        } else if (addressed.contains(singleDim)) {
+          System.out.println("Warning, single dimension " + singleDim + " used multiple times");
           System.out.println(a);
         }
         addressed.add(singleDim);
@@ -91,7 +91,7 @@ public class OccurrenceAddressUtilTest {
         nonWildcardDims.add(dim);
       }
     }
-    if (nonWildcardDims.size()==1) {
+    if (nonWildcardDims.size() == 1) {
       return nonWildcardDims.iterator().next();
     }
     return null;

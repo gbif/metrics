@@ -96,12 +96,12 @@ public class DensityTileTest {
       Occurrence occurrence =
         mapper
           .readValue(
-            "{\"key\":307075245,\"kingdom\":\"Plantae\",\"phylum\":\"Magnoliophyta\",\"clazz\":\"Magnoliopsida\",\"order\":\"Lamiales\",\"family\":\"Lamiaceae\",\"genus\":\"Stachys\",\"subgenus\":null,\"species\":\"Stachys palustris\",\"kingdomKey\":6,\"phylumKey\":49,\"classKey\":220,\"orderKey\":408,\"familyKey\":2497,\"genusKey\":2927228,\"subgenusKey\":null,\"speciesKey\":2927245,\"datasetKey\":\"086a644d-6cbe-43b7-b7c7-d33d36028d7f\",\"publishingOrgKey\":\"07f617d0-c688-11d8-bf62-b8a03c50a862\",\"scientificName\":\"Stachys palustris L.\",\"taxonKey\":2927245,\"basisOfRecord\":\"UNKNOWN\",\"longitude\":-5.54387,\"latitude\":55.28758,\"stateProvince\":null,\"country\":\"GB\",\"continent\":\"EUROPE\",\"year\":1997,\"month\":null,\"day\":null,\"modified\":1368692609000,\"protocol\":\"DWC_ARCHIVE\",\"publishingCountry\":\"GB\"}",
+            "{\"key\":307075245,\"kingdom\":\"Plantae\",\"phylum\":\"Magnoliophyta\",\"clazz\":\"Magnoliopsida\",\"order\":\"Lamiales\",\"family\":\"Lamiaceae\",\"genus\":\"Stachys\",\"subgenus\":null,\"species\":\"Stachys palustris\",\"kingdomKey\":6,\"phylumKey\":49,\"classKey\":220,\"orderKey\":408,\"familyKey\":2497,\"genusKey\":2927228,\"subgenusKey\":null,\"speciesKey\":2927245,\"datasetKey\":\"086a644d-6cbe-43b7-b7c7-d33d36028d7f\",\"publishingOrgKey\":\"07f617d0-c688-11d8-bf62-b8a03c50a862\",\"scientificName\":\"Stachys palustris L.\",\"taxonKey\":2927245,\"basisOfRecord\":\"UNKNOWN\",\"decimalLongitude\":-5.54387,\"decimalLatitude\":55.28758,\"stateProvince\":null,\"country\":\"GB\",\"continent\":\"EUROPE\",\"year\":1997,\"month\":null,\"day\":null,\"modified\":1368692609000,\"protocol\":\"DWC_ARCHIVE\",\"publishingCountry\":\"GB\"}",
             Occurrence.class);
-      occurrence.getFields().put(DwcTerm.occurrenceID, null);
-      occurrence.getFields().put(DwcTerm.institutionCode, "Botanical Society of the British Isles");
-      occurrence.getFields().put(DwcTerm.collectionCode, "6340");
-      occurrence.getFields().put(DwcTerm.catalogNumber, "59935182");
+      occurrence.getVerbatimFields().put(DwcTerm.occurrenceID, null);
+      occurrence.getVerbatimFields().put(DwcTerm.institutionCode, "Botanical Society of the British Isles");
+      occurrence.getVerbatimFields().put(DwcTerm.collectionCode, "6340");
+      occurrence.getVerbatimFields().put(DwcTerm.catalogNumber, "59935182");
       int zoom = 5;
       int pixels = 1;
       int iterations = 10;

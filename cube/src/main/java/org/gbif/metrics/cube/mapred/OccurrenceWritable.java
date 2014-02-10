@@ -52,6 +52,7 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   public OccurrenceWritable() {
   }
+
   public OccurrenceWritable(Occurrence occ, Integer cnt) {
     taxonKey = occ.getTaxonKey();
     ClassificationUtils.copyLinneanClassificationKeys(occ, this);
@@ -59,8 +60,8 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
     count = cnt;
     pubOrgKey = occ.getPublishingOrgKey();
     datasetKey = occ.getDatasetKey();
-    latitude = occ.getLatitude();
-    longitude = occ.getLongitude();
+    latitude = occ.getDecimalLatitude();
+    longitude = occ.getDecimalLongitude();
     country = occ.getCountry();
     publishingCountry = occ.getPublishingCountry();
     basisOfRecord = occ.getBasisOfRecord();
@@ -135,7 +136,8 @@ public class OccurrenceWritable implements WritableComparable<OccurrenceWritable
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, speciesKey, taxonKey, issues,
+    return Objects.hashCode(kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, speciesKey, taxonKey,
+      issues,
       year, pubOrgKey, datasetKey, country, publishingCountry, latitude, longitude,
       basisOfRecord, count, protocol, typeStatus);
   }
