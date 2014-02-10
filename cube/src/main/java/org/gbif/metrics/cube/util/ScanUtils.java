@@ -23,7 +23,7 @@ public class ScanUtils {
     }
   }
 
-  public static void addFieldToScan(Scan scan, FieldName ... fields) {
+  public static void addFieldToScan(Scan scan, FieldName... fields) {
     Preconditions.checkNotNull(fields);
     for (FieldName fn : fields) {
       HBaseFieldUtil.HBaseColumn column = HBaseFieldUtil.getHBaseColumn(fn);
@@ -33,19 +33,19 @@ public class ScanUtils {
 
   public static void addTaxonomyColumns(Scan scan) {
     addFieldToScan(scan, FieldName.I_KINGDOM_KEY, FieldName.I_PHYLUM_KEY, FieldName.I_CLASS_KEY, FieldName.I_ORDER_KEY,
-                   FieldName.I_FAMILY_KEY, FieldName.I_GENUS_KEY, FieldName.I_SUBGENUS_KEY, FieldName.I_SPECIES_KEY,
-                   FieldName.I_TAXON_KEY);
+      FieldName.I_FAMILY_KEY, FieldName.I_GENUS_KEY, FieldName.I_SUBGENUS_KEY, FieldName.I_SPECIES_KEY,
+      FieldName.I_TAXON_KEY);
   }
 
   public static void addCoordinateColumns(Scan scan) {
-    addFieldToScan(scan, FieldName.I_LATITUDE, FieldName.I_LONGITUDE);
+    addFieldToScan(scan, FieldName.I_DECIMAL_LATITUDE, FieldName.I_DECIMAL_LONGITUDE);
   }
 
   public static void addOtherColumns(Scan scan) {
     addFieldToScan(scan, FieldName.PUB_ORG_KEY);
     addFieldToScan(scan, FieldName.DATASET_KEY);
     addFieldToScan(scan, FieldName.I_COUNTRY);
-    addFieldToScan(scan, FieldName.PUB_COUNTRY);
+    addFieldToScan(scan, FieldName.PUB_COUNTRY_CODE);
     addFieldToScan(scan, FieldName.I_YEAR);
     addFieldToScan(scan, FieldName.I_MONTH);
     addFieldToScan(scan, FieldName.I_BASIS_OF_RECORD);
