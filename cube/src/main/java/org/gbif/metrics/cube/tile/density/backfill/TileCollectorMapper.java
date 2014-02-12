@@ -22,17 +22,19 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
 
   @Override
   protected void map(OccurrenceWritable o, IntWritable count, Context context) throws IOException, InterruptedException {
-    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.getIssues() + "] has count[" + o.getCount() + "]");
+    context.setStatus("Latitude[" + o.getLatitude() + "], Longitude[" + o.getLongitude() + "], issues[" + o.getIssues()
+      + "] has count[" + o.getCount() + "]");
     o.setCount(count.get()); // cannot be set earlier, since we need to group at the occurrence
 
     // Google only goes +/- 85 degrees and we only want maps with no known issues
     if (MercatorProjectionUtil.isPlottable(o.getLatitude(), o.getLongitude()) && !o.hasSpatialIssue()) {
       Set<Integer> taxa =
         Sets.newHashSet(o.getKingdomKey(), o.getPhylumKey(), o.getClassKey(), o.getOrderKey(), o.getFamilyKey(),
-                        o.getGenusKey(), o.getSubgenusKey(), o.getSpeciesKey(), o.getTaxonKey());
+          o.getGenusKey(), o.getSubgenusKey(), o.getSpeciesKey(), o.getTaxonKey());
 
       for (int z = 0; z < numberZooms; z++) {
-        context.setStatus("Lat[" + o.getLatitude() + "] lng[" + o.getLongitude() + "] zoom[" + z + " of " + numberZooms + "]");
+        context.setStatus("Lat[" + o.getLatitude() + "] lng[" + o.getLongitude() + "] zoom[" + z + " of " + numberZooms
+          + "]");
         // locate the tile
         int tileX = MercatorProjectionUtil.toTileX(o.getLongitude(), z);
         int tileY = MercatorProjectionUtil.toTileY(o.getLatitude(), z);
@@ -49,10 +51,12 @@ public class TileCollectorMapper extends Mapper<OccurrenceWritable, IntWritable,
           context.write(new TileKeyWritable(TileContentType.DATASET, o.getDatasetKey(), tileX, tileY, z), o);
         }
         if (o.getCountry() != null) {
-          context.write(new TileKeyWritable(TileContentType.COUNTRY, o.getCountry(), tileX, tileY, z), o);
+          context.write(new TileKeyWritable(TileContentType.COUNTRY, o.getCountry().getIso2LetterCode(), tileX, tileY,
+            z), o);
         }
         if (o.getPublishingCountry() != null) {
-          context.write(new TileKeyWritable(TileContentType.PUBLISHING_COUNTRY, o.getPublishingCountry(), tileX, tileY, z), o);
+          context.write(new TileKeyWritable(TileContentType.PUBLISHING_COUNTRY, o.getPublishingCountry()
+            .getIso2LetterCode(), tileX, tileY, z), o);
         }
       }
     }
