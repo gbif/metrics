@@ -26,7 +26,7 @@ import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 class BackfillCallback implements HBaseBackfillCallback {
 
   private void addFieldToScan(Scan scan, FieldName fn) {
-    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnFamilyName()),
+    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getFamilyName()),
       Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnName()));
   }
 

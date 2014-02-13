@@ -2,6 +2,7 @@ package org.gbif.metrics.cube.util;
 
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.occurrence.common.constants.FieldName;
+import org.gbif.occurrence.persistence.hbase.HBaseColumn;
 import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
 
 import com.google.common.base.Preconditions;
@@ -18,16 +19,16 @@ public class ScanUtils {
 
   public static void addSpatialIssueColumns(Scan scan) {
     for (OccurrenceIssue issue : OccurrenceIssue.GEOSPATIAL_RULES) {
-      HBaseFieldUtil.HBaseColumn column = HBaseFieldUtil.getHBaseColumn(issue);
-      scan.addColumn(Bytes.toBytes(column.getColumnFamilyName()), Bytes.toBytes(column.getColumnName()));
+      HBaseColumn column = HBaseFieldUtil.getHBaseColumn(issue);
+      scan.addColumn(Bytes.toBytes(column.getFamilyName()), Bytes.toBytes(column.getColumnName()));
     }
   }
 
   public static void addFieldToScan(Scan scan, FieldName... fields) {
     Preconditions.checkNotNull(fields);
     for (FieldName fn : fields) {
-      HBaseFieldUtil.HBaseColumn column = HBaseFieldUtil.getHBaseColumn(fn);
-      scan.addColumn(Bytes.toBytes(column.getColumnFamilyName()), Bytes.toBytes(column.getColumnName()));
+      HBaseColumn column = HBaseFieldUtil.getHBaseColumn(fn);
+      scan.addColumn(Bytes.toBytes(column.getFamilyName()), Bytes.toBytes(column.getColumnName()));
     }
   }
 
