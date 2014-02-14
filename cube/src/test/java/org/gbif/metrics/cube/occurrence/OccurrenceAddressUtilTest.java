@@ -55,7 +55,7 @@ public class OccurrenceAddressUtilTest {
     occ.setMonth(1);
     occ.setDay(31);
     occ.getIssues().add(OccurrenceIssue.TYPE_STATUS_INVALID);
-    occ.getIssues().add(OccurrenceIssue.ALTITUDE_NON_NUMERIC);
+    occ.getIssues().add(OccurrenceIssue.ELEVATION_NON_NUMERIC);
 
     Batch<LongOp> updates = OccurrenceAddressUtil.cubeMutation(occ, new LongOp(1));
 
