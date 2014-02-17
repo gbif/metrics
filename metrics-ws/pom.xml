@@ -163,9 +163,9 @@
       <properties>
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
-        <occurrence-cube.table>appdev_occurrence_cube</occurrence-cube.table>
-        <taxon.occurrence_dataset.table>appdev_dataset_taxon_cube</taxon.occurrence_dataset.table>
-        <country.occurrence_dataset.table>appdev_dataset_country_cube</country.occurrence_dataset.table>
+        <occurrence-cube.table>dev_occurrence_cube</occurrence-cube.table>
+        <taxon.occurrence_dataset.table>dev_dataset_taxon_cube</taxon.occurrence_dataset.table>
+        <country.occurrence_dataset.table>dev_dataset_country_cube</country.occurrence_dataset.table>
       </properties>
     </profile>
     <!--
