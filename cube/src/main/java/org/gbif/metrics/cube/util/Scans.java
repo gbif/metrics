@@ -4,7 +4,7 @@ import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.occurrence.persistence.api.InternalTerm;
+import org.gbif.dwc.terms.GbifInternalTerm;
 import org.gbif.occurrence.persistence.hbase.Columns;
 import org.gbif.occurrence.persistence.util.OccurrenceBuilder;
 
@@ -45,7 +45,7 @@ public class Scans {
 
   public static void addOtherColumns(Scan scan) {
     addTerm(scan, GbifTerm.datasetKey);
-    addTerm(scan, InternalTerm.publishingOrgKey);
+    addTerm(scan, GbifInternalTerm.publishingOrgKey);
     addTerm(scan, GbifTerm.publishingCountry);
     addTerm(scan, DwcTerm.countryCode);
     addTerm(scan, DwcTerm.year);
