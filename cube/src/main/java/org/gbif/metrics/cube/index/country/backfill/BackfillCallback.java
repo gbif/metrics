@@ -1,9 +1,10 @@
 package org.gbif.metrics.cube.index.country.backfill;
 
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.index.common.Combiner;
-import org.gbif.occurrence.common.constants.FieldName;
-import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
+import org.gbif.metrics.cube.util.Scans;
 
 import java.io.IOException;
 
@@ -12,7 +13,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -61,18 +61,13 @@ class BackfillCallback implements HBaseBackfillCallback {
     }
   }
 
-  private void addFieldToScan(Scan scan, FieldName fn) {
-    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getFamilyName()),
-      Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnName()));
-  }
-
   private Scan getScanner(Configuration conf) {
     Scan scan = new Scan();
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the TableReaderMapper wants
-    addFieldToScan(scan, FieldName.I_COUNTRY);
-    addFieldToScan(scan, FieldName.DATASET_KEY);
+    Scans.addTerm(scan, DwcTerm.countryCode);
+    Scans.addTerm(scan, GbifTerm.datasetKey);
     return scan;
   }
 }

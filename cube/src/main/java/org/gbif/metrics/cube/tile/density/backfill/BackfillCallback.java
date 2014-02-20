@@ -3,9 +3,7 @@ package org.gbif.metrics.cube.tile.density.backfill;
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.mapred.OccurrenceWritable;
 import org.gbif.metrics.cube.tile.io.TileKeyWritable;
-import org.gbif.metrics.cube.util.ScanUtils;
-import org.gbif.occurrence.common.constants.FieldName;
-import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
+import org.gbif.metrics.cube.util.Scans;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -17,7 +15,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -33,11 +30,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
  * sort)
  */
 class BackfillCallback implements HBaseBackfillCallback {
-
-  private void addFieldToScan(Scan scan, FieldName fn) {
-    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getFamilyName()),
-      Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnName()));
-  }
 
   @Override
   public void backfillInto(Configuration conf, byte[] table, byte[] cf, long snapshotFinishMs) throws IOException {
@@ -111,10 +103,10 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCacheBlocks(false); // not needed for efficient scanning
 
     // Optimize the scan by bringing back only what the TileCollectMapper wants
-    ScanUtils.addTaxonomyColumns(scan);
-    ScanUtils.addSpatialIssueColumns(scan);
-    ScanUtils.addCoordinateColumns(scan);
-    ScanUtils.addOtherColumns(scan);
+    Scans.addTaxonomyColumns(scan);
+    Scans.addSpatialIssueColumns(scan);
+    Scans.addCoordinateColumns(scan);
+    Scans.addOtherColumns(scan);
     return scan;
   }
 }

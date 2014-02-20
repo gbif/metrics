@@ -1,9 +1,7 @@
 package org.gbif.metrics.cube.occurrence.backfill;
 
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
-import org.gbif.metrics.cube.util.ScanUtils;
-import org.gbif.occurrence.common.constants.FieldName;
-import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
+import org.gbif.metrics.cube.util.Scans;
 
 import java.io.IOException;
 
@@ -13,7 +11,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 
@@ -50,20 +47,15 @@ class BackfillCallback implements HBaseBackfillCallback {
     }
   }
 
-  private void addFieldToScan(Scan scan, FieldName fn) {
-    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getFamilyName()),
-      Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnName()));
-  }
-
   private Scan getScanner(Configuration conf) {
     Scan scan = new Scan();
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the CubeWriterMapper wants
-    ScanUtils.addTaxonomyColumns(scan);
-    ScanUtils.addSpatialIssueColumns(scan);
-    ScanUtils.addCoordinateColumns(scan);
-    ScanUtils.addOtherColumns(scan);
+    Scans.addTaxonomyColumns(scan);
+    Scans.addSpatialIssueColumns(scan);
+    Scans.addCoordinateColumns(scan);
+    Scans.addOtherColumns(scan);
 
     return scan;
   }

@@ -35,8 +35,8 @@ public class OccurrenceAddressUtilTest {
     occ.setTypeStatus(TypeStatus.HOLOTYPE);
     occ.setDatasetKey(datasetKey);
     occ.setKey(1);
-    occ.setElevation(110);
-    occ.setDepth(10);
+    occ.setElevation(110d);
+    occ.setDepth(10d);
     occ.setBasisOfRecord(BasisOfRecord.PRESERVED_SPECIMEN);
     occ.setTaxonKey(1000);
     occ.setKingdomKey(6);

@@ -1,9 +1,9 @@
 package org.gbif.metrics.cube.index.taxon.backfill;
 
+import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.metrics.cube.HBaseSourcedBackfill;
 import org.gbif.metrics.cube.index.common.Combiner;
-import org.gbif.occurrence.common.constants.FieldName;
-import org.gbif.occurrence.persistence.hbase.HBaseFieldUtil;
+import org.gbif.metrics.cube.util.Scans;
 
 import java.io.IOException;
 
@@ -12,7 +12,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -24,11 +23,6 @@ import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
  * writes the cube.
  */
 class BackfillCallback implements HBaseBackfillCallback {
-
-  private void addFieldToScan(Scan scan, FieldName fn) {
-    scan.addColumn(Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getFamilyName()),
-      Bytes.toBytes(HBaseFieldUtil.getHBaseColumn(fn).getColumnName()));
-  }
 
   @Override
   public void backfillInto(Configuration conf, byte[] table, byte[] cf, long snapshotFinishMs) throws IOException {
@@ -71,16 +65,8 @@ class BackfillCallback implements HBaseBackfillCallback {
     scan.setCaching(conf.getInt(HBaseSourcedBackfill.KEY_SCANNER_CACHE, HBaseSourcedBackfill.DEFAULT_SCANNER_CACHE));
     scan.setCacheBlocks(false); // not needed for efficient scanning
     // Optimize the scan by bringing back only what the TableReaderMapper wants
-    addFieldToScan(scan, FieldName.I_KINGDOM_KEY);
-    addFieldToScan(scan, FieldName.I_PHYLUM_KEY);
-    addFieldToScan(scan, FieldName.I_CLASS_KEY);
-    addFieldToScan(scan, FieldName.I_ORDER_KEY);
-    addFieldToScan(scan, FieldName.I_FAMILY_KEY);
-    addFieldToScan(scan, FieldName.I_GENUS_KEY);
-    addFieldToScan(scan, FieldName.I_SUBGENUS_KEY);
-    addFieldToScan(scan, FieldName.I_SPECIES_KEY);
-    addFieldToScan(scan, FieldName.I_TAXON_KEY);
-    addFieldToScan(scan, FieldName.DATASET_KEY);
+    Scans.addTaxonomyColumns(scan);
+    Scans.addTerm(scan, GbifTerm.datasetKey);
     return scan;
   }
 }
