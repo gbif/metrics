@@ -143,6 +143,19 @@
   </dependencies>
   <profiles>
     <!--
+     A production deploy profile. It has no missing passwords.
+    -->
+    <profile>
+      <id>prod_a</id>
+      <properties>
+        <ganglia.server>130.226.238.237</ganglia.server>
+        <ganglia.port>8649</ganglia.port>
+        <occurrence-cube.table>prod_a_occurrence_cube</occurrence-cube.table>
+        <taxon.occurrence_dataset.table>prod_a_dataset_taxon_cube</taxon.occurrence_dataset.table>
+        <country.occurrence_dataset.table>prod_a_dataset_country_cube</country.occurrence_dataset.table>
+      </properties>
+    </profile>
+    <!--
      A uat deploy profile. It has no missing passwords.
     -->
     <profile>
