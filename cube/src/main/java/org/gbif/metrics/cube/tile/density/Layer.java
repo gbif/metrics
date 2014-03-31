@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.gbif.metrics.cube.tile.density;
 
@@ -46,35 +46,36 @@ public enum Layer {
   /**
    * Utility to determine to which layer an occurrence record belongs.
    * This assumes that the record is plottable, so no verification on the coordinates is performed.
-   * 
+   *
    * @param bor The basis of record for the Occurrence
    * @param year The year for the Occurrence
    * @return The layer that a record should belong to.
    */
   public static Layer inferFrom(BasisOfRecord bor, Integer year) {
-    switch (bor) {
-      case FOSSIL_SPECIMEN:
-        return FOSSIL;
-      case LIVING_SPECIMEN:
-        return LIVING;
+    if (bor != null) {
+      switch (bor) {
+        case FOSSIL_SPECIMEN:
+          return FOSSIL;
+        case LIVING_SPECIMEN:
+          return LIVING;
 
-      case PRESERVED_SPECIMEN:
-        return inferYear(year, SPECIMENS);
+        case PRESERVED_SPECIMEN:
+          return inferYear(year, SPECIMENS);
 
-      case OBSERVATION:
-      case HUMAN_OBSERVATION:
-      case MACHINE_OBSERVATION:
-        return inferYear(year, OBSERVATIONS);
-
-      default:
-        return inferYear(year, OTHERS);
+        case OBSERVATION:
+        case HUMAN_OBSERVATION:
+        case MACHINE_OBSERVATION:
+          return inferYear(year, OBSERVATIONS);
+      }
     }
+
+    return inferYear(year, OTHERS);
   }
 
   /**
    * Utility to determine to which layer an occurrence record belongs.
    * This assumes that the record is plottable, so no verification on the coordinates is performed.
-   * 
+   *
    * @param o The Occurrence record which needs to be placed.
    * @return The layer that a record should belong to.
    */

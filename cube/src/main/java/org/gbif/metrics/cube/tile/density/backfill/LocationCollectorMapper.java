@@ -28,7 +28,9 @@ public class LocationCollectorMapper extends TableMapper<OccurrenceWritable, Int
     OccurrenceWritable occ = new OccurrenceWritable(OccurrenceBuilder.buildOccurrence(row), 1);
     // Google only goes +/- 85 degrees and we only want maps with no known issues
     if (!occ.hasSpatialIssue() && MercatorProjectionUtil.isPlottable(occ)) {
-      context.getCounter(occ.getBasisOfRecord()).increment(1);
+      if (occ.getBasisOfRecord() != null) {
+        context.getCounter(occ.getBasisOfRecord()).increment(1);
+      }
       context.write(occ, ONE);
     }
   }
