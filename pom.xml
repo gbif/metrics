@@ -41,7 +41,8 @@
   <properties>
     <amqp-client.version>3.1.4</amqp-client.version>
     <avro.version>1.7.5</avro.version>
-    <commons-lang.version>3.1</commons-lang.version>
+    <commons-lang3.version>3.1</commons-lang3.version>
+    <commons-lang.version>2.6</commons-lang.version>
     <commons-io.version>2.3</commons-io.version>
     <crawler-coordinator.version>0.3</crawler-coordinator.version>
     <datacube.version>1.2.4-GIT-20130903</datacube.version>
@@ -53,6 +54,7 @@
     <gbif-common.version>0.14</gbif-common.version>
     <gbif-occurrence.version>0.16-SNAPSHOT</gbif-occurrence.version>
     <gbif-postal-service.version>0.10-SNAPSHOT</gbif-postal-service.version>
+    <dwc-api.version>1.5-SNAPSHOT</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
     <guava.version>14.0.1</guava.version>
     <guice.version>3.0</guice.version>
@@ -297,6 +299,11 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
         <version>${commons-lang.version}</version>
       </dependency>
       <dependency>
@@ -375,6 +382,11 @@
         <groupId>org.gbif</groupId>
         <artifactId>gbif-common-ws</artifactId>
         <version>${gbif-common-ws.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>dwc-api</artifactId>
+        <version>${dwc-api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
