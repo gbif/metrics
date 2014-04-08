@@ -95,7 +95,7 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.gbif.occurrence</groupId>
       <artifactId>occurrence-persistence</artifactId>
@@ -140,9 +140,9 @@
       <artifactId>junit</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>    
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
     <dependency>
       <groupId> org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>

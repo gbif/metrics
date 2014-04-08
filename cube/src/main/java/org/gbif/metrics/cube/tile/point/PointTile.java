@@ -12,7 +12,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.urbanairship.datacube.Deserializer;
 import com.urbanairship.datacube.Op;
-import org.apache.commons.lang.NotImplementedException;
 
 
 /**
@@ -98,7 +97,7 @@ public class PointTile implements Op {
 
   /**
    * Utility to deserialize an Avro based serialization.
-   * 
+   *
    * @see LocationsAvro
    */
   public static PointTile DESERIALIZE(byte[] b) throws IOException {
@@ -133,7 +132,7 @@ public class PointTile implements Op {
 
   /**
    * Serializes using an Avro format.
-   * 
+   *
    * @see LocationAvro
    */
   @Override
@@ -148,6 +147,6 @@ public class PointTile implements Op {
 
   @Override
   public Op subtract(Op otherOp) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }

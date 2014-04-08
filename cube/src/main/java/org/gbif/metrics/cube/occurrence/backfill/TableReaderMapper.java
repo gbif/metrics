@@ -9,7 +9,7 @@ import java.io.IOException;
 import com.urbanairship.datacube.Address;
 import com.urbanairship.datacube.Batch;
 import com.urbanairship.datacube.ops.LongOp;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;

@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.urbanairship.datacube.Deserializer;
 import com.urbanairship.datacube.Op;
-import org.apache.commons.lang.NotImplementedException;
 
 
 /**
@@ -322,6 +321,6 @@ public class DensityTile implements Op {
 
   @Override
   public Op subtract(Op otherOp) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 }
