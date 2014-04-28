@@ -15,10 +15,10 @@ import org.gbif.metrics.ws.resources.provider.ProvidedOccurrenceCubeReader;
 import org.gbif.ws.util.ExtraMediaTypes;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.validation.constraints.Min;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,11 +28,12 @@ import javax.ws.rs.core.MediaType;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Range;
 import com.google.inject.Inject;
 import com.urbanairship.datacube.Address;
 import com.urbanairship.datacube.DataCube;
@@ -188,17 +189,47 @@ public class OccurrenceCubeResource {
     return org.gbif.api.model.metrics.cube.OccurrenceCube.ROLLUPS;
   }
 
+  @VisibleForTesting
+  protected static Range<Integer> parseYearRange(String year) {
+    final int now = 1901 + new Date().getYear();
+    if (Strings.isNullOrEmpty(year)) {
+      // return all years between 1500 and now
+      return Range.open(1500, now);
+    }
+    try {
+      Range<Integer> result = null;
+      String[] years = year.split(",");
+      if (years.length == 1) {
+        result = Range.open(Integer.parseInt(years[0].trim()), now);
+
+      } else if (years.length == 2) {
+        result = Range.open(Integer.parseInt(years[0].trim()), Integer.parseInt(years[1].trim()));
+
+      }
+
+      // verify upper and lower bounds are sensible
+      if (result == null || result.lowerEndpoint().intValue() < 1000 || result.upperEndpoint().intValue() > now) {
+        throw new IllegalArgumentException("Valid year range between 1000 and now expected, separated by a comma");
+      }
+      return result;
+
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Parameter "+ year +" is not a valid year range");
+    }
+  }
 
   @GET
   @Path("/counts/year")
-  public Map<Integer, Long> getYearCounts(@QueryParam("from") @Min(0) int from, @QueryParam("to") @Min(0) int to) {
-    Preconditions.checkArgument(from <= to, "Parameters are not a valid range of years");
+  public Map<Integer, Long> getYearCounts(@QueryParam("year") String year) {
+    Range<Integer> range = parseYearRange(year);
     ImmutableSortedMap.Builder<Integer, Long> distribution = ImmutableSortedMap.naturalOrder();
     try {
-      for (int year = from; year < to; year++) {
-        final Address address =
-          new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.YEAR, year).build();
-        distribution.put(year, lookup(address));
+      // only sensible year range allowed after strict parsing, so ok to iterate
+      int y = range.lowerEndpoint();
+      while (y <= range.upperEndpoint()) {
+        final Address address = new ReadBuilder(OccurrenceCube.INSTANCE).at(OccurrenceCube.YEAR, y).build();
+        distribution.put(y, lookup(address));
+        y ++;
       }
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException("Error getting the occurrence counts", e);
