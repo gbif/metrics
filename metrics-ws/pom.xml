@@ -73,10 +73,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-search</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.gbif.metrics</groupId>
       <artifactId>cube</artifactId>
       <exclusions>
