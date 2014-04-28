@@ -55,8 +55,7 @@ public class OccurrenceDistributionIndexWsClient extends BaseWsClient implements
   @Override
   public Map<Integer, Long> getYearCounts(@Min(0) int from, @Min(0) int to) {
     MultivaluedMap<String, String> params = new MultivaluedMapImpl();
-    params.putSingle("from", Integer.toString(from));
-    params.putSingle("to", Integer.toString(to));
+    params.putSingle("year", Integer.toString(from) + "," + Integer.toString(to));
     return get(INT_MAP_GENERIC_TYPE, params, "occurrence/counts/year");
   }
 
