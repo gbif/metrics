@@ -2,12 +2,12 @@ package org.gbif.metrics.ws.resources.provider;
 
 import org.gbif.api.exception.ServiceUnavailableException;
 import org.gbif.api.model.metrics.cube.Dimension;
+import org.gbif.api.vocabulary.Country;
 import org.gbif.metrics.cube.occurrence.OccurrenceCube;
 
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
-
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
@@ -96,6 +96,9 @@ public class OccurrenceCubeReaderProvider implements InjectableProvider<Provided
 
       } else if (UUID.class == type) {
         b.at(internalDim, UUID.fromString(v));
+
+      } else if (Country.class.isAssignableFrom(type)) {
+        b.at(internalDim, Country.fromIsoCode(v));
 
       } else if (Enum.class.isAssignableFrom(type)) {
         b.at(internalDim, Enum.valueOf((Class<Enum>) dim.getType(), v));
