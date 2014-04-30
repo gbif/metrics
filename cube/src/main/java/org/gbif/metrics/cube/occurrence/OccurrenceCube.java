@@ -50,6 +50,7 @@ public class OccurrenceCube {
   // No ID substitution in place, and all dimensions are optional
   public static final Dimension<Country> COUNTRY = new Dimension<Country>("country", new CountryBucketer(), false, CountryBucketer.BYTES, true);
   public static final Dimension<Integer> YEAR = new Dimension<Integer>("year", new BigEndianIntBucketer(), false, INT_BYTES, true);
+  // georeferenced is different from hasCoordinate and includes a no spatial issue check!
   public static final Dimension<Boolean> IS_GEOREFERENCED = new Dimension<Boolean>("georeferenced", new BooleanBucketer(), false, BOOLEAN_BYTES, true);
   public static final Dimension<BasisOfRecord> BASIS_OF_RECORD = new Dimension<BasisOfRecord>("basisOfRecord", new BasisOfRecordBucketer(), false, BasisOfRecordBucketer.BYTES, true);
   public static final Dimension<Country> PUBLISHING_COUNTRY = new Dimension<Country>("publishingCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);

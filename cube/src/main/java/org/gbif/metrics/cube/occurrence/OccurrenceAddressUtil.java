@@ -53,7 +53,7 @@ public class OccurrenceAddressUtil {
   /**
    * For the given occurrence, determines the mutations (addresses and operations) that need
    * to be applied.
-   * 
+   *
    * @param occurrence The denormalized representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -62,7 +62,7 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList(null) :
+    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList((OccurrenceIssue)null) :
       Lists.newArrayList(occurrence.getIssues());
     for (OccurrenceIssue issue : issues) {
       m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getTaxonKey(), issue, op));
@@ -76,7 +76,7 @@ public class OccurrenceAddressUtil {
   /**
    * For the given occurrence writable, determines the mutations (addresses and operations) that need
    * to be applied.
-   * 
+   *
    * @param occurrence The writable representation
    * @param op That is going to be applied to the cube
    * @return The batch of updates to apply
@@ -85,7 +85,7 @@ public class OccurrenceAddressUtil {
     // Needs mutability, since we rely on overwriting as a lazy distinction mechanism
     // such as for when speciesKey = nubKey
     Map<Address, LongOp> m = Maps.newHashMap();
-    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList(null) :
+    List<OccurrenceIssue> issues = occurrence.getIssues().isEmpty() ? Lists.<OccurrenceIssue>newArrayList((OccurrenceIssue)null) :
       Lists.newArrayList(occurrence.getIssues());
     for (OccurrenceIssue issue : issues) {
       m.putAll(mutationsForTaxonAndIssue(occurrence, occurrence.getTaxonKey(), issue, op));
