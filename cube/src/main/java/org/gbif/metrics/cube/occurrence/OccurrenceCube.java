@@ -51,7 +51,7 @@ public class OccurrenceCube {
   public static final Dimension<Country> COUNTRY = new Dimension<Country>("country", new CountryBucketer(), false, CountryBucketer.BYTES, true);
   public static final Dimension<Integer> YEAR = new Dimension<Integer>("year", new BigEndianIntBucketer(), false, INT_BYTES, true);
   // georeferenced is different from hasCoordinate and includes a no spatial issue check!
-  public static final Dimension<Boolean> IS_GEOREFERENCED = new Dimension<Boolean>("georeferenced", new BooleanBucketer(), false, BOOLEAN_BYTES, true);
+  public static final Dimension<Boolean> IS_GEOREFERENCED = new Dimension<Boolean>("isGeoreferenced", new BooleanBucketer(), false, BOOLEAN_BYTES, true);
   public static final Dimension<BasisOfRecord> BASIS_OF_RECORD = new Dimension<BasisOfRecord>("basisOfRecord", new BasisOfRecordBucketer(), false, BasisOfRecordBucketer.BYTES, true);
   public static final Dimension<Country> PUBLISHING_COUNTRY = new Dimension<Country>("publishingCountry", new CountryBucketer(), false, CountryBucketer.BYTES, true);
   public static final Dimension<UUID> DATASET_KEY = new Dimension<UUID>("datasetKey", new UUIDBucketer(), false, UUIDBucketer.BYTES, true);
@@ -64,7 +64,7 @@ public class OccurrenceCube {
   // NOTE: Ensure ALL public API mappings are covered
   public static final Map<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>> API_MAPPING =
     ImmutableMap.<org.gbif.api.model.metrics.cube.Dimension<?>, Dimension<?>>builder()
-      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.GEOREFERENCED, IS_GEOREFERENCED)
+      .put(org.gbif.api.model.metrics.cube.OccurrenceCube.IS_GEOREFERENCED, IS_GEOREFERENCED)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.BASIS_OF_RECORD, BASIS_OF_RECORD)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.COUNTRY, COUNTRY)
       .put(org.gbif.api.model.metrics.cube.OccurrenceCube.PUBLISHING_COUNTRY, PUBLISHING_COUNTRY)
