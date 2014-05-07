@@ -153,6 +153,10 @@
     <profile>
       <id>prod_a</id>
       <properties>
+        <!-- cluster -->
+        <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
+        <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
+
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
         <occurrence-cube.table>prod_a_occurrence_cube</occurrence-cube.table>
@@ -166,6 +170,10 @@
     <profile>
       <id>uat</id>
       <properties>
+        <!-- cluster -->
+        <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
+        <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
+
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
         <occurrence-cube.table>uat_occurrence_cube</occurrence-cube.table>
@@ -179,6 +187,10 @@
     <profile>
       <id>dev</id>
       <properties>
+        <!-- cluster -->
+        <zookeeper.quorum>c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181</zookeeper.quorum>
+        <hdfs.namenode>hdfs://c1n1.gbif.org:8020</hdfs.namenode>
+
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
         <occurrence-cube.table>dev_occurrence_cube</occurrence-cube.table>
