@@ -30,6 +30,12 @@
   <description>Cube definitions, builders and accessors</description>
 
   <build>
+    <resources>
+      <resource>
+        <directory>bin/conf</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>

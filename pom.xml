@@ -433,6 +433,7 @@
       <id>prod_a</id>
       <properties>
         <!-- cluster -->
+        <hadoop.jobtracker>c1n10.gbif.org:8021</hadoop.jobtracker>
         <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
 
@@ -454,6 +455,7 @@
       <id>uat</id>
       <properties>
         <!-- cluster -->
+        <hadoop.jobtracker>c1n10.gbif.org:8021</hadoop.jobtracker>
         <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
 
@@ -475,6 +477,7 @@
       <id>dev</id>
       <properties>
         <!-- cluster -->
+        <hadoop.jobtracker>c1n3.gbif.org:8021</hadoop.jobtracker>
         <zookeeper.quorum>c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n1.gbif.org:8020</hdfs.namenode>
 
