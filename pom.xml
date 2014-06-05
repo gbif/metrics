@@ -25,7 +25,7 @@
 
   <groupId>org.gbif.metrics</groupId>
   <artifactId>metrics-motherpom</artifactId>
-  <version>0.14-SNAPSHOT</version>
+  <version>0.14</version>
   <packaging>pom</packaging>
 
   <name>Metrics Mother POM</name>
@@ -36,7 +36,7 @@
     <connection>scm:git:git@github.com:gbif/metrics.git</connection>
     <url>https://github.com/gbif/metrics</url>
     <developerConnection>scm:git:git@github.com:gbif/metrics.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>metrics-0.14</tag>
   </scm>
 
   <properties>
