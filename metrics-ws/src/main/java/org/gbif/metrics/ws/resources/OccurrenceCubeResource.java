@@ -117,7 +117,7 @@ public class OccurrenceCubeResource {
   }
 
   @GET
-  @Path("/counts/basis_of_record")
+  @Path("/counts/basisOfRecord")
   public Map<BasisOfRecord, Long> getBasisOfRecordCounts() {
     Map<BasisOfRecord, Long> distribution = Maps.newHashMap();
     try {
@@ -174,7 +174,7 @@ public class OccurrenceCubeResource {
   }
 
   @GET
-  @Path("/counts/publishing_countries")
+  @Path("/counts/publishingCountries")
   public Map<Country, Long> getPublishingCountries(@QueryParam("country") String country) {
     return getCountryMap(Country.fromIsoCode(country), false);
   }

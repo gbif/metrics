@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.gbif.metrics.ws.client;
 
@@ -35,7 +35,7 @@ public class OccurrenceCountryIndexWsClient extends BaseWsClient implements Occu
   @Override
   public Map<Country, Long> publishingCountriesForCountry(Country country) {
     return getRequest(QueryParamBuilder.create("country", country.getIso2LetterCode()).build(),
-      "occurrence/counts/publishing_countries");
+      "occurrence/counts/publishingCountries");
   }
 
   @Override

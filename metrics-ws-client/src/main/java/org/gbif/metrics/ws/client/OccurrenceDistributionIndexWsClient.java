@@ -44,7 +44,7 @@ public class OccurrenceDistributionIndexWsClient extends BaseWsClient implements
 
   @Override
   public Map<BasisOfRecord, Long> getBasisOfRecordCounts() {
-    return getRequest("occurrence/counts/basis_of_record", BOF_MAP_GENERIC_TYPE);
+    return getRequest("occurrence/counts/basisOfRecord", BOF_MAP_GENERIC_TYPE);
   }
 
   @Override
