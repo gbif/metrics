@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.15</version>
+    <version>0.16-SNAPSHOT</version>
   </parent>
 
   <artifactId>metrics-ws-client</artifactId>
