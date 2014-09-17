@@ -43,7 +43,7 @@ class InactivePeriodFlusher implements Runnable {
         synchronized (lock) {
           if (timeSinceLastMessage.isRunning()
             && timeSinceLastMessage.elapsed(TimeUnit.MILLISECONDS) > INACTIVITY_FLUSH_INTERVAL_MSECS) {
-            LOG.info("Forcing a cube flush due to period of inactivity [{} msecs]",
+            LOG.debug("Forcing a cube flush due to period of inactivity [{} msecs]",
               timeSinceLastMessage.elapsed(TimeUnit.MILLISECONDS));
             cube.flush();
             timeSinceLastMessage.reset().start();
