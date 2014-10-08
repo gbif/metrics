@@ -115,7 +115,6 @@
       <groupId>org.gbif.metrics</groupId>
       <artifactId>metrics-ws</artifactId>
       <version>${project.version}</version>
-      <classifier>classes</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>

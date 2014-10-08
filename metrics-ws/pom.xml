@@ -24,10 +24,15 @@
   </parent>
 
   <artifactId>metrics-ws</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <name>Metrics Web service</name>
   <description>Metrics web service</description>
+
+  <properties>
+    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+    <gbif-microservice.version>0.1-SNAPSHOT</gbif-microservice.version>
+  </properties>
 
   <build>
     <resources>
@@ -38,10 +43,51 @@
     </resources>
     <plugins>
       <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <attachClasses>true</attachClasses>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <transformers>
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>org.gbif.ws.app.Application</mainClass>
+                </transformer>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>org.jruby:jruby-complete</artifact>
+                  <excludes>
+                    <exclude>org/joda/**</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <!--Exclude configuration file that are not required in the output jar file -->
+                  <artifact>org.gbif.metrics:metrics-ws</artifact>
+                  <excludes>
+                    <exclude>metrics.properties</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -144,6 +190,11 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-microservice</artifactId>
+      <version>${gbif-microservice.version}</version>
     </dependency>
   </dependencies>
 </project>
