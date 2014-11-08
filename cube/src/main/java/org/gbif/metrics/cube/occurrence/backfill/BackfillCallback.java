@@ -34,10 +34,11 @@ class BackfillCallback implements HBaseBackfillCallback {
       job.setCombinerClass(AddressCombiner.class);
       job.setNumReduceTasks(50);
 
+      // IMPORTANT(!) do not let it add dependent jars (!)
       TableMapReduceUtil.initTableMapperJob(conf.get(HBaseSourcedBackfill.KEY_SOURCE_TABLE), getScanner(conf),
-        TableReaderMapper.class, ImmutableBytesWritable.class, IntWritable.class, job);
+        TableReaderMapper.class, ImmutableBytesWritable.class, IntWritable.class, job, false);
       TableMapReduceUtil.initTableReducerJob(conf.get(HBaseSourcedBackfill.KEY_BACKFILL_TABLE),
-        CubeWriterReducer.class, job);
+        CubeWriterReducer.class, job, null, null, null, null, false);
       if (!job.waitForCompletion(true)) {
         throw new IOException("Unknown error with job.  Check the logs.");
       }

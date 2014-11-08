@@ -41,26 +41,30 @@
 
   <properties>
     <amqp-client.version>3.1.4</amqp-client.version>
-    <avro.version>1.7.5</avro.version>
-    <commons-lang3.version>3.3.1</commons-lang3.version>
+    <avro.version>1.7.7</avro.version>
+    <commons-lang3.version>3.3.2</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
-    <crawler-coordinator.version>0.4</crawler-coordinator.version>
-    <datacube.version>1.2.4-GIT-20130903</datacube.version>
-    <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
+    <crawler-coordinator.version>0.7.1</crawler-coordinator.version>
+    <!-- Overridden in profiles -->
+    <datacube.version>1.3.1-GIT-20141113-NoMerge</datacube.version>
+    <!-- Overridden in profiles -->
+    <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
+    <findbugs-jsr305.version>3.0.0</findbugs-jsr305.version>
     <gbif-api.version>0.15</gbif-api.version>
     <gbif-cli.version>0.6</gbif-cli.version>
     <gbif-common-service.version>0.10</gbif-common-service.version>
     <gbif-common-ws.version>0.15</gbif-common-ws.version>
     <gbif-common.version>0.16</gbif-common.version>
-    <gbif-occurrence.version>0.20</gbif-occurrence.version>
+    <gbif-occurrence.version>0.22-SNAPSHOT</gbif-occurrence.version>
     <gbif-postal-service.version>0.11</gbif-postal-service.version>
     <dwc-api.version>1.8</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
     <guava.version>14.0.1</guava.version>
     <guice.version>3.0</guice.version>
-    <hadoop.version>2.0.0-cdh4.2.1</hadoop.version>
-    <hadoopMR.version>2.0.0-mr1-cdh4.2.1</hadoopMR.version>
-    <hbase.version>0.94.2-cdh4.2.1</hbase.version>
+    <!-- Overridden in profiles -->
+    <hadoop.version>2.5.0-cdh5.2.0</hadoop.version>
+    <!-- Overridden in profiles -->
+    <hbase.version>0.98.6-cdh5.2.0</hbase.version>
     <jackson-annotations.version>2.2.3</jackson-annotations.version>
     <jackson.version>1.9.12</jackson.version>
     <jcommander.version>1.30-gbif-20121018</jcommander.version>
@@ -137,6 +141,16 @@
         <groupId>org.gbif.occurrence</groupId>
         <artifactId>occurrence-persistence</artifactId>
         <version>${gbif-occurrence.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
@@ -173,7 +187,7 @@
         <groupId>com.urbanairship</groupId>
         <artifactId>datacube</artifactId>
         <version>${datacube.version}</version>
-        <classifier>hbase${hbase.version}-hadoop${hadoopMR.version}</classifier>
+        <classifier>${datacube.classifier}</classifier>
         <exclusions>
           <exclusion>
             <artifactId>slf4j-log4j12</artifactId>
@@ -186,6 +200,10 @@
           <exclusion>
             <artifactId>commons-logging</artifactId>
             <groupId>commons-logging</groupId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -206,22 +224,60 @@
       </dependency>
       <dependency>
         <groupId>org.apache.hbase</groupId>
-        <artifactId>hbase</artifactId>
+        <artifactId>hbase-client</artifactId>
         <version>${hbase.version}</version>
         <exclusions>
+          <!-- ignore MR1 artifacts -->
           <exclusion>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+          </exclusion>
+          <!-- remove logging which we'll ship to logback -->
+          <exclusion>
             <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>slf4j-log4j12</artifactId>
             <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j</artifactId>
             <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <!-- e.g. TableMapper is in the server jar (!) -->
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-server</artifactId>
+        <version>${hbase.version}</version>
+        <exclusions>
+          <!-- ignore MR1 artifacts -->
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+          </exclusion>
+          <!-- ignore logging implementations -->
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <!-- this brings in test classifier stuff -->
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-common</artifactId>
+        <version>${hbase.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -249,17 +305,6 @@
       </dependency>
       <dependency>
         <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-core</artifactId>
-        <version>${hadoopMR.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>commons-logging</artifactId>
-            <groupId>commons-logging</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-common</artifactId>
         <version>${hadoop.version}</version>
       </dependency>
@@ -267,6 +312,45 @@
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-hdfs</artifactId>
         <version>${hadoop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client</artifactId>
+        <version>${hadoop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-hadoop-compat</artifactId>
+        <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase-hadoop2-compat</artifactId>
+        <version>${hbase.version}</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke.metainf-services</groupId>
@@ -327,7 +411,6 @@
         <artifactId>amqp-client</artifactId>
         <version>${amqp-client.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.codehaus.jackson</groupId>
         <artifactId>jackson-mapper-asl</artifactId>
@@ -424,7 +507,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <profiles>
     <!--
      A production deploy profile. It has no missing passwords.
@@ -433,16 +515,16 @@
       <id>prod_a</id>
       <properties>
         <!-- cluster -->
-        <hadoop.jobtracker>c1n10.gbif.org:8021</hadoop.jobtracker>
+        <hadoop.jobtracker>c1n10.gbif.org:8032</hadoop.jobtracker>
         <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
 
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
-        <datacube.version>1.2.4-GIT-20130903</datacube.version>
-        <hadoop.version>2.0.0-cdh4.2.1</hadoop.version>
-        <hadoopMR.version>2.0.0-mr1-cdh4.2.1</hadoopMR.version>
-        <hbase.version>0.94.2-cdh4.2.1</hbase.version>
+        <datacube.version>1.3.1-GIT-20141113-NoMerge</datacube.version>
+        <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
+        <hadoop.version>2.5.0-cdh5.2.0</hadoop.version>
+        <hbase.version>0.98.6-cdh5.2.0</hbase.version>
         <occurrence-cube.table>prod_a_occurrence_cube</occurrence-cube.table>
         <taxon.occurrence_dataset.table>prod_a_dataset_taxon_cube</taxon.occurrence_dataset.table>
         <country.occurrence_dataset.table>prod_a_dataset_country_cube</country.occurrence_dataset.table>
@@ -455,16 +537,16 @@
       <id>uat</id>
       <properties>
         <!-- cluster -->
-        <hadoop.jobtracker>c1n10.gbif.org:8021</hadoop.jobtracker>
+        <hadoop.jobtracker>c1n10.gbif.org:8032</hadoop.jobtracker>
         <zookeeper.quorum>c1n10.gbif.org:2181,c1n9.gbif.org:2181,c1n8.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n8.gbif.org:8020</hdfs.namenode>
 
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
-        <datacube.version>1.2.4-GIT-20130903</datacube.version>
-        <hadoop.version>2.0.0-cdh4.2.1</hadoop.version>
-        <hadoopMR.version>2.0.0-mr1-cdh4.2.1</hadoopMR.version>
-        <hbase.version>0.94.2-cdh4.2.1</hbase.version>
+        <datacube.version>1.3.1-GIT-20141113-NoMerge</datacube.version>
+        <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
+        <hadoop.version>2.5.0-cdh5.2.0</hadoop.version>
+        <hbase.version>0.98.6-cdh5.2.0</hbase.version>
         <occurrence-cube.table>uat_occurrence_cube</occurrence-cube.table>
         <taxon.occurrence_dataset.table>uat_dataset_taxon_cube</taxon.occurrence_dataset.table>
         <country.occurrence_dataset.table>uat_dataset_country_cube</country.occurrence_dataset.table>
@@ -477,16 +559,16 @@
       <id>dev</id>
       <properties>
         <!-- cluster -->
-        <hadoop.jobtracker>c1n3.gbif.org:8021</hadoop.jobtracker>
+        <hadoop.jobtracker>c1n3.gbif.org:8032</hadoop.jobtracker>
         <zookeeper.quorum>c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181</zookeeper.quorum>
         <hdfs.namenode>hdfs://c1n1.gbif.org:8020</hdfs.namenode>
 
         <ganglia.server>130.226.238.237</ganglia.server>
         <ganglia.port>8649</ganglia.port>
-        <datacube.version>1.3.1-GIT-20140520</datacube.version>
-        <hadoop.version>2.0.0-cdh4.6.0</hadoop.version>
-        <hadoopMR.version>2.0.0-mr1-cdh4.6.0</hadoopMR.version>
-        <hbase.version>0.94.15-cdh4.6.0</hbase.version>
+        <datacube.version>1.3.1-GIT-20141113-NoMerge</datacube.version>
+        <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
+        <hadoop.version>2.5.0-cdh5.2.0</hadoop.version>
+        <hbase.version>0.98.6-cdh5.2.0</hbase.version>
         <occurrence-cube.table>dev_occurrence_cube</occurrence-cube.table>
         <taxon.occurrence_dataset.table>dev_dataset_taxon_cube</taxon.occurrence_dataset.table>
         <country.occurrence_dataset.table>dev_dataset_country_cube</country.occurrence_dataset.table>
