@@ -8,5 +8,4 @@ target/
 *.war
 *.ear
 
-# logs
-metrics-ws/logs/
+**/logs/

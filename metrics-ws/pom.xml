@@ -144,7 +144,7 @@
     <dependency>
       <groupId>com.urbanairship</groupId>
       <artifactId>datacube</artifactId>
-      <classifier>hbase${hbase.version}-hadoop${hadoopMR.version}</classifier>
+      <classifier>${datacube.classifier}</classifier>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

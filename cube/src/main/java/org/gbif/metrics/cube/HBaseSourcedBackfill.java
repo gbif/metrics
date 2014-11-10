@@ -10,11 +10,11 @@ import com.urbanairship.datacube.Deserializer;
 import com.urbanairship.datacube.backfill.HBaseBackfill;
 import com.urbanairship.datacube.backfill.HBaseBackfillCallback;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class HBaseSourcedBackfill {
 
   /**
    * Runs the backfill process.
-   * 
+   *
    * @throws IOException On any HBase communication errors
    */
   public void backfill(HBaseBackfillCallback callback, Class<? extends Deserializer<?>> deserializer) {
@@ -95,9 +95,11 @@ public class HBaseSourcedBackfill {
     try {
       setup(conf);
       HBaseBackfill backfill = new HBaseBackfill(conf, callback, cubeTable, snapshotTable, backfillTable, cf, deserializer);
-
       backfill.runWithCheckedExceptions();
       cleanup(conf);
+
+      LOG.info("Finished successfully");
+
     } catch (IOException e) {
       LOG.error("Error running cube backfill", e);
     }
@@ -136,7 +138,7 @@ public class HBaseSourcedBackfill {
     if (!admin.tableExists(t)) {
       LOG.info("Creating table {}", Bytes.toString(t));
       HColumnDescriptor cfDesc = new HColumnDescriptor(cf);
-      cfDesc.setBloomFilterType(BloomType.NONE);
+      //cfDesc.setBloomFilterType(BloomType.NONE);
       cfDesc.setMaxVersions(1);
       // TODO: http://dev.gbif.org/issues/browse/MET-7
       // cfDesc.setCompressionType(Algorithm.SNAPPY); // fails on the Snapshotter at the end
@@ -166,11 +168,11 @@ public class HBaseSourcedBackfill {
 
     if (counterTable != null) {
       createIfMissing(admin, counterTable);
-      conf.set(KEY_COUNTER_TABLE, Bytes.toString(counterTable));  
+      conf.set(KEY_COUNTER_TABLE, Bytes.toString(counterTable));
     }
     if (lookupTable != null) {
       createIfMissing(admin, lookupTable);
-      conf.set(KEY_LOOKUP_TABLE, Bytes.toString(lookupTable));  
+      conf.set(KEY_LOOKUP_TABLE, Bytes.toString(lookupTable));
     }
 
     // unfortunately we need to use Strings again (Hadoop API)

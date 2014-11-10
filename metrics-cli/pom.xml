@@ -110,8 +110,7 @@
     <dependency>
       <groupId>com.urbanairship</groupId>
       <artifactId>datacube</artifactId>
-      <!--  Classifier is not inherited from the parent -->
-      <classifier>hbase${hbase.version}-hadoop${hadoopMR.version}</classifier>
+      <classifier>${datacube.classifier}</classifier>
     </dependency>
     <dependency>
       <groupId>com.yammer.metrics</groupId>
@@ -121,11 +120,11 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-core</artifactId>
       <scope>runtime</scope>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
