@@ -73,7 +73,7 @@
   </repositories>
 
   <properties>
-    <guava-cli.version>15.0</guava-cli.version><!-- needs to match gbif-cli -->
+    <guava-cli.version>14.0.1</guava-cli.version><!-- needs to match gbif-cli -->
   </properties>
 
   <dependencies>

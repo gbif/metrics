@@ -51,7 +51,7 @@
     <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
     <findbugs-jsr305.version>3.0.0</findbugs-jsr305.version>
     <gbif-api.version>0.15</gbif-api.version>
-    <gbif-cli.version>0.6</gbif-cli.version>
+    <gbif-cli.version>0.8-SNAPSHOT</gbif-cli.version>
     <gbif-common-service.version>0.10</gbif-common-service.version>
     <gbif-common-ws.version>0.15</gbif-common-ws.version>
     <gbif-common.version>0.17-SNAPSHOT</gbif-common.version>
@@ -59,6 +59,7 @@
     <gbif-postal-service.version>0.13-SNAPSHOT</gbif-postal-service.version>
     <dwc-api.version>1.8</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
+    <!-- need to match what hadoop/hbase can provide -->
     <guava.version>14.0.1</guava.version>
     <guice.version>3.0</guice.version>
     <!-- Overridden in profiles -->
