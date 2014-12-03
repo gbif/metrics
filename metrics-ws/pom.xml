@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.18-SNAPSHOT</version>
+    <version>0.19-SNAPSHOT</version>
   </parent>
 
   <artifactId>metrics-ws</artifactId>
@@ -78,13 +78,12 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-                <filter>
-                  <!--Exclude configuration file that are not required in the output jar file -->
-                  <artifact>org.gbif.metrics:metrics-ws</artifact>
-                  <excludes>
                     <exclude>metrics.properties</exclude>
+                    <exclude>hbase-site.xml</exclude>
+                    <exclude>yarn-site.xml</exclude>
+                    <exclude>mapred-site.xml</exclude>
+                    <exclude>core-site.xml</exclude>
+                    <exclude>hdfs-site.xml</exclude>
                   </excludes>
                 </filter>
               </filters>
