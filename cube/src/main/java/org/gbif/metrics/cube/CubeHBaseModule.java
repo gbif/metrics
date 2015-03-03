@@ -25,7 +25,7 @@ public abstract class CubeHBaseModule extends AbstractModule {
     counterTable = PropertiesUtil.propertyAsUTF8Bytes(props, j.join(prefix, HBaseSourcedBackfill.KEY_COUNTER_TABLE), false, null); // optional
     lookupTable = PropertiesUtil.propertyAsUTF8Bytes(props, j.join(prefix, HBaseSourcedBackfill.KEY_LOOKUP_TABLE), false, null);  // optional
     cf = PropertiesUtil.propertyAsUTF8Bytes(props, j.join(prefix, HBaseSourcedBackfill.KEY_CF), true, null);
-    writeBatchSize = PropertiesUtil.propertyAsInt(props, j.join(prefix, HBaseSourcedBackfill.KEY_WRITE_BATCH_SIZE), true, null);
+    writeBatchSize = PropertiesUtil.propertyAsInt(props, j.join(prefix, HBaseSourcedBackfill.KEY_WRITE_BATCH_SIZE), false, 1000);
   }
 
   protected byte[] getCf() {
