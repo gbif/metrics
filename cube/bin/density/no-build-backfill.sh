@@ -5,4 +5,4 @@
 #   export HADOOP_HOME=/Users/tim/dev/hadoop/dev/cdh5.2.0/hadoop-2.5.0-cdh5.2.0/share/hadoop
 #
 ##
-java -cp $HADOOP_HOME/hdfs/hadoop-hdfs-2.5.0-cdh5.2.0.jar:./:../../target/classes:../../target/cube-0.17-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.tile.density.backfill.Backfill
+java -cp $HADOOP_HOME/hdfs/hadoop-hdfs-2.5.0-cdh5.2.0.jar:./:../../target/classes:../../target/cube-0.21-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.tile.density.backfill.Backfill
