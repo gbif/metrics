@@ -40,7 +40,7 @@
     <gbif-common-service.version>0.11</gbif-common-service.version>
     <gbif-common-ws.version>0.21</gbif-common-ws.version>
     <gbif-common.version>0.17</gbif-common.version>
-    <gbif-occurrence.version>0.24</gbif-occurrence.version>
+    <gbif-occurrence.version>0.29</gbif-occurrence.version>
     <gbif-postal-service.version>0.12</gbif-postal-service.version>
     <dwc-api.version>1.9</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
