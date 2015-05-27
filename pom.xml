@@ -31,9 +31,9 @@
     <commons-io.version>2.4</commons-io.version>
     <crawler-coordinator.version>0.11</crawler-coordinator.version>
     <!-- Overridden in profiles -->
-    <datacube.version>1.3.1-GIT-20141113-NoMerge</datacube.version>
+    <datacube.version>1.3.1-GIT-20152705-NoMerge</datacube.version>
     <!-- Overridden in profiles -->
-    <datacube.classifier>hbase0.98.6-cdh5.2.0-hadoop2.5.0-mr1-cdh5.2.0</datacube.classifier>
+    <datacube.classifier>hbase1.0.0-cdh5.4.2-hadoop2.6.0-mr1-cdh5.4.2</datacube.classifier>
     <findbugs-jsr305.version>3.0.0</findbugs-jsr305.version>
     <gbif-api.version>0.21</gbif-api.version>
     <gbif-cli.version>0.8</gbif-cli.version>
