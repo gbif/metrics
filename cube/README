@@ -1,7 +1,7 @@
-This project holds the cube definitions, guice modules, classes to perform IO on the cube and backfill processes 
+This project holds the cube definitions, guice modules, classes to perform IO on the cube and backfill processes
 to populate the cubes in a batch mode.
 
-Inside bin/* you will find shell scripts and properties files for the various cubes in use.  
+Inside bin/* you will find shell scripts and properties files for the various cubes in use.
 To run a backfill:
-a) ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running
-b) modify the cube.properties that you are backfilling, observing the comments in the files  
+a) ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running (see the README in bin/conf)
+b) modify the cube.properties that you are backfilling, observing the comments in the files

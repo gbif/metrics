@@ -1,0 +1,11 @@
+In order to run the backfills you'll need the following configuration files in this (/cube/bin/conf) directory:
+- core-site.xml
+- hbase-site.xml
+- hdfs-site.xml
+- mapred-site.xml
+- yarn-site.xml
+
+You can get a current copy to match your target environment (ie dev, uat, or prod) from the the corresponding directory
+in https://github.com/gbif/gbif-configuration/tree/master/metrics-ws
+
+Please don't then commit them to this directory!
