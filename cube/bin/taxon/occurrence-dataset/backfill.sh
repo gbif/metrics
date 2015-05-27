@@ -6,4 +6,4 @@
 #
 ##
 mvn -f ../../../pom.xml clean assembly:assembly
-java -cp $HADOOP_HOME/hdfs/hadoop-hdfs-2.5.0-cdh5.2.0.jar:./:../../../target/classes:../../../target/cube-0.21-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.index.taxon.backfill.Backfill
+java -cp $HADOOP_HOME/hadoop-hdfs/hadoop-hdfs-2.6.0-cdh5.4.2.jar:./:../../../target/classes:../../../target/cube-0.23-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.index.taxon.backfill.Backfill
