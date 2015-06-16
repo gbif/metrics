@@ -19,7 +19,7 @@ class InactivePeriodFlusher implements Runnable {
   private static final long INACTIVITY_FLUSH_INTERVAL_MSECS = TimeUnit.SECONDS.toMillis(10);
   private static final long SLEEP_TIME_MSECS = TimeUnit.SECONDS.toMillis(1);
 
-  private final Stopwatch timeSinceLastMessage = new Stopwatch();
+  private final Stopwatch timeSinceLastMessage = Stopwatch.createUnstarted();
   private final Object lock = new Object(); // Stopwatch is not threadsafe
   private final HBaseCubes<? extends Op> cube;
 

@@ -29,6 +29,11 @@
   <name>Metrics :: Cube</name>
   <description>Cube definitions, builders and accessors</description>
 
+  <properties>
+    <!-- this has to be API compatible with the guava used in datacube -->
+    <guava.version>12.0.1</guava.version>
+  </properties>
+
   <build>
     <resources>
       <resource>
@@ -67,6 +72,55 @@
               <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
               <testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
               <testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- create a shaded artifact to be used with classifier by metrics-cli (datacube requires guava 12.0.1) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <artifactSet>
+                <includes>
+                  <include>com.google.guava:guava</include>
+                  <include>org.apache.curator:curator-client</include>
+                  <include>org.apache.curator:curator-framework</include>
+                  <include>org.apache.curator:curator-recipes</include>
+                  <include>org.apache.hadoop:hadoop-annotations</include>
+                  <include>org.apache.hadoop:hadoop-auth</include>
+                  <include>org.apache.hadoop:hadoop-common</include>
+                  <include>org.apache.hadoop:hadoop-core</include>
+                  <include>org.apache.hadoop:hadoop-client</include>
+                  <include>org.apache.hadoop:hadoop-protocol</include>
+                  <include>org.apache.hbase:hbase-annotations</include>
+                  <include>org.apache.hbase:hbase-client</include>
+                  <include>org.apache.hbase:hbase-common</include>
+                  <include>org.apache.hbase:hbase-hadoop-compat</include>
+                  <include>org.apache.hbase:hbase-hadoop2-compat</include>
+                  <include>org.apache.hbase:hbase-protocol</include>
+                  <include>org.apache.hbase:hbase-server</include>
+                  <include>org.apache.hbase:hbase-testing-util</include>
+                  <include>org.apache.hive:hive-hbase-handler</include>
+                  <include>org.apache.zookeeper:zookeeper</include>
+                  <include>org.gbif:hbase-utils</include>
+                  <include>com.urbanairship:datacube</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.google.common</pattern>
+                  <shadedPattern>g12.com.google.common</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -153,6 +207,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

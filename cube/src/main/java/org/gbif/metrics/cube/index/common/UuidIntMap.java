@@ -14,7 +14,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 import com.google.common.io.Flushables;
 import com.urbanairship.datacube.Deserializer;
 import com.urbanairship.datacube.Op;
@@ -52,8 +51,6 @@ public class UuidIntMap implements Op {
         return new UuidIntMap(r);
       } catch (IOException e) {
         throw new RuntimeException("Unable to deserialize UuidIntMap: " + e.getMessage());
-      } finally {
-        Closeables.closeQuietly(bais);
       }
     }
   }
@@ -143,8 +140,6 @@ public class UuidIntMap implements Op {
     } catch (IOException e) {
       // We can't throw a checked exception, so repackage
       throw new IllegalStateException("Unable to serialize: " + e);
-    } finally {
-      Closeables.closeQuietly(baos);
     }
   }
 
@@ -167,7 +162,7 @@ public class UuidIntMap implements Op {
 
   /**
    * Subtraction aware merge.
-   * 
+   *
    * @param m1 The source
    * @param m2 To be merged into m1
    * @param isSubtract If true, m2 is subtracted from m1
