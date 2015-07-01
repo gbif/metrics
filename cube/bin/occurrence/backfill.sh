@@ -6,4 +6,4 @@
 #
 ##
 mvn -f ../../pom.xml clean assembly:assembly
-java -cp $HADOOP_HOME/hadoop-hdfs/*:$HADOOP_HOME/hadoop-mapreduce/*:./:../../target/classes:../../target/cube-0.23-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.occurrence.backfill.Backfill
+java -cp $HADOOP_HOME/hadoop-hdfs/*:$HADOOP_HOME/hadoop-mapreduce/*:../conf:./../../target/cube-0.23-SNAPSHOT-for-backfills.jar org.gbif.metrics.cube.occurrence.backfill.Backfill

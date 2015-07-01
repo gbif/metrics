@@ -5,6 +5,5 @@
 #   export HADOOP_HOME=/opt/cloudera/parcels/CDH/lib
 #
 ##
-mvn -f ../../../pom.xml clean assembly:assembly
-java -cp $HADOOP_HOME/hadoop-hdfs/hadoop-hdfs-2.6.0-cdh5.4.2.jar:./:../../../target/classes:../../../target/cube-0.23-SNAPSHOT-jar-with-dependencies.jar org.gbif.metrics.cube.index.country.backfill.Backfill
-
+mvn -f ../../../pom.xml clean package
+java -cp $HADOOP_HOME/hadoop-hdfs/hadoop-hdfs-2.6.0-cdh5.4.2.jar:../../conf:../../../target/cube-0.23-SNAPSHOT-for-backfills.jar org.gbif.metrics.cube.index.country.backfill.Backfill

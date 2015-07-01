@@ -148,7 +148,7 @@
     <dependency>
       <groupId>org.gbif.metrics</groupId>
       <artifactId>cube</artifactId>
-      <classifier>shaded</classifier>
+      <classifier>for-cli</classifier>
       <version>${project.version}</version>
     </dependency>
     <dependency>
