@@ -5,5 +5,5 @@
 #   export HADOOP_HOME=/opt/cloudera/parcels/CDH/lib
 #
 ##
-mvn -f ../../pom.xml clean assembly:assembly
+mvn -f ../../pom.xml clean package
 java -cp $HADOOP_HOME/hadoop-hdfs/*:$HADOOP_HOME/hadoop-mapreduce/*:../conf:./../../target/cube-0.23-SNAPSHOT-for-backfills.jar org.gbif.metrics.cube.occurrence.backfill.Backfill
