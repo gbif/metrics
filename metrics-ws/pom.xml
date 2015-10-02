@@ -96,6 +96,12 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-microservice</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guice</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
