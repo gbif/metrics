@@ -5,4 +5,4 @@
 #   export HADOOP_HOME=/opt/cloudera/parcels/CDH/lib
 #
 ##
-java -cp $HADOOP_HOME/hadoop-hdfs/*:$HADOOP_HOME/hadoop-mapreduce/*:../conf:./../../target/cube-0.23-SNAPSHOT-for-backfills.jar org.gbif.metrics.cube.tile.density.backfill.Backfill
+java -cp $HADOOP_HOME/hadoop-hdfs/*:$HADOOP_HOME/hadoop-mapreduce/*:../conf:./../../target/cube-0.24-SNAPSHOT-for-backfills.jar org.gbif.metrics.cube.tile.density.backfill.Backfill
