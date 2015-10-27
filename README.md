@@ -5,10 +5,10 @@ Map tiles are served by the tile-server from these same cubes, but it accesses t
 It is heavily based on the Urban Airship Datacube: https://github.com/urbanairship/datacube
 
 The Metrics project include:
-1) cube: Cube definitions and utilities to perform backfills (batch population) on them
-2) metrics-cli: A service to listen to messages and update cubes in real time
-3) metrics-ws: A metrics ws project to expose read only WS on the cubes
-4) metrics-ws-client: Java client to the WS
+1. cube: Cube definitions and utilities to perform backfills (batch population) on them
+2. metrics-cli: A service to listen to messages and update cubes in real time
+3. metrics-ws: A metrics ws project to expose read only WS on the cubes
+4. metrics-ws-client: Java client to the WS
 
 ## Building
 See the individual sub-module READMEs for specific details, but in general it is enough to build all components with:
