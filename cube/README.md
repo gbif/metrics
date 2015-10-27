@@ -10,9 +10,9 @@ and properties files for the 4 cubes in use: density (maps_cube), occurrence (oc
 (dataset_country_cube) and taxon (dataset_taxon_cube).
 
 To run a backfill:
-1. ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running (see the README in bin/conf)
-2. modify the cube.properties that you are backfilling, observing the comments in the files
-3. choose
+  1. ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running (see the README in bin/conf)
+  2. modify the cube.properties that you are backfilling, observing the comments in the files
+  3. choose
 ````shell
 ./backfill.sh
 ````
