@@ -1,31 +1,28 @@
-Metrics WS
---------------------------------------
+# GBIF Metrics Web Services
 
 This project exposes read only web services on top of the various cubes.
 
-Utility profiles exist for staging and uat.  For GBIF staging and uat environments you can simply do
+## Building
 
-$ mvn -U -Pstaging jetty:run
-$ mvn -U -Puat jetty:run
+Note that any metrics.properties or hadoop/cluster configuration files (e.g. hbase-site.xml) are filtered out of the
+final artifact by the shade plugin, with the expectation that the metrics.properties and hbase-site.xml will be provided
+in the runtime environment (typically by copying them from the gbif-configuration project).
 
-If you want to customize things, the following example illustrates the properties required in your maven profile:
+Build the artifact with:
 
-    <profile>
-      <id>metrics</id>
-      <properties>
-        <occurrence-cube.table>dev_occurrence_cube</occurrence-cube.table>
-        <taxon.occurrence_dataset.table>dev_dataset_taxon_cube</taxon.occurrence_dataset.table>
-        <country.occurrence_dataset.table>dev_dataset_country_cube</country.occurrence_dataset.table>
-        <!-- Optional but if present, metrics will be shipped to ganglia if the server and port are given-->
-        <ganglia.server>130.226.238.237</ganglia.server>
-        <ganglia.port>8649</ganglia.port>
-      </properties>
-    </profile>
+````shell
+mvn clean package
+````
 
-with this, one should be able to:
+## Usage
+The artifact created with 'package' can be used together with gbif-microservices to run as jetty within the gbif ws environments (dev, uat, prod).
 
-$ mvn -U -Pmetrics clean jetty:run
+The provided configuration files in src/main/resources will connect a registry-ws to the dev cluster when started as:
 
-and visit:
+````shell
+mvn clean jetty:run
+````
+
+To verify, visit:
   http://localhost:8080/occurrence/count
   http://localhost:8080/name_usage/1/occurrence/dataset
