@@ -11,8 +11,8 @@
 ##
 if [ "$1" != "-nobuild" ]
 then
-  mvn -f ../../../pom.xml clean package
+  mvn -f ../../pom.xml clean package
 fi
-cp ../../../target/cube-*-for-backfills.jar .
-java -cp ../../conf:* org.gbif.metrics.cube.tile.density.backfill.Backfill
+cp ../../target/cube-*-for-backfills.jar .
+java -cp ../conf:* org.gbif.metrics.cube.tile.density.backfill.Backfill
 rm -f cube*backfills.jar
