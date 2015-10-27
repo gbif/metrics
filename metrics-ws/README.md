@@ -24,5 +24,5 @@ mvn clean jetty:run
 ````
 
 To verify, visit:
-  http://localhost:8080/occurrence/count
-  http://localhost:8080/name_usage/1/occurrence/dataset
+  - http://localhost:8080/occurrence/count
+  - http://localhost:8080/name_usage/1/occurrence/dataset
