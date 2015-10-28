@@ -20,8 +20,24 @@ The artifact created with 'package' can be used together with gbif-microservices
 The provided configuration files in src/main/resources will connect a registry-ws to the dev cluster when started as:
 
 ````shell
-mvn clean jetty:run
+mvn clean -Pdev jetty:run
 ````
+where the 'dev' profile needs to look similar to:
+
+````xml
+  <profile>
+    <id>dev</id>
+    <properties>
+      <metrics.occurrence-cube.table>dev_occurrence_cube</metrics.occurrence-cube.table>
+      <metrics.dataset-taxon-cube.table>dev_dataset_taxon_cube</metrics.dataset-taxon-cube.table>
+      <metrics.dataset-country-cube.table>dev_dataset_country_cube</metrics.dataset-country-cube.table>
+      
+      <hdfs.namenode>hdfs://c1n1.gbif.org:8020</hdfs.namenode>
+      <zookeeper.quorum>c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181</zookeeper.quorum>
+    </properties>
+  </profile>
+````
+
 
 To verify, visit:
   http://localhost:8080/occurrence/count
