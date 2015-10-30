@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <configuration>
+  <!-- DEVELOPMENT FILE: This file is excluded from the build -->
 
   <contextName>Metrics WS</contextName>
   <jmxConfigurator/>
@@ -58,7 +59,7 @@
   <logger name="org.gbif" level="DEBUG"/>
 
   <root level="INFO">
-    <!--appender-ref ref="CONSOLE"/-->
+    <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
     <appender-ref ref="ERROR_FILE"/>
   </root>

@@ -67,6 +67,7 @@
                     <exclude>mapred-site.xml</exclude>
                     <exclude>core-site.xml</exclude>
                     <exclude>hdfs-site.xml</exclude>
+                    <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
               </filters>
