@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>23</version>
+    <version>35</version>
   </parent>
 
   <groupId>org.gbif.metrics</groupId>
@@ -29,23 +29,23 @@
 
     <amqp-client.version>3.1.4</amqp-client.version>
     <avro.version>1.7.7</avro.version>
-    <commons-lang3.version>3.3.2</commons-lang3.version>
+    <commons-lang3.version>3.4</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <crawler-coordinator.version>0.21</crawler-coordinator.version>
     <datacube.version>1.3.1-GIT-20150629-NoMerge</datacube.version>
     <datacube.classifier>hbase1.0.0-cdh5.4.2-hadoop2.6.0-mr1-cdh5.4.2</datacube.classifier>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
-    <gbif-api.version>0.34</gbif-api.version>
+    <gbif-api.version>0.36</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
-    <gbif-common-service.version>0.14</gbif-common-service.version>
-    <gbif-common-ws.version>0.27</gbif-common-ws.version>
+    <gbif-common-service.version>0.16</gbif-common-service.version>
+    <gbif-common-ws.version>0.30</gbif-common-ws.version>
     <gbif-common.version>0.23</gbif-common.version>
     <gbif-microservice.version>0.4</gbif-microservice.version>
     <gbif-occurrence.version>0.36-SNAPSHOT</gbif-occurrence.version>
-    <gbif-postal-service.version>0.18</gbif-postal-service.version>
+    <gbif-postal-service.version>0.19</gbif-postal-service.version>
     <dwc-api.version>1.13</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
-    <guava.version>17.0</guava.version>
+    <guava.version>19.0</guava.version>
     <guice.version>3.0</guice.version>
     <hadoop.version>2.6.0-cdh5.4.7</hadoop.version>
     <hbase.version>1.0.0-cdh5.4.7</hbase.version>
@@ -54,12 +54,12 @@
     <jcommander.version>1.30-gbif-20121018</jcommander.version>
     <jersey.version>1.17.1</jersey.version>
     <jsr311-api.version>1.0</jsr311-api.version>
-    <junit.version>4.11</junit.version>
-    <logback.version>1.0.13</logback.version>
+    <junit.version>4.12</junit.version>
+    <logback.version>1.1.5</logback.version>
     <metainf-services.version>1.5</metainf-services.version>
     <metrics.version>2.1.3</metrics.version>
     <servlet-api.version>3.1.0</servlet-api.version>
-    <slf4j.version>1.7.7</slf4j.version>
+    <slf4j.version>1.7.16</slf4j.version>
     <validation-api.version>1.1.0.Final</validation-api.version>
     <yammer-metrics.version>2.2.0</yammer-metrics.version>
 

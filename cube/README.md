@@ -12,7 +12,8 @@ and properties files for the 4 cubes in use: density (maps_cube), occurrence (oc
 To run a backfill:
   1. ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running (see the README in bin/conf)
   2. modify the cube.properties that you are backfilling, observing the comments in the files
-  3. choose
+  3. delete the old hbase table (disable / drop in hbase shell)
+  4. choose
 ````shell
 ./backfill.sh
 ````
