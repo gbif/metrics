@@ -40,9 +40,9 @@
     <gbif-common-service.version>0.16</gbif-common-service.version>
     <gbif-common-ws.version>0.30</gbif-common-ws.version>
     <gbif-common.version>0.23</gbif-common.version>
-    <gbif-microservice.version>0.4</gbif-microservice.version>
-    <gbif-occurrence.version>0.36-SNAPSHOT</gbif-occurrence.version>
-    <gbif-postal-service.version>0.19</gbif-postal-service.version>
+    <gbif-microservice.version>0.5</gbif-microservice.version>
+    <gbif-occurrence.version>0.36clear</gbif-occurrence.version>
+    <gbif-postal-service.version>0.20</gbif-postal-service.version>
     <dwc-api.version>1.13</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
     <guava.version>19.0</guava.version>
