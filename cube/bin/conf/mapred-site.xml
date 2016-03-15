@@ -93,6 +93,10 @@
     <name>mapreduce.framework.name</name>
     <value>yarn</value>
   </property>
+  <property>
+    <name>mapred.job.queue.name</name>
+    <value>reprocessing</value>
+  </property>
   <!--property>
     <name>yarn.app.mapreduce.am.staging-dir</name>
     <value>/user</value>
