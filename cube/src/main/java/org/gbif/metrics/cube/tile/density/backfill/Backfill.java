@@ -23,7 +23,7 @@ public class Backfill extends HBaseSourcedBackfill {
   private final int pixelsPerCluster;
 
   // sensible defaults when omitted
-  final static int DEFAULT_PIXELS_PER_CLUSTER = 4;
+  final static int DEFAULT_PIXELS_PER_CLUSTER = 1;
   final static int DEFAULT_NUM_ZOOMS = 4;
 
   public static final String KEY_NUM_ZOOMS = "density-cube.numZooms";

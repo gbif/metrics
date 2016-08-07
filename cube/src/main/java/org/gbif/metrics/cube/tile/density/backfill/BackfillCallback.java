@@ -34,7 +34,7 @@ class BackfillCallback implements HBaseBackfillCallback {
   @Override
   public void backfillInto(Configuration conf, byte[] table, byte[] cf, long snapshotFinishMs) throws IOException {
     conf = HBaseConfiguration.create(conf);
-    conf.set("mapred.reduce.slowstart.completed.maps", "1.0"); // delay reducers to spare the machine load
+    conf.set("mapreduce.job.reduce.slowstart.completedmaps", "1.0"); // delay reducers to spare the machine load
 
     // a temporary directory for using to store intermediate data between the 2 jobs
     String dir = UUID.randomUUID().toString();
@@ -52,7 +52,8 @@ class BackfillCallback implements HBaseBackfillCallback {
         LocationCollectorMapper.class, OccurrenceWritable.class, IntWritable.class, job);
       job.setCombinerClass(GroupByOccurrenceReducer.class); // Optimize network bandwidth
       job.setReducerClass(GroupByOccurrenceReducer.class);
-      job.setNumReduceTasks(conf.getInt(Backfill.KEY_NUM_REDUCERS, Backfill.DEFAULT_NUM_REDUCERS));
+      // here we set 10x the reducers, so that the next stage sees a lot of input files
+      job.setNumReduceTasks(10 * conf.getInt(Backfill.KEY_NUM_REDUCERS, Backfill.DEFAULT_NUM_REDUCERS));
       job.setOutputKeyClass(OccurrenceWritable.class);
       job.setOutputValueClass(IntWritable.class);
       job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -62,9 +63,9 @@ class BackfillCallback implements HBaseBackfillCallback {
       }
 
       // Job #2 to write the cube
-      conf.set("mapred.child.java.opts", "-Xmx3G"); // for safety, do not assume the default works
       job = new Job(conf, "density-cube backfill write");
       job.setJarByClass(TileCollectorMapper.class); // required to set up MR classpath
+      // now we limit reducers to keep concurrent load on HBase writes downz
       job.setNumReduceTasks(conf.getInt(Backfill.KEY_NUM_REDUCERS, Backfill.DEFAULT_NUM_REDUCERS));
       SequenceFileInputFormat.setInputPaths(job, tmpDir);
       // This appears to be the only way to get a SequenceFileInputFormat to understand types
@@ -75,8 +76,7 @@ class BackfillCallback implements HBaseBackfillCallback {
       job.setMapOutputKeyClass(TileKeyWritable.class);
       job.setMapOutputValueClass(OccurrenceWritable.class);
       // Ensure no bad counts in the cube
-      job.getConfiguration().set("mapred.map.tasks.speculative.execution", "false");
-      job.getConfiguration().set("mapred.reduce.tasks.speculative.execution", "false");
+      job.getConfiguration().set("mapreduce.reduce.speculative", "false");
       job.getConfiguration().set("mapred.compress.map.output", "true");
       job.setReducerClass(CubeWriterReducer.class);
       job.setOutputFormatClass(NullOutputFormat.class);
