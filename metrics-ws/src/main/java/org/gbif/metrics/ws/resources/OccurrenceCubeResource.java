@@ -144,12 +144,13 @@ public class OccurrenceCubeResource {
   @GET
   @Path("/counts/datasets")
   public Map<UUID, Integer> getDatasets(@QueryParam("country") String country,
-    @QueryParam("nubKey") Integer nubKey) {
+    @QueryParam("nubKey") Integer nubKey, @QueryParam("taxonKey") Integer taxonKey) {
     if (country != null && nubKey != null) {
       throw new IllegalArgumentException("Only one filter parameter [country/nubKey] is allowed");
     }
-    if (nubKey != null) {
-      return getDatasetsByNub(nubKey);
+    // legacy parameter is nubKey, but API docs specified taxonKey so we simply allow both
+    if (nubKey != null || taxonKey != null) {
+      return getDatasetsByNub(nubKey == null ? taxonKey : nubKey);
     } else {
       return getDatasetsByCountry(Country.fromIsoCode(country));
     }
