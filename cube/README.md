@@ -13,12 +13,13 @@ To run a backfill:
   1. ensure your hadoop configuration in the bin/conf folder is correct for the environment you are running (see the README in bin/conf)
   2. modify the cube.properties that you are backfilling, observing the comments in the files
   3. delete the old hbase table (disable / drop in hbase shell)
-  4. choose
-````shell
+  4. create a screen session or use `nohup` with output redirect (the process needs to keep running even if the ssh connection is cut)
+  5. choose
+```shell
 ./backfill.sh
-````
+```
 to first build the cube jar and then run your backfill job, or
-````shell
+```shell
 ./backfill.sh -nobuild
-````
+```
 if the jar has already been built.
