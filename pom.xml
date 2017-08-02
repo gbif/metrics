@@ -41,7 +41,7 @@
     <gbif-common-ws.version>0.39</gbif-common-ws.version>
     <gbif-common.version>0.35</gbif-common.version>
     <gbif-microservice.version>0.7</gbif-microservice.version>
-    <gbif-occurrence.version>0.65</gbif-occurrence.version>
+    <gbif-occurrence.version>0.66</gbif-occurrence.version>
     <gbif-postal-service.version>0.24</gbif-postal-service.version>
     <dwc-api.version>1.17</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
