@@ -36,10 +36,11 @@
 
   <build>
     <resources>
-      <resource>
+      <!-- This shouldn't be included for downstream users (CLI, WS) but it may need including for building the cubes. -->
+      <!--resource>
         <directory>bin/conf</directory>
         <filtering>true</filtering>
-      </resource>
+      </resource-->
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
