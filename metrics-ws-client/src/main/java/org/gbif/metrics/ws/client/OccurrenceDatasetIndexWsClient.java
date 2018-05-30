@@ -31,7 +31,7 @@ public class OccurrenceDatasetIndexWsClient extends BaseWsClient implements Occu
   private static final String NUBKEY_PARAM = "nubKey";
   private static final String COUNTRY_PARAM = "country";
 
-  private static final GenericType<Map<UUID, Integer>> GENERIC_TYPE = new GenericType<Map<UUID, Integer>>() {
+  private static final GenericType<Map<UUID, Long>> GENERIC_TYPE = new GenericType<Map<UUID, Long>>() {
   };
 
   @Inject
@@ -40,21 +40,21 @@ public class OccurrenceDatasetIndexWsClient extends BaseWsClient implements Occu
   }
 
   @Override
-  public SortedMap<UUID, Integer> occurrenceDatasetsForCountry(Country country) {
+  public SortedMap<UUID, Long> occurrenceDatasetsForCountry(Country country) {
     return getRequest(QueryParamBuilder.create(COUNTRY_PARAM, country.getIso2LetterCode()).build(),
       DATASETS_PATH);
   }
 
   @Override
-  public SortedMap<UUID, Integer> occurrenceDatasetsForNubKey(int nubKey) {
+  public SortedMap<UUID, Long> occurrenceDatasetsForNubKey(int nubKey) {
     return getRequest(QueryParamBuilder.create(NUBKEY_PARAM, nubKey).build(), DATASETS_PATH);
   }
 
   /**
    * Executes a get request whose returned value is a SortedMap<UUID, Integer>.
    */
-  private SortedMap<UUID, Integer> getRequest(MultivaluedMap<String, String> params, String path) {
-    final Map<UUID, Integer> res = get(GENERIC_TYPE, params, path);
+  private SortedMap<UUID, Long> getRequest(MultivaluedMap<String, String> params, String path) {
+    final Map<UUID, Long> res = get(GENERIC_TYPE, params, path);
     return ImmutableSortedMap.copyOf(res,
       Ordering.natural().onResultOf(Functions.forMap(res)).compound(Ordering.natural()).reverse());
   }
