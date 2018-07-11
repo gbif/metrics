@@ -4,8 +4,10 @@ In order to run the backfills you'll need the following configuration files in t
 - hdfs-site.xml
 - mapred-site.xml
 - yarn-site.xml
+- country-occurrence-dataset-cube.properties
+- occurrence-cube.properties
+- taxon-occurrence-dataset-cube.properties
 
-You can get a current copy to match your target environment (ie dev, uat, or prod) from the the corresponding directory
-in https://github.com/gbif/gbif-configuration/tree/master/metrics-ws
+These are symlinked from gbif-configuration for the dev environment.  You could update the links to a different environment:
 
-Please don't then commit them to this directory!
+env=dev; ln -sf ../../../../gbif-configuration/metrics-ws/$env/conf/*-site.xml ../../../../gbif-configuration/cube-builder/$env/*[sl] .

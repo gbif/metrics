@@ -14,5 +14,5 @@ then
   mvn -f ../../../pom.xml clean package
 fi
 cp ../../../target/cube-*-for-backfills.jar .
-java -cp ../../conf:* org.gbif.metrics.cube.index.country.backfill.Backfill
+sudo -u hdfs java -cp ../../conf:* org.gbif.metrics.cube.index.country.backfill.Backfill
 rm -f cube*backfills.jar
