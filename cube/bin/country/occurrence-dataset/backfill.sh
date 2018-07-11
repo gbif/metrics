@@ -9,6 +9,12 @@
 # Run as ./backfill.sh -nobuild to skip the build step (but note the jar has to be in the /target dir already)
 #
 ##
+
+if [[ hdfs dfs -ls -d /tmp/backfill_snapshot_hfiles ]]; then
+	echo >&2 "Directory /tmp/backfill_snapshot_hfiles exists in HDFS, cube build would fail"
+	echo >&2 "or maybe you are trying to build two cubes at once — this won't work."
+fi
+
 if [ "$1" != "-nobuild" ]
 then
   mvn -f ../../../pom.xml clean package
