@@ -10,7 +10,7 @@
 
   <groupId>org.gbif.metrics</groupId>
   <artifactId>metrics-motherpom</artifactId>
-  <version>0.27-SNAPSHOT</version>
+  <version>0.31-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Metrics :: Mother POM</name>
