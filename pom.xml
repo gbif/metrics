@@ -46,7 +46,7 @@
     <dwc-api.version>1.20</dwc-api.version>
     <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
     <guava.version>19.0</guava.version>
-    <guice.version>3.0</guice.version>
+    <guice.version>4.0</guice.version>
     <hadoop.version>2.6.0-cdh5.12.0</hadoop.version>
     <hbase.version>1.2.0-cdh5.12.0</hbase.version>
     <jackson-annotations.version>2.2.3</jackson-annotations.version>
@@ -167,6 +167,12 @@
         <groupId>org.gbif</groupId>
         <artifactId>gbif-microservice</artifactId>
         <version>${gbif-microservice.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- OTHER -->
