@@ -13,6 +13,7 @@
 if hdfs dfs -ls -d /tmp/backfill_snapshot_hfiles 2> /dev/null; then
 	echo >&2 "Directory /tmp/backfill_snapshot_hfiles exists in HDFS, cube build would fail"
 	echo >&2 "or maybe you are trying to build two cubes at once — this won't work."
+	exit 1
 fi
 
 if [ "$1" != "-nobuild" ]

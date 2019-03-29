@@ -63,13 +63,13 @@ public class OccurrenceCubeTest {
     final UUID ds1 = UUID.randomUUID();
     final UUID ds2 = UUID.randomUUID();
     final Occurrence o1 =
-      occurrenceOf(123456, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.OBSERVATION, Country.UKRAINE, 2012, 10.0, 11.0,
+      occurrenceOf(123456L, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.OBSERVATION, Country.UKRAINE, 2012, 10.0, 11.0,
         EndpointType.BIOCASE);
     final Occurrence o2 =
-      occurrenceOf(123457, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.PRESERVED_SPECIMEN, Country.UKRAINE, 2012, 10.0,
+      occurrenceOf(123457L, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.PRESERVED_SPECIMEN, Country.UKRAINE, 2012, 10.0,
         11.0, EndpointType.DWC_ARCHIVE);
     final Occurrence o3 =
-      occurrenceOf(123458, 1, 2, 3, 4, 5, 6, 8, 9, ds2, BasisOfRecord.PRESERVED_SPECIMEN, Country.UKRAINE, 2012, 10.0,
+      occurrenceOf(123458L, 1, 2, 3, 4, 5, 6, 8, 9, ds2, BasisOfRecord.PRESERVED_SPECIMEN, Country.UKRAINE, 2012, 10.0,
         11.0, EndpointType.DIGIR);
 
     cubeIo.writeAsync(OccurrenceAddressUtil.cubeMutation(o1, new LongOp(1)));
@@ -99,7 +99,7 @@ public class OccurrenceCubeTest {
   public void testSubtraction() throws InterruptedException, AsyncException, IOException {
     final UUID ds1 = UUID.randomUUID();
     final Occurrence o1 =
-      occurrenceOf(123456, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.OBSERVATION, Country.UKRAINE, 2012, 10.0, 11.0,
+      occurrenceOf(123456L, 1, 2, 3, 4, 5, 6, 7, 7, ds1, BasisOfRecord.OBSERVATION, Country.UKRAINE, 2012, 10.0, 11.0,
         EndpointType.DWC_ARCHIVE);
 
     cubeIo.writeAsync(OccurrenceAddressUtil.cubeMutation(o1, new LongOp(1)));
@@ -124,7 +124,7 @@ public class OccurrenceCubeTest {
   }
 
   private Occurrence occurrenceOf(
-    Integer key, Integer kingdom, Integer phylum, Integer classs, Integer order, Integer family, Integer genus,
+    Long key, Integer kingdom, Integer phylum, Integer classs, Integer order, Integer family, Integer genus,
     Integer species, Integer nub,
     UUID dataset, BasisOfRecord bor, Country country, Integer year, Double latitude, Double longitude,
     EndpointType protocol) {

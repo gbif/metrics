@@ -17,7 +17,7 @@ public class OccurrenceComparisonUtilTest {
 
   private static Occurrence buildOccurrence(UUID datasetKey, UUID ook) {
     Occurrence occ1 = new Occurrence();
-    occ1.setKey(1);
+    occ1.setKey(1L);
     occ1.setDatasetKey(datasetKey);
     occ1.setPublishingOrgKey(ook);
     occ1.setBasisOfRecord(BasisOfRecord.FOSSIL_SPECIMEN);
@@ -54,7 +54,7 @@ public class OccurrenceComparisonUtilTest {
     UUID ook = UUID.randomUUID();
     Occurrence occ1 = buildOccurrence(datasetKey, ook);
     Occurrence occ2 = buildOccurrence(datasetKey, ook);
-    occ2.setKey(2);
+    occ2.setKey(2L);
     assertFalse(OccurrenceComparisonUtil.equivalent(occ1, occ2));
   }
 
@@ -77,7 +77,7 @@ public class OccurrenceComparisonUtilTest {
     UUID ook = UUID.randomUUID();
     Occurrence occ1 = buildOccurrence(datasetKey, ook);
     Occurrence occ2 = new Occurrence();
-    occ2.setKey(1);
+    occ2.setKey(1L);
     occ2.setDatasetKey(datasetKey);
     assertFalse(OccurrenceComparisonUtil.equivalent(occ1, occ2));
   }
@@ -86,10 +86,10 @@ public class OccurrenceComparisonUtilTest {
   public void testAllNull() {
     UUID datasetKey = UUID.randomUUID();
     Occurrence occ1 = new Occurrence();
-    occ1.setKey(1);
+    occ1.setKey(1L);
     occ1.setDatasetKey(datasetKey);
     Occurrence occ2 = new Occurrence();
-    occ2.setKey(1);
+    occ2.setKey(1L);
     occ2.setDatasetKey(datasetKey);
     assertTrue(OccurrenceComparisonUtil.equivalent(occ1, occ2));
   }
