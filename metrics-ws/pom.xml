@@ -120,7 +120,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.metrics</groupId>
-      <artifactId>cube</artifactId>
+      <artifactId>metrics-es</artifactId>
       <exclusions>
         <exclusion>
           <groupId>log4j</groupId>

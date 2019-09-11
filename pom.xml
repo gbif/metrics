@@ -25,7 +25,7 @@
   </scm>
 
   <properties>
-    <jdkLevel>1.7</jdkLevel>
+    <jdkLevel>1.8</jdkLevel>
 
     <amqp-client.version>3.1.4</amqp-client.version>
     <avro.version>1.7.7</avro.version>
@@ -117,6 +117,11 @@
             <groupId>org.slf4j</groupId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif.metrics</groupId>
+        <artifactId>metrics-es</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif.occurrence</groupId>
