@@ -63,7 +63,7 @@
     <validation-api.version>1.1.0.Final</validation-api.version>
     <yammer-metrics.version>2.2.0</yammer-metrics.version>
 
-    <maven-shade-plugin.version>2.4</maven-shade-plugin.version>
+    <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
   </properties>
 
   <repositories>
@@ -89,6 +89,7 @@
     <module>metrics-cli</module>
     <module>metrics-ws</module>
     <module>metrics-ws-client</module>
+    <module>metrics-es</module>
   </modules>
 
   <!--

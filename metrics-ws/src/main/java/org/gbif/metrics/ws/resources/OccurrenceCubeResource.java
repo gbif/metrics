@@ -2,14 +2,16 @@ package org.gbif.metrics.ws.resources;
 
 import org.gbif.api.model.metrics.cube.Rollup;
 import org.gbif.metrics.es.EsMetricsService;
+import org.gbif.metrics.ws.resources.provider.ProvidedCountQuery;
 import org.gbif.ws.util.ExtraMediaTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -48,7 +50,7 @@ public class OccurrenceCubeResource {
    */
   @GET
   @Path("/count")
-  public Long count(EsMetricsService.CountQuery countQuery) {
+  public Long count(@ProvidedCountQuery EsMetricsService.CountQuery countQuery) {
     return metricsService.count(countQuery);
   }
 
@@ -61,9 +63,7 @@ public class OccurrenceCubeResource {
   @GET
   @Path("/counts/countries")
   public Map<String, Long> getCountries(@QueryParam("publishingCountry") String publishingCountry) {
-    EsMetricsService.AggregationQuery countryAggregation =
-    new EsMetricsService.AggregationQuery("publishingCountry", Collections.singleton(new EsMetricsService.Parameter("publishingCountry", publishingCountry)));
-    return metricsService.countAggregation(countryAggregation);
+    return metricsService.countAggregation(EsMetricsService.AggregationQuery.countriesOfPublishingCountry(publishingCountry));
   }
 
 
@@ -71,7 +71,7 @@ public class OccurrenceCubeResource {
   @Path("/counts/datasets")
   public Map<String, Long> getDatasets(@QueryParam("country") String country,
     @QueryParam("nubKey") Integer nubKey, @QueryParam("taxonKey") Integer taxonKey) {
-    Collection<EsMetricsService.Parameter> parameters = new ArrayList<>();
+    Set<EsMetricsService.Parameter> parameters = new HashSet<>();
     if (country != null) {
       parameters.add(new EsMetricsService.Parameter("country", country));
     }
@@ -89,15 +89,13 @@ public class OccurrenceCubeResource {
   @GET
   @Path("/counts/kingdom")
   public Map<String, Long> getKingdomCounts() {
-    return null;
+    return metricsService.countAggregation(EsMetricsService.AggregationQuery.KINGDOM);
   }
 
   @GET
   @Path("/counts/publishingCountries")
   public Map<String, Long> getPublishingCountries(@QueryParam("country") String country) {
-    EsMetricsService.AggregationQuery countryAggregation =
-      new EsMetricsService.AggregationQuery("country", Collections.singleton(new EsMetricsService.Parameter("country", country)));
-    return metricsService.countAggregation(countryAggregation);
+    return metricsService.countAggregation(EsMetricsService.AggregationQuery.publishingCountriesOfCountry(country));
   }
 
   /**
@@ -129,7 +127,7 @@ public class OccurrenceCubeResource {
       }
 
       // verify upper and lower bounds are sensible
-      if (result == null || result.lowerEndpoint().intValue() < 1000 || result.upperEndpoint().intValue() > now) {
+      if (result == null || result.lowerEndpoint() < 1000 || result.upperEndpoint() > now) {
         throw new IllegalArgumentException("Valid year range between 1000 and now expected, separated by a comma");
       }
       return result;
@@ -143,8 +141,6 @@ public class OccurrenceCubeResource {
   @Path("/counts/year")
   public Map<String, Long> getYearCounts(@QueryParam("year") String year) {
     Range<Integer> range = parseYearRange(year);
-    EsMetricsService.AggregationQuery yearAggregation =
-      new EsMetricsService.AggregationQuery("year", Collections.singleton(new EsMetricsService.Parameter("year", range.lowerEndpoint().toString() + "," + range.upperEndpoint().toString())));
-    return metricsService.countAggregation(yearAggregation);
+    return metricsService.countAggregation(EsMetricsService.AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
   }
 }
