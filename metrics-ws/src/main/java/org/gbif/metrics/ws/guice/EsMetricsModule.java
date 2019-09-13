@@ -1,12 +1,16 @@
 package org.gbif.metrics.ws.guice;
 
-import org.gbif.metrics.es.EsConfig;
+import org.gbif.metrics.MetricsService;
+import org.gbif.metrics.es.Config;
 import org.gbif.metrics.es.EsMetricsService;
 
 import java.util.Properties;
 
 import com.google.inject.AbstractModule;
 
+/**
+ * Elasticsearch metrics module.
+ */
 class EsMetricsModule extends AbstractModule {
 
 
@@ -18,7 +22,9 @@ class EsMetricsModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    EsConfig esConfig = EsConfig.from(properties.getProperty("es.index_name"), properties.getProperty("es.hosts").split(","));
-    bind(EsMetricsService.class).toInstance(new EsMetricsService(esConfig));
+    Config config = Config.from(Long.parseLong(properties.getProperty("cache.expire_after")),
+                                properties.getProperty("es.index_name"),
+                                properties.getProperty("es.hosts").split(","));
+    bind(MetricsService.class).toInstance(new EsMetricsService(config));
   }
 }

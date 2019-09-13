@@ -1,7 +1,7 @@
 package org.gbif.metrics.ws.resources.provider;
 
 import org.gbif.api.exception.ServiceUnavailableException;
-import org.gbif.metrics.es.EsMetricsService;
+import org.gbif.metrics.es.CountQuery;
 
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +40,8 @@ public class CountQueryProvider implements InjectableProvider<ProvidedCountQuery
   // checking the enum, hence the rawtypes and unchecked warnings suppression.
   @SuppressWarnings({"unchecked", "rawtypes"})
   @VisibleForTesting
-  EsMetricsService.CountQuery build(MultivaluedMap<String, String> params) throws ServiceUnavailableException, IllegalArgumentException {
-    Set<EsMetricsService.Parameter> parameters = new HashSet<>();
+  CountQuery build(MultivaluedMap<String, String> params) throws ServiceUnavailableException, IllegalArgumentException {
+    Set<org.gbif.metrics.es.Parameter> parameters = new HashSet<>();
     for (Entry<String, List<String>> param : params.entrySet()) {
       // We only accept 1 value per parameter
       String k = param.getKey();
@@ -53,18 +53,18 @@ public class CountQueryProvider implements InjectableProvider<ProvidedCountQuery
         continue;
       }
 
-      parameters.add(new EsMetricsService.Parameter(k,v));
+      parameters.add(new org.gbif.metrics.es.Parameter(k, v));
 
     }
-    return new EsMetricsService.CountQuery(parameters);
+    return new CountQuery(parameters);
   }
 
   @Override
-  public Injectable<EsMetricsService.CountQuery> getInjectable(ComponentContext ic, ProvidedCountQuery a, Parameter c) {
-    return new Injectable<EsMetricsService.CountQuery>() {
+  public Injectable<CountQuery> getInjectable(ComponentContext ic, ProvidedCountQuery a, Parameter c) {
+    return new Injectable<CountQuery>() {
 
       @Override
-      public EsMetricsService.CountQuery getValue() {
+      public CountQuery getValue() {
         return build(hc.getUriInfo().getQueryParameters());
       }
     };

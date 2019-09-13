@@ -1,12 +1,13 @@
 package org.gbif.metrics.ws.resources;
 
 import org.gbif.api.model.metrics.cube.Rollup;
-import org.gbif.metrics.es.EsMetricsService;
+import org.gbif.metrics.MetricsService;
+import org.gbif.metrics.es.AggregationQuery;
+import org.gbif.metrics.es.CountQuery;
+import org.gbif.metrics.es.Parameter;
 import org.gbif.metrics.ws.resources.provider.ProvidedCountQuery;
 import org.gbif.ws.util.ExtraMediaTypes;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -37,11 +38,11 @@ public class OccurrenceCubeResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(OccurrenceCubeResource.class);
 
-  private final EsMetricsService metricsService;
+  private final MetricsService metricsService;
 
 
   @Inject
-  public OccurrenceCubeResource(EsMetricsService metricsService) {
+  public OccurrenceCubeResource(MetricsService metricsService) {
     this.metricsService = metricsService;
   }
 
@@ -50,20 +51,20 @@ public class OccurrenceCubeResource {
    */
   @GET
   @Path("/count")
-  public Long count(@ProvidedCountQuery EsMetricsService.CountQuery countQuery) {
+  public Long count(@ProvidedCountQuery CountQuery countQuery) {
     return metricsService.count(countQuery);
   }
 
   @GET
   @Path("/counts/basisOfRecord")
   public Map<String, Long> getBasisOfRecordCounts() {
-    return metricsService.countAggregation(EsMetricsService.AggregationQuery.BASIS_OF_RECORD);
+    return metricsService.countAggregation(AggregationQuery.ofBasisOfRecord());
   }
 
   @GET
   @Path("/counts/countries")
   public Map<String, Long> getCountries(@QueryParam("publishingCountry") String publishingCountry) {
-    return metricsService.countAggregation(EsMetricsService.AggregationQuery.countriesOfPublishingCountry(publishingCountry));
+    return metricsService.countAggregation(AggregationQuery.ofCountriesOfPublishingCountry(publishingCountry));
   }
 
 
@@ -71,33 +72,39 @@ public class OccurrenceCubeResource {
   @Path("/counts/datasets")
   public Map<String, Long> getDatasets(@QueryParam("country") String country,
     @QueryParam("nubKey") Integer nubKey, @QueryParam("taxonKey") Integer taxonKey) {
-    Set<EsMetricsService.Parameter> parameters = new HashSet<>();
+    Set<Parameter> parameters = new HashSet<>();
     if (country != null) {
-      parameters.add(new EsMetricsService.Parameter("country", country));
+      parameters.add(new Parameter("country", country));
     }
 
     if (taxonKey != null) {
-      parameters.add(new EsMetricsService.Parameter("taxonKey", taxonKey.toString()));
+      parameters.add(new Parameter("taxonKey", taxonKey.toString()));
     }
 
     if (nubKey != null && taxonKey == null) {
-      parameters.add(new EsMetricsService.Parameter("taxonKey", nubKey.toString()));
+      parameters.add(new Parameter("taxonKey", nubKey.toString()));
     }
-    return metricsService.countAggregation(new EsMetricsService.AggregationQuery("datasetKey", parameters));
+    return metricsService.countAggregation(AggregationQuery.ofDatasets(parameters));
   }
 
   @GET
   @Path("/counts/kingdom")
   public Map<String, Long> getKingdomCounts() {
-    return metricsService.countAggregation(EsMetricsService.AggregationQuery.KINGDOM);
+    return metricsService.countAggregation(AggregationQuery.ofKingdom());
   }
 
   @GET
   @Path("/counts/publishingCountries")
   public Map<String, Long> getPublishingCountries(@QueryParam("country") String country) {
-    return metricsService.countAggregation(EsMetricsService.AggregationQuery.publishingCountriesOfCountry(country));
+    return metricsService.countAggregation(AggregationQuery.ofPublishingCountriesOfCountry(country));
   }
 
+  @GET
+  @Path("/counts/year")
+  public Map<String, Long> getYearCounts(@QueryParam("year") String year) {
+    Range<Integer> range = parseYearRange(year);
+    return metricsService.countAggregation(AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
+  }
   /**
    * @return The public API schema
    */
@@ -132,15 +139,11 @@ public class OccurrenceCubeResource {
       }
       return result;
 
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException ex) {
+      LOG.error("Illegal year value {}", year, ex);
       throw new IllegalArgumentException("Parameter "+ year +" is not a valid year range");
     }
   }
 
-  @GET
-  @Path("/counts/year")
-  public Map<String, Long> getYearCounts(@QueryParam("year") String year) {
-    Range<Integer> range = parseYearRange(year);
-    return metricsService.countAggregation(EsMetricsService.AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
-  }
+
 }

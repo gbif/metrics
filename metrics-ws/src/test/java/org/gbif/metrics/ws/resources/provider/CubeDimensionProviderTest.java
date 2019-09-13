@@ -2,15 +2,13 @@ package org.gbif.metrics.ws.resources.provider;
 
 import org.gbif.api.model.metrics.cube.OccurrenceCube;
 import org.gbif.api.vocabulary.BasisOfRecord;
-import org.gbif.metrics.es.EsMetricsService;
+import org.gbif.metrics.es.CountQuery;
 
 import java.util.UUID;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import com.urbanairship.datacube.Address;
-import com.urbanairship.datacube.ReadBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -25,8 +23,8 @@ public class CubeDimensionProviderTest {
   private final UUID DS = UUID.randomUUID();
 
   // Builds an Address (package declarations necessary, as this is the INTERNAL one)
-  private EsMetricsService.CountQuery getInternallyBuilt() {
-    return new EsMetricsService.CountQuery()
+  private CountQuery getInternallyBuilt() {
+    return new CountQuery()
       .withParameter(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.name())
       .withParameter(OccurrenceCube.TAXON_KEY.getKey(), "212")
       .withParameter(OccurrenceCube.DATASET_KEY.getKey(), DS.toString());
@@ -40,7 +38,7 @@ public class CubeDimensionProviderTest {
     m.add(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.name());
     m.add(OccurrenceCube.TAXON_KEY.getKey(), "212");
     m.add(OccurrenceCube.DATASET_KEY.getKey(), DS.toString());
-    EsMetricsService.CountQuery countQuery = b.build(m);
+    CountQuery countQuery = b.build(m);
     assertEquals(getInternallyBuilt(), countQuery);
   }
 

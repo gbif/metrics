@@ -6,14 +6,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** ES configuration. */
-public class EsConfig {
+/**
+ * Metrics service configuration.
+ */
+public class Config {
+
+  private final long expireCacheAfter;
 
   private final List<URL> hosts;
 
   private final String indexName;
 
-  private EsConfig(String indexName, String[] hostsAddresses) {
+  private Config(String indexName, String[] hostsAddresses, long expireCacheAfter) {
+    this.expireCacheAfter = expireCacheAfter;
     this.indexName = indexName;
     hosts =
         Arrays.stream(hostsAddresses)
@@ -29,19 +34,34 @@ public class EsConfig {
   }
 
   /**
-   * Creates a {@link EsConfig} from the addresses received.
+   * Creates a {@link Config} from the addresses received.
    *
+   * @param expireCacheAfter time to expire cache entries
+   * @param indexName Elasticsearch index/alias name
    * @param hostsAddresses they should be valid URLs.
-   * @return {@link EsConfig}.
+   * @return {@link Config}
    */
-  public static EsConfig from(String indexName, String... hostsAddresses) {
-    return new EsConfig(indexName, hostsAddresses);
+  public static Config from(long expireCacheAfter, String indexName, String... hostsAddresses) {
+    return new Config(indexName, hostsAddresses, expireCacheAfter);
   }
 
+  /**
+   * @return time to expire cache entries
+   */
+  public long getExpireCacheAfter() {
+    return expireCacheAfter;
+  }
+
+  /**
+   * @return list of Elasticsearch hosts
+   */
   public List<URL> getHosts() {
     return hosts;
   }
 
+  /**
+   * @return Elasticsearch index/alias name
+   */
   public String getIndexName() {
     return indexName;
   }
