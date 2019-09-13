@@ -192,14 +192,12 @@ public class EsMetricsService implements MetricsService {
 
   @Override
   public Long count(CountQuery countQuery) {
-    Long count = countCache.get(countQuery);
-    return count;
+    return  countCache.get(countQuery);
   }
 
   @Override
   public Map<String, Long> countAggregation(AggregationQuery aggregationQuery) {
-    Map<String,Long> agg = aggregationsCache.get(aggregationQuery);
-    return agg;
+    return aggregationsCache.get(aggregationQuery);
   }
 
 }
