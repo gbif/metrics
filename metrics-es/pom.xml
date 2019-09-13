@@ -4,8 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
-
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
@@ -16,16 +14,6 @@
 
   <name>Metrics :: ES</name>
   <description>Metrics produced from Elasticsearch</description>
-
-  <properties>
-
-    <!-- Elasticsearch -->
-    <elasticsearch.version>6.6.0</elasticsearch.version>
-    <apache.httpcomponents.version>4.4.5</apache.httpcomponents.version>
-
-    <!-- Caching -->
-    <cache2k.version>1.2.0.Final</cache2k.version>
-  </properties>
 
   <repositories>
     <repository>
@@ -43,36 +31,45 @@
       <artifactId>gbif-api</artifactId>
     </dependency>
 
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
     <!-- ES -->
     <dependency>
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>elasticsearch-rest-high-level-client</artifactId>
-      <version>${elasticsearch.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>elasticsearch-rest-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
     </dependency>
 
     <!-- Caching -->
     <dependency>
       <groupId>org.cache2k</groupId>
       <artifactId>cache2k-jcache</artifactId>
-      <version>${cache2k.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.cache2k</groupId>
       <artifactId>cache2k-api</artifactId>
-      <version>${cache2k.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>${apache.httpcomponents.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore-nio</artifactId>
-      <version>${apache.httpcomponents.version}</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
-
-
 
 </project>

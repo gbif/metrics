@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Preconditions;
 import org.apache.http.HttpHost;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
@@ -179,7 +178,9 @@ public class EsMetricsService implements MetricsService {
   private static RestHighLevelClient buildClient(Config config) {
     Objects.requireNonNull(config);
     Objects.requireNonNull(config.getHosts());
-    Preconditions.checkArgument(!config.getHosts().isEmpty());
+    if (config.getHosts().isEmpty()) {
+      throw new IllegalArgumentException("Hosts configuration is empty");
+    }
 
     HttpHost[] hosts = new HttpHost[config.getHosts().size()];
     for (int i = 0; i < config.getHosts().size(); i++) {

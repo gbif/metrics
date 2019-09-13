@@ -166,11 +166,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.urbanairship</groupId>
-      <artifactId>datacube</artifactId>
-      <classifier>${datacube.classifier}</classifier>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
