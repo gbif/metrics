@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.34-SNAPSHOT</version>
+    <version>0.34-ES-SNAPSHOT</version>
   </parent>
 
   <artifactId>metrics-es</artifactId>
 
-  <name>Metrics :: ES</name>
+  <name>Metrics :: Elasticsearch</name>
   <description>Metrics produced from Elasticsearch</description>
 
   <repositories>

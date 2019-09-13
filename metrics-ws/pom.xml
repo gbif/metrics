@@ -5,10 +5,10 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.34-SNAPSHOT</version>
+    <version>0.34-ES-SNAPSHOT</version>
   </parent>
 
-  <artifactId>metrics-ws</artifactId>
+  <artifactId>es-metrics-ws</artifactId>
   <packaging>jar</packaging>
 
   <name>Metrics :: Web service</name>
