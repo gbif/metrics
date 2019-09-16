@@ -75,11 +75,6 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>metrics.properties</exclude>
-                    <exclude>hbase-site.xml</exclude>
-                    <exclude>yarn-site.xml</exclude>
-                    <exclude>mapred-site.xml</exclude>
-                    <exclude>core-site.xml</exclude>
-                    <exclude>hdfs-site.xml</exclude>
                     <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
