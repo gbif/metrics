@@ -1,5 +1,6 @@
 package org.gbif.metrics.es;
 
+import org.gbif.metrics.MetricsCacheService;
 import org.gbif.metrics.MetricsService;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpHost;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
+import org.cache2k.expiry.Expiry;
 import org.cache2k.integration.CacheLoader;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * MetricsSevice based on Elasticsearch.
  */
-public class EsMetricsService implements MetricsService {
+public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private static final Logger LOG = LoggerFactory.getLogger(EsMetricsService.class);
 
@@ -81,6 +83,7 @@ public class EsMetricsService implements MetricsService {
         }
       })
       .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+      .refreshAhead(true)
       .build();
 
     aggregationsCache = new Cache2kBuilder<AggregationQuery, Map<String,Long>>(){}
@@ -91,6 +94,7 @@ public class EsMetricsService implements MetricsService {
         }
       })
       .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+      .refreshAhead(true)
       .build();
   }
 
@@ -192,8 +196,26 @@ public class EsMetricsService implements MetricsService {
   }
 
   @Override
+  public void flush() {
+    countCache.removeAll();
+    aggregationsCache.removeAll();
+  }
+
+  @Override
+  public void refresh(CountQuery countQuery) {
+    LOG.info("Expiring and refreshing {}", countQuery);
+    countCache.expireAt(countQuery, Expiry.REFRESH);
+  }
+
+  @Override
+  public void refresh(AggregationQuery aggregationQuery) {
+    LOG.info("Expiring and refreshing {}", aggregationQuery);
+    aggregationsCache.expireAt(aggregationQuery, Expiry.REFRESH);
+  }
+
+  @Override
   public Long count(CountQuery countQuery) {
-    return  countCache.get(countQuery);
+    return countCache.get(countQuery);
   }
 
   @Override
