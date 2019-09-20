@@ -1,0 +1,25 @@
+/**
+ * Defines a serialization format that allows location and an identifier.
+ * The identifier might be for the location itself, or could be the identifier
+ * for some other object located at that spot, such as an occurrence record.
+ */
+[
+  {
+    "name": "LocationAvro",
+    "namespace": "org.gbif.metrics.cube.tile.io",
+    "type": "record",
+    "fields": [
+      {"name": "id", "type": "int"},
+      {"name": "lat", "type": "double"},
+      {"name": "lng", "type": "double"}
+    ] 
+  },
+  {
+    "name": "LocationsAvro",
+    "namespace": "org.gbif.metrics.cube.tile.io",
+    "type": "record",
+    "fields": [
+      {"name": "locations", "type": ["null",{"type": "array", "items": "LocationAvro"}]}
+    ] 
+  }
+]

@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>0.35-ES-SNAPSHOT</version>
+    <version>0.34-SNAPSHOT</version>
   </parent>
 
   <artifactId>metrics-ws-client</artifactId>
@@ -113,7 +113,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.metrics</groupId>
-      <artifactId>es-metrics-ws</artifactId>
+      <artifactId>metrics-ws</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

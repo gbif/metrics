@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012 Global Biodiversity Information Facility (GBIF)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif.metrics</groupId>
+    <artifactId>metrics-motherpom</artifactId>
+    <version>0.34-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>cube</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Metrics :: Cube</name>
+  <description>Cube definitions, builders and accessors</description>
+
+  <properties>
+    <!-- this has to be API compatible with the guava used in datacube -->
+    <guava.version>14.0.1</guava.version>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>bin/conf</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <!--  A plugin to generate Avro files from the definitions -->
+      <plugin>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro-maven-plugin</artifactId>
+        <version>${avro.version}</version>
+        <executions>
+          <execution>
+            <id>schemas</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>schema</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+              <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+              <testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
+              <testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
+        <executions>
+          <!-- create a shaded artifact to be used with classifier by metrics-cli (datacube requires guava < 15) -->
+          <execution>
+            <id>for-cli</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>for-cli</shadedClassifierName>
+              <artifactSet>
+                <includes>
+                  <include>com.google.guava:guava</include>
+                  <include>org.apache.curator:curator-client</include>
+                  <include>org.apache.curator:curator-framework</include>
+                  <include>org.apache.curator:curator-recipes</include>
+                  <include>org.apache.hadoop:hadoop-annotations</include>
+                  <include>org.apache.hadoop:hadoop-auth</include>
+                  <include>org.apache.hadoop:hadoop-common</include>
+                  <include>org.apache.hadoop:hadoop-core</include>
+                  <include>org.apache.hadoop:hadoop-client</include>
+                  <include>org.apache.hadoop:hadoop-protocol</include>
+                  <include>org.apache.hbase:hbase-annotations</include>
+                  <include>org.apache.hbase:hbase-client</include>
+                  <include>org.apache.hbase:hbase-common</include>
+                  <include>org.apache.hbase:hbase-hadoop-compat</include>
+                  <include>org.apache.hbase:hbase-hadoop2-compat</include>
+                  <include>org.apache.hbase:hbase-protocol</include>
+                  <include>org.apache.hbase:hbase-server</include>
+                  <include>org.apache.hbase:hbase-testing-util</include>
+                  <include>org.apache.hive:hive-hbase-handler</include>
+                  <include>org.apache.zookeeper:zookeeper</include>
+                  <include>org.gbif:hbase-utils</include>
+                  <include>com.urbanairship:datacube</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>com.google.common</pattern>
+                  <shadedPattern>g14.com.google.common</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+          <!-- create a shaded artifact to be used with classifier by backfills (datacube requires guava < 15) -->
+          <execution>
+            <id>for-backfills</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>for-backfills</shadedClassifierName>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>metrics.properties</exclude>
+                    <exclude>hbase-site.xml</exclude>
+                    <exclude>yarn-site.xml</exclude>
+                    <exclude>mapred-site.xml</exclude>
+                    <exclude>core-site.xml</exclude>
+                    <exclude>hdfs-site.xml</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <relocations>
+                <relocation>
+                  <pattern>com.google.common</pattern>
+                  <shadedPattern>g14.com.google.common</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>http://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.yammer.metrics</groupId>
+      <artifactId>metrics-ganglia</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>dwc-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.occurrence</groupId>
+      <artifactId>occurrence-persistence</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.urbanairship</groupId>
+      <artifactId>datacube</artifactId>
+      <classifier>${datacube.classifier}</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-yarn-common</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId> org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+</project>

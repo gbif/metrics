@@ -1,5 +1,8 @@
 package org.gbif.metrics.ws.guice;
 
+import org.gbif.metrics.cube.index.country.guice.CountryOccurrenceDatasetHBaseModule;
+import org.gbif.metrics.cube.index.taxon.guice.TaxonOccurrenceDatasetHBaseModule;
+import org.gbif.metrics.cube.occurrence.guice.OccurrenceCubeHBaseModule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.gbif.ws.app.ConfUtils;
 import org.gbif.ws.server.guice.GbifServletListener;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import com.google.inject.Module;
 
 
@@ -26,7 +30,9 @@ public class MetricsWsServletListener extends GbifServletListener {
   @Override
   protected List<Module> getModules(Properties props) {
     List<Module> modules = Lists.newArrayList();
-    modules.add(new EsMetricsModule(props));
+    modules.add(new OccurrenceCubeHBaseModule(props));
+    modules.add(new TaxonOccurrenceDatasetHBaseModule(props));
+    modules.add(new CountryOccurrenceDatasetHBaseModule(props));
     return modules;
   }
 }

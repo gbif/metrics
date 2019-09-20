@@ -2,14 +2,14 @@ package org.gbif.metrics.ws.resources.provider;
 
 import org.gbif.api.model.metrics.cube.OccurrenceCube;
 import org.gbif.api.vocabulary.BasisOfRecord;
-import org.gbif.metrics.es.CountQuery;
 
 import java.util.UUID;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.junit.Ignore;
+import com.urbanairship.datacube.Address;
+import com.urbanairship.datacube.ReadBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,29 +23,29 @@ public class CubeDimensionProviderTest {
   private final UUID DS = UUID.randomUUID();
 
   // Builds an Address (package declarations necessary, as this is the INTERNAL one)
-  private CountQuery getInternallyBuilt() {
-    return new CountQuery()
-      .withParameter(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.name())
-      .withParameter(OccurrenceCube.TAXON_KEY.getKey(), "212")
-      .withParameter(OccurrenceCube.DATASET_KEY.getKey(), DS.toString());
+  private Address getInternallyBuilt() {
+    return new ReadBuilder(org.gbif.metrics.cube.occurrence.OccurrenceCube.INSTANCE)
+      .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.BASIS_OF_RECORD, BasisOfRecord.OBSERVATION)
+      .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.TAXON_KEY, 212)
+      .at(org.gbif.metrics.cube.occurrence.OccurrenceCube.DATASET_KEY, DS)
+      .build();
   }
 
   // An address built by the Jersey provider must be the same as a DC readbuilder version
   @Test
   public void testBuild() {
-    CountQueryProvider b = new CountQueryProvider(null);
+    OccurrenceCubeReaderProvider b = new OccurrenceCubeReaderProvider(null);
     MultivaluedMap<String, String> m = new MultivaluedMapImpl();
-    m.add(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.name());
+    m.add(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.toString());
     m.add(OccurrenceCube.TAXON_KEY.getKey(), "212");
     m.add(OccurrenceCube.DATASET_KEY.getKey(), DS.toString());
-    CountQuery countQuery = b.build(m);
-    assertEquals(getInternallyBuilt(), countQuery);
+    ReadBuilder rb = b.build(m);
+    assertEquals(getInternallyBuilt(), rb.build());
   }
 
-  @Ignore
   @Test(expected = IllegalArgumentException.class)
   public void testFailureScenarios() {
-    CountQueryProvider b = new CountQueryProvider(null);
+    OccurrenceCubeReaderProvider b = new OccurrenceCubeReaderProvider(null);
     MultivaluedMap<String, String> m = new MultivaluedMapImpl();
     m.add("nonesense", "should throw error");
     b.build(m);
