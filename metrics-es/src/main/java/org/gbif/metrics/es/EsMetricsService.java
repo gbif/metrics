@@ -54,7 +54,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     fieldsMap.put("isGeoreferenced", "hasCoordinate");
     fieldsMap.put("taxonKey", "gbifClassification.taxonKey");
     fieldsMap.put("datasetKey", "datasetKey");
-    fieldsMap.put("publishingCountry", "datasetPublishingCountry");
+    fieldsMap.put("publishingCountry", "publishingCountry");
     fieldsMap.put("typeStatus", "typeStatus");
     fieldsMap.put("issue", "issues");
     fieldsMap.put("year", "year");

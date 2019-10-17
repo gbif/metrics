@@ -69,9 +69,9 @@ public class AggregationQuery {
                     .orElse(COUNTRY);
   }
 
-  public static AggregationQuery ofPublishingCountriesOfCountry(String publishingCountry) {
-    return Optional.ofNullable(publishingCountry).map(pc -> new AggregationQuery("publishingCountry",
-                                                                                 Collections.singleton(new Parameter("country", publishingCountry)),
+  public static AggregationQuery ofPublishingCountriesOfCountry(String country) {
+    return Optional.ofNullable(country).map(pc -> new AggregationQuery("publishingCountry",
+                                                                                 Collections.singleton(new Parameter("country", country)),
                                                                                  COUNTRY_LABEL_TRANSFORM))
                     .orElse(PUBLISHING_COUNTRY);
   }
