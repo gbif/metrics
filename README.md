@@ -1,7 +1,9 @@
 # GBIF Metrics Project
 
-The GBIF cube metrics and maps. These provide the counts throughout the portal (e.g. gbif.org/occurrence) and all map data. 
-Map tiles are served by the tile-server from these same cubes, but it accesses them directly (ie not through this WS). 
+_The cubes have been replaced by ElasticSearch facets, and the webservice here has been updated to query ES._
+
+The GBIF cube metrics and maps. These provide the counts throughout the portal (e.g. gbif.org/occurrence) and all map data.
+Map tiles are served by the tile-server from these same cubes, but it accesses them directly (ie not through this WS).
 It is heavily based on the Urban Airship Datacube: https://github.com/urbanairship/datacube
 
 The Metrics project include:
