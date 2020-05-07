@@ -1,10 +1,10 @@
 # GBIF Metrics Web Services
 
-This project exposes read only web services on top of the various cubes.
+This project exposes read only web services on top of the ElasticSearch metrics.
 
 ## Building
 
-Note that any metrics.properties or logback configuration files  are filtered out of the
+Note that any metrics.properties or logback configuration files are filtered out of the
 final artifact by the shade plugin, with the expectation that the metrics.properties and logback.xml will be provided
 in the runtime environment (typically by copying them from the gbif-configuration project).
 
