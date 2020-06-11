@@ -27,7 +27,10 @@ public interface OccurrenceCountryIndexWsClient extends OccurrenceCountryIndexSe
     return sortResponse(map);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/publishingCountries", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/counts/publishingCountries",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getPublishingCountries(@RequestParam(value = "country", required = false) String country);
 
   @Override
@@ -38,7 +41,10 @@ public interface OccurrenceCountryIndexWsClient extends OccurrenceCountryIndexSe
     return sortResponse(map);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/countries", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/counts/countries",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getCountries(@RequestParam(value = "publishingCountry", required = false) String publishingCountry);
 
   /**

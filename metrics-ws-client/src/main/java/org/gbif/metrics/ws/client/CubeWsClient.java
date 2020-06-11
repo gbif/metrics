@@ -31,10 +31,16 @@ public interface CubeWsClient extends CubeService {
     return count(params);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/count", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/count",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Long count(@SpringQueryMap Map<String, String> params);
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/count/schema", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/count/schema",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Override
   List<Rollup> getSchema();
 }

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistributionIndexService {
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/basisOfRecord", produces = MediaType.APPLICATION_JSON_VALUE)
   @Override
   default Map<BasisOfRecord, Long> getBasisOfRecordCounts() {
     Map<BasisOfRecord, Long> map = getBasisOfRecordCountsInternal()
@@ -30,7 +29,10 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
     return sortResponse(map);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/basisOfRecord", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/counts/basisOfRecord",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getBasisOfRecordCountsInternal();
 
   @Override
@@ -41,7 +43,10 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
     return sortResponse(map);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/kingdom", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/counts/kingdom",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getKingdomCountsInternal();
 
   @Override
@@ -52,7 +57,10 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
         .collect(Collectors.toMap(e -> Integer.valueOf(e.getKey()), Map.Entry::getValue));
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "occurrence/counts/year", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "occurrence/counts/year",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getYearCounts(@RequestParam(value = "year", required = false) String year);
 
   static <T extends Comparable<T>> SortedMap<T, Long> sortResponse(Map<T, Long> map) {
