@@ -9,12 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableConfigurationProperties
 @ComponentScan(
     basePackages = {
-        "org.gbif.ws.server.interceptor",
-        "org.gbif.ws.server.aspect",
-        "org.gbif.ws.server.filter",
         "org.gbif.ws.server.advice",
         "org.gbif.ws.server.mapper",
-        "org.gbif.ws.security",
         "org.gbif.metrics.ws"
     })
 public class MetricsWsApplication {

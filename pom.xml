@@ -32,8 +32,9 @@
 
     <jdkLevel>1.8</jdkLevel>
 
+    <feign.version>10.4.0</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
-    <gbif-api.version>0.113</gbif-api.version>
+    <gbif-api.version>0.114-SNAPSHOT</gbif-api.version>
     <gbif-common-ws.version>1.1</gbif-common-ws.version>
     <gbif-common.version>0.47</gbif-common.version>
     <guava.version>19.0</guava.version>
@@ -145,6 +146,11 @@
         <version>${gbif-common.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.github.openfeign</groupId>
+        <artifactId>feign-jackson</artifactId>
+        <version>${feign.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>

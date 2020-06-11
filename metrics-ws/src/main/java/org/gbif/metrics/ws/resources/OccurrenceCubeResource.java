@@ -95,6 +95,7 @@ public class OccurrenceCubeResource {
     Range<Integer> range = parseYearRange(year);
     return metricsService.countAggregation(AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
   }
+
   /**
    * @return The public API schema
    */
@@ -130,7 +131,7 @@ public class OccurrenceCubeResource {
 
     } catch (IllegalArgumentException ex) {
       LOG.error("Illegal year value {}", year, ex);
-      throw new IllegalArgumentException("Parameter "+ year +" is not a valid year range");
+      throw new IllegalArgumentException("Parameter " + year + " is not a valid year range");
     }
   }
 }

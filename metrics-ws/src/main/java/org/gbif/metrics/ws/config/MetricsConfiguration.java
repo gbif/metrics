@@ -15,7 +15,7 @@ public class MetricsConfiguration {
   public MetricsService metricsService(
       @Value("${cache.expire_after}") String expireAfter,
       @Value("${es.index_name}") String indexName,
-      @Value("${hosts}") String hosts) {
+      @Value("${es.hosts}") String hosts) {
     Config config = Config.from(Long.parseLong(expireAfter), indexName, hosts.split(","));
     return new EsMetricsService(config);
   }

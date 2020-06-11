@@ -24,7 +24,7 @@ public class CountQueryArgumentResolver implements HandlerMethodArgumentResolver
   }
 
   @Override
-  public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+  public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
     Set<Parameter> parameters = new HashSet<>();
     for (Map.Entry<String, String[]> param : webRequest.getParameterMap().entrySet()) {
       // We only accept 1 value per parameter

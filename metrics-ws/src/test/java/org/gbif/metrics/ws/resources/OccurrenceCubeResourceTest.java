@@ -1,13 +1,13 @@
 package org.gbif.metrics.ws.resources;
 
+import com.google.common.collect.Range;
+import org.junit.jupiter.api.Test;
+
 import java.util.Calendar;
 
-import com.google.common.collect.Range;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OccurrenceCubeResourceTest {
 
@@ -15,7 +15,7 @@ public class OccurrenceCubeResourceTest {
 
   @Test
   public void testYearRange() {
-    assertRange(OccurrenceCubeResource.parseYearRange("1742"), 1742, CURRENT_YEAR+1);
+    assertRange(OccurrenceCubeResource.parseYearRange("1742"), 1742, CURRENT_YEAR + 1);
     assertRange(OccurrenceCubeResource.parseYearRange("1742,1802"), 1742, 1802);
     assertRange(OccurrenceCubeResource.parseYearRange(""), 1500, CURRENT_YEAR + 1);
     assertRange(OccurrenceCubeResource.parseYearRange(null), 1500, CURRENT_YEAR + 1);
@@ -31,7 +31,6 @@ public class OccurrenceCubeResourceTest {
     assertIllegalRange("999");
   }
 
-
   private void assertRange(Range<Integer> range, Integer start, Integer end) {
     assertTrue(range.hasLowerBound());
     assertTrue(range.hasUpperBound());
@@ -41,12 +40,6 @@ public class OccurrenceCubeResourceTest {
   }
 
   private void assertIllegalRange(String years) {
-    try {
-      OccurrenceCubeResource.parseYearRange(years);
-      fail( years + " is an illegal range");
-    } catch (IllegalArgumentException e) {
-
-    }
+    assertThrows(IllegalArgumentException.class, () -> OccurrenceCubeResource.parseYearRange(years));
   }
-
 }
