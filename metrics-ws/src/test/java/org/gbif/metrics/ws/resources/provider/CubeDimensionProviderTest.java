@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import org.gbif.metrics.ws.provider.CountQueryArgumentResolver;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -33,7 +34,7 @@ public class CubeDimensionProviderTest {
   // An address built by the Jersey provider must be the same as a DC readbuilder version
   @Test
   public void testBuild() {
-    CountQueryProvider b = new CountQueryProvider(null);
+    CountQueryArgumentResolver b = new CountQueryArgumentResolver(null);
     MultivaluedMap<String, String> m = new MultivaluedMapImpl();
     m.add(OccurrenceCube.BASIS_OF_RECORD.getKey(), BasisOfRecord.OBSERVATION.name());
     m.add(OccurrenceCube.TAXON_KEY.getKey(), "212");
@@ -45,7 +46,7 @@ public class CubeDimensionProviderTest {
   @Ignore
   @Test(expected = IllegalArgumentException.class)
   public void testFailureScenarios() {
-    CountQueryProvider b = new CountQueryProvider(null);
+    CountQueryArgumentResolver b = new CountQueryArgumentResolver(null);
     MultivaluedMap<String, String> m = new MultivaluedMapImpl();
     m.add("nonesense", "should throw error");
     b.build(m);

@@ -5,43 +5,39 @@ import org.gbif.metrics.MetricsService;
 import org.gbif.metrics.es.AggregationQuery;
 import org.gbif.metrics.es.CountQuery;
 import org.gbif.metrics.es.Parameter;
-import org.gbif.metrics.ws.resources.provider.ProvidedCountQuery;
-import org.gbif.ws.util.ExtraMediaTypes;
+import org.gbif.metrics.ws.provider.ProvidedCountQuery;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * A simple generic resource that will look up a numerical count from the named cube
  * and address provided. Should no address be provided, a default builder which counts
  * all records is used.
  */
-@Path("/occurrence")
-@Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
+// TODO: 11/06/2020 produces ExtraMediaTypes.APPLICATION_JAVASCRIPT
+// TODO: 11/06/2020 GuiceFilter
+@RestController
+@RequestMapping(value = "occurrence", produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
 public class OccurrenceCubeResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(OccurrenceCubeResource.class);
 
   private final MetricsService metricsService;
 
-
-  @Inject
   public OccurrenceCubeResource(MetricsService metricsService) {
     this.metricsService = metricsService;
   }
@@ -49,29 +45,26 @@ public class OccurrenceCubeResource {
   /**
    * Looks up an addressable count from the cube.
    */
-  @GET
-  @Path("/count")
+  @GetMapping("count")
   public Long count(@ProvidedCountQuery CountQuery countQuery) {
     return metricsService.count(countQuery);
   }
 
-  @GET
-  @Path("/counts/basisOfRecord")
+  @GetMapping("counts/basisOfRecord")
   public Map<String, Long> getBasisOfRecordCounts() {
     return metricsService.countAggregation(AggregationQuery.ofBasisOfRecord());
   }
 
-  @GET
-  @Path("/counts/countries")
-  public Map<String, Long> getCountries(@QueryParam("publishingCountry") String publishingCountry) {
+  @GetMapping("counts/countries")
+  public Map<String, Long> getCountries(@RequestParam(value = "publishingCountry", required = false) String publishingCountry) {
     return metricsService.countAggregation(AggregationQuery.ofCountriesOfPublishingCountry(publishingCountry));
   }
 
-
-  @GET
-  @Path("/counts/datasets")
-  public Map<String, Long> getDatasets(@QueryParam("country") String country,
-    @QueryParam("nubKey") Integer nubKey, @QueryParam("taxonKey") Integer taxonKey) {
+  @GetMapping("counts/datasets")
+  public Map<String, Long> getDatasets(
+      @RequestParam(value = "country", required = false) String country,
+      @RequestParam(value = "nubKey", required = false) Integer nubKey,
+      @RequestParam(value = "taxonKey", required = false) Integer taxonKey) {
     Set<Parameter> parameters = new HashSet<>();
     if (country != null) {
       parameters.add(new Parameter("country", country));
@@ -87,29 +80,25 @@ public class OccurrenceCubeResource {
     return metricsService.countAggregation(AggregationQuery.ofDatasets(parameters));
   }
 
-  @GET
-  @Path("/counts/kingdom")
+  @GetMapping("counts/kingdom")
   public Map<String, Long> getKingdomCounts() {
     return metricsService.countAggregation(AggregationQuery.ofKingdom());
   }
 
-  @GET
-  @Path("/counts/publishingCountries")
-  public Map<String, Long> getPublishingCountries(@QueryParam("country") String country) {
+  @GetMapping("counts/publishingCountries")
+  public Map<String, Long> getPublishingCountries(@RequestParam(value = "country", required = false) String country) {
     return metricsService.countAggregation(AggregationQuery.ofPublishingCountriesOfCountry(country));
   }
 
-  @GET
-  @Path("/counts/year")
-  public Map<String, Long> getYearCounts(@QueryParam("year") String year) {
+  @GetMapping("counts/year")
+  public Map<String, Long> getYearCounts(@RequestParam(value = "year", required = false) String year) {
     Range<Integer> range = parseYearRange(year);
     return metricsService.countAggregation(AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
   }
   /**
    * @return The public API schema
    */
-  @GET
-  @Path("/count/schema")
+  @GetMapping("count/schema")
   public List<Rollup> getSchema() {
     // External Occurrence cube definition
     return org.gbif.api.model.metrics.cube.OccurrenceCube.ROLLUPS;
@@ -144,6 +133,4 @@ public class OccurrenceCubeResource {
       throw new IllegalArgumentException("Parameter "+ year +" is not a valid year range");
     }
   }
-
-
 }

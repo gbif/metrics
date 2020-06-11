@@ -1,4 +1,4 @@
-package org.gbif.metrics.ws.resources.provider;
+package org.gbif.metrics.ws.provider;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,0 +1,12 @@
+# DEVELOPMENT FILE: This file is excluded from the final build.
+
+# If present will push throughput and performance metrics to Ganglia
+#gangila:
+#  port:
+#  server:
+
+cache:
+  expire_after: ${metrics.cache.expire_after}
+es:
+  index_name: ${metrics.es.index_name}
+  hosts: ${metrics.es.hosts}
