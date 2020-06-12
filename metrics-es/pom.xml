@@ -13,6 +13,10 @@
   <name>Metrics :: Elasticsearch</name>
   <description>Metrics produced from Elasticsearch</description>
 
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+  </properties>
+
   <repositories>
     <repository>
       <id>gbif-all</id>

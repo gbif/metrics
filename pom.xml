@@ -29,6 +29,7 @@
     <spring-cloud-zookeeper.version>2.2.0.RELEASE</spring-cloud-zookeeper.version>
     <spring-cloud-openfeign.version>2.2.1.RELEASE</spring-cloud-openfeign.version>
     <mybatis-spring-boot-starter.version>2.0.1</mybatis-spring-boot-starter.version>
+    <main.basedir>${project.basedir}</main.basedir>
 
     <jdkLevel>1.8</jdkLevel>
 
@@ -261,6 +262,12 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

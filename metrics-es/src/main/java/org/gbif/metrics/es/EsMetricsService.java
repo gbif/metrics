@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.metrics.es;
 
 import org.gbif.metrics.MetricsCacheService;
@@ -35,9 +50,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * MetricsSevice based on Elasticsearch.
- */
+/** MetricsSevice based on Elasticsearch. */
 public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private static final Logger LOG = LoggerFactory.getLogger(EsMetricsService.class);
@@ -45,10 +58,11 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private static final int AGG_SIZE = 30_000;
   private static final int SHARD_SIZE = 10_000;
 
-  //Map of dimensions/parameter.name to Elasticsearch fields
-  private static final Map<String,String> DIMENSION_TO_ES_FIELD;
+  // Map of dimensions/parameter.name to Elasticsearch fields
+  private static final Map<String, String> DIMENSION_TO_ES_FIELD;
+
   static {
-    Map<String,String> fieldsMap = new HashMap<>();
+    Map<String, String> fieldsMap = new HashMap<>();
     fieldsMap.put("basisOfRecord", "basisOfRecord");
     fieldsMap.put("country", "countryCode");
     fieldsMap.put("isGeoreferenced", "hasCoordinate");
@@ -62,11 +76,11 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     DIMENSION_TO_ES_FIELD = Collections.unmodifiableMap(fieldsMap);
   }
 
-  //Cache for count queries
+  // Cache for count queries
   private final Cache<CountQuery, Long> countCache;
 
-  //Cache for aggregation queries
-  private final Cache<AggregationQuery, Map<String,Long>> aggregationsCache;
+  // Cache for aggregation queries
+  private final Cache<AggregationQuery, Map<String, Long>> aggregationsCache;
 
   private final Config config;
 
@@ -75,32 +89,32 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   public EsMetricsService(Config config) {
     this.config = config;
     restClient = buildClient(config);
-    countCache = new Cache2kBuilder<CountQuery,Long>(){}
-      .loader(new CacheLoader<CountQuery, Long>() {
-        @Override
-        public Long load(final CountQuery key) throws Exception {
-          return loadCount(key);
-        }
-      })
-      .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
-      .refreshAhead(true)
-      .build();
+    countCache =
+        new Cache2kBuilder<CountQuery, Long>() {}.loader(
+                new CacheLoader<CountQuery, Long>() {
+                  @Override
+                  public Long load(final CountQuery key) throws Exception {
+                    return loadCount(key);
+                  }
+                })
+            .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+            .refreshAhead(true)
+            .build();
 
-    aggregationsCache = new Cache2kBuilder<AggregationQuery, Map<String,Long>>(){}
-      .loader(new CacheLoader<AggregationQuery, Map<String,Long>>() {
-        @Override
-        public Map<String,Long> load(final AggregationQuery key) throws Exception {
-          return loadAggregation(key);
-        }
-      })
-      .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
-      .refreshAhead(true)
-      .build();
+    aggregationsCache =
+        new Cache2kBuilder<AggregationQuery, Map<String, Long>>() {}.loader(
+                new CacheLoader<AggregationQuery, Map<String, Long>>() {
+                  @Override
+                  public Map<String, Long> load(final AggregationQuery key) throws Exception {
+                    return loadAggregation(key);
+                  }
+                })
+            .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+            .refreshAhead(true)
+            .build();
   }
 
-  /**
-   * Loader function for the count queries cache.
-   */
+  /** Loader function for the count queries cache. */
   private Long loadCount(CountQuery countQuery) {
     try {
       return restClient.count(buildCountRequest(countQuery), RequestOptions.DEFAULT).getCount();
@@ -110,18 +124,20 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     }
   }
 
-  /**
-   * Loader function for the aggregation queries cache.
-   */
-  private Map<String,Long> loadAggregation(AggregationQuery aggregationQuery) {
+  /** Loader function for the aggregation queries cache. */
+  private Map<String, Long> loadAggregation(AggregationQuery aggregationQuery) {
     try {
-      SearchResponse response = restClient.search(buildCountsAggregateRequest(aggregationQuery), RequestOptions.DEFAULT);
-      List<? extends Terms.Bucket> buckets = ((Terms)response.getAggregations().get(aggregationQuery.getDimension())).getBuckets();
-      Map<String,Long> aggregation = new LinkedHashMap<>(buckets.size());
-      //Results added in reverse order because the ES API returns them like that
-      for(int i = buckets.size() - 1; i >= 0; i--) {
+      SearchResponse response =
+          restClient.search(buildCountsAggregateRequest(aggregationQuery), RequestOptions.DEFAULT);
+      List<? extends Terms.Bucket> buckets =
+          ((Terms) response.getAggregations().get(aggregationQuery.getDimension())).getBuckets();
+      Map<String, Long> aggregation = new LinkedHashMap<>(buckets.size());
+      // Results added in reverse order because the ES API returns them like that
+      for (int i = buckets.size() - 1; i >= 0; i--) {
         Terms.Bucket bucket = buckets.get(i);
-        aggregation.put(aggregationQuery.getKeyLabelTransform().apply(bucket.getKeyAsString()), bucket.getDocCount());
+        aggregation.put(
+            aggregationQuery.getKeyLabelTransform().apply(bucket.getKeyAsString()),
+            bucket.getDocCount());
       }
       return aggregation;
     } catch (IOException ex) {
@@ -130,9 +146,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     }
   }
 
-  /**
-   * Builds an Elasticsearch {@link CountRequest} from a {@link CountQuery}.
-   */
+  /** Builds an Elasticsearch {@link CountRequest} from a {@link CountQuery}. */
   private CountRequest buildCountRequest(CountQuery countQuery) {
     BoolQueryBuilder bool = QueryBuilders.boolQuery();
     countQuery.getParameters().forEach(p -> bool.filter().add(buildQuery(p)));
@@ -148,15 +162,19 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
    * Builds a {@link SearchRequest} with the aggregation parameters from a {@link AggregationQuery}.
    */
   private SearchRequest buildCountsAggregateRequest(AggregationQuery aggregationQuery) {
-    TermsAggregationBuilder aggregation = AggregationBuilders.terms(aggregationQuery.getDimension())
-                                                              .order(BucketOrder.count(true)) //Order by count
-                                                              .field(DIMENSION_TO_ES_FIELD.get(aggregationQuery.getDimension()))
-                                                              .size(AGG_SIZE)
-                                                              .shardSize(SHARD_SIZE);
+    TermsAggregationBuilder aggregation =
+        AggregationBuilders.terms(aggregationQuery.getDimension())
+            .order(BucketOrder.count(true)) // Order by count
+            .field(DIMENSION_TO_ES_FIELD.get(aggregationQuery.getDimension()))
+            .size(AGG_SIZE)
+            .shardSize(SHARD_SIZE);
     BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-    aggregationQuery.getParameters().forEach(parameter -> boolQueryBuilder.filter(buildQuery(parameter)));
+    aggregationQuery
+        .getParameters()
+        .forEach(parameter -> boolQueryBuilder.filter(buildQuery(parameter)));
     SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    searchSourceBuilder.query(boolQueryBuilder.filter().isEmpty()? QueryBuilders.matchAllQuery() : boolQueryBuilder);
+    searchSourceBuilder.query(
+        boolQueryBuilder.filter().isEmpty() ? QueryBuilders.matchAllQuery() : boolQueryBuilder);
     searchSourceBuilder.size(0);
     searchSourceBuilder.aggregation(aggregation);
     SearchRequest searchRequest = new SearchRequest();
@@ -165,20 +183,19 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     return searchRequest;
   }
 
-  /**
-   * Simple query builders for ranges and terms.
-   */
+  /** Simple query builders for ranges and terms. */
   private QueryBuilder buildQuery(Parameter parameter) {
     if (parameter.getValue().contains(",")) {
       String[] values = parameter.getValue().split(",");
-      return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName())).gte(values[0]).lte(values[1]);
+      return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()))
+          .gte(values[0])
+          .lte(values[1]);
     }
-    return QueryBuilders.termQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
+    return QueryBuilders.termQuery(
+        DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
   }
 
-  /**
-   * Elasticsearch client builder.
-   */
+  /** Elasticsearch client builder. */
   private static RestHighLevelClient buildClient(Config config) {
     Objects.requireNonNull(config);
     Objects.requireNonNull(config.getHosts());
@@ -222,5 +239,4 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   public Map<String, Long> countAggregation(AggregationQuery aggregationQuery) {
     return aggregationsCache.get(aggregationQuery);
   }
-
 }

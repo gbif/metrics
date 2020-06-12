@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.metrics.ws.resources;
 
 import org.gbif.api.model.metrics.cube.Rollup;
@@ -13,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.collect.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +35,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import com.google.common.collect.Range;
+
 /**
- * A simple generic resource that will look up a numerical count from the named cube
- * and address provided. Should no address be provided, a default builder which counts
- * all records is used.
+ * A simple generic resource that will look up a numerical count from the named cube and address
+ * provided. Should no address be provided, a default builder which counts all records is used.
  */
 @RestController
-@RequestMapping(value = "occurrence", produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(
+    value = "occurrence",
+    produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
 public class OccurrenceCubeResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(OccurrenceCubeResource.class);
@@ -40,9 +57,7 @@ public class OccurrenceCubeResource {
     this.metricsService = metricsService;
   }
 
-  /**
-   * Looks up an addressable count from the cube.
-   */
+  /** Looks up an addressable count from the cube. */
   @GetMapping("count")
   public Long count(@ProvidedCountQuery CountQuery countQuery) {
     return metricsService.count(countQuery);
@@ -54,8 +69,10 @@ public class OccurrenceCubeResource {
   }
 
   @GetMapping("counts/countries")
-  public Map<String, Long> getCountries(@RequestParam(value = "publishingCountry", required = false) String publishingCountry) {
-    return metricsService.countAggregation(AggregationQuery.ofCountriesOfPublishingCountry(publishingCountry));
+  public Map<String, Long> getCountries(
+      @RequestParam(value = "publishingCountry", required = false) String publishingCountry) {
+    return metricsService.countAggregation(
+        AggregationQuery.ofCountriesOfPublishingCountry(publishingCountry));
   }
 
   @GetMapping("counts/datasets")
@@ -84,19 +101,21 @@ public class OccurrenceCubeResource {
   }
 
   @GetMapping("counts/publishingCountries")
-  public Map<String, Long> getPublishingCountries(@RequestParam(value = "country", required = false) String country) {
-    return metricsService.countAggregation(AggregationQuery.ofPublishingCountriesOfCountry(country));
+  public Map<String, Long> getPublishingCountries(
+      @RequestParam(value = "country", required = false) String country) {
+    return metricsService.countAggregation(
+        AggregationQuery.ofPublishingCountriesOfCountry(country));
   }
 
   @GetMapping("counts/year")
-  public Map<String, Long> getYearCounts(@RequestParam(value = "year", required = false) String year) {
+  public Map<String, Long> getYearCounts(
+      @RequestParam(value = "year", required = false) String year) {
     Range<Integer> range = parseYearRange(year);
-    return metricsService.countAggregation(AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
+    return metricsService.countAggregation(
+        AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
   }
 
-  /**
-   * @return The public API schema
-   */
+  /** @return The public API schema */
   @GetMapping("count/schema")
   public List<Rollup> getSchema() {
     // External Occurrence cube definition
@@ -118,12 +137,12 @@ public class OccurrenceCubeResource {
 
       } else if (years.length == 2) {
         result = Range.open(Integer.parseInt(years[0].trim()), Integer.parseInt(years[1].trim()));
-
       }
 
       // verify upper and lower bounds are sensible
       if (result == null || result.lowerEndpoint() < 1000 || result.upperEndpoint() > now) {
-        throw new IllegalArgumentException("Valid year range between 1000 and now expected, separated by a comma");
+        throw new IllegalArgumentException(
+            "Valid year range between 1000 and now expected, separated by a comma");
       }
       return result;
 

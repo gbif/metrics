@@ -15,6 +15,7 @@
   <description>Metrics web service</description>
 
   <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
     <start-class>org.gbif.metrics.ws.MetricsWsApplication</start-class>
   </properties>
 
