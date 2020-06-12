@@ -54,16 +54,21 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
         <configuration>
-          <stopKey>stop</stopKey>
-          <stopPort>15327</stopPort>
-          <scanIntervalSeconds>10</scanIntervalSeconds>
-          <webAppConfig>
-            <contextPath>/</contextPath>
-            <webInfIncludeJarPattern>.*/classes/.*</webInfIncludeJarPattern>
-          </webAppConfig>
+          <excludes>
+            <!-- This is where the exclusion occurs -->
+            <exclude>**/application.yml</exclude>
+            <exclude>**/bootstrap.yml</exclude>
+          </excludes>
+          <archive>
+            <manifest>
+              <mainClass>${start-class}</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
       <plugin>
@@ -100,7 +105,7 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
-                    <exclude>metrics.properties</exclude>
+                    <exclude>application.yml</exclude>
                     <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
