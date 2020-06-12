@@ -52,17 +52,4 @@ public class CubeDimensionProviderTest {
     CountQuery countQuery = ((CountQuery) b.resolveArgument(null, null, webRequestMock, null));
     assertEquals(getInternallyBuilt(), countQuery);
   }
-
-  // TODO: 11/06/2020 IllegalArgumentException is expected
-  @Disabled
-  @Test
-  public void testFailureScenarios() {
-    CountQueryArgumentResolver b = new CountQueryArgumentResolver();
-    Map<String, String[]> parameters = new HashMap<>();
-    parameters.put("nonesense", new String[]{"should throw error"});
-
-    when(webRequestMock.getParameterMap()).thenReturn(parameters);
-
-    assertThrows(IllegalArgumentException.class, () -> b.resolveArgument(null, null, webRequestMock, null));
-  }
 }

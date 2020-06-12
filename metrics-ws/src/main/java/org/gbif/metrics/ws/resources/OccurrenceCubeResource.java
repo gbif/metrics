@@ -28,8 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  * and address provided. Should no address be provided, a default builder which counts
  * all records is used.
  */
-// TODO: 11/06/2020 produces ExtraMediaTypes.APPLICATION_JAVASCRIPT
-// TODO: 11/06/2020 GuiceFilter
 @RestController
 @RequestMapping(value = "occurrence", produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE})
 public class OccurrenceCubeResource {
