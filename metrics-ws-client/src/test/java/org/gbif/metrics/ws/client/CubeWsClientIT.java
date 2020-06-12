@@ -19,6 +19,7 @@ import org.gbif.api.service.metrics.CubeService;
 import org.gbif.ws.client.ClientFactory;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -42,6 +43,7 @@ public class CubeWsClientIT {
    * An IT to simply check the scheme can be read, and that some rollups exist. Is not meant to test
    * any business logic.
    */
+  @Disabled
   @Test
   public void schema() {
     assertTrue(

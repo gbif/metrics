@@ -19,6 +19,7 @@ import org.gbif.api.service.occurrence.OccurrenceDatasetIndexService;
 import org.gbif.ws.client.ClientFactory;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -39,6 +40,7 @@ public class OccurrenceDatasetIndexWsClientIT {
   }
 
   /** Ensures that the read works without throwing exception. */
+  @Disabled
   @Test
   public void basicLookup() {
     wsClient.occurrenceDatasetsForNubKey(ANIMALIA_KEY);
