@@ -48,11 +48,13 @@
     <validation-api.version>2.0.1.Final</validation-api.version>
 
     <!-- Elasticsearch -->
-    <elasticsearch.version>6.6.0</elasticsearch.version>
-    <apache.httpcomponents.version>4.4.5</apache.httpcomponents.version>
+    <elasticsearch.version>7.10.0</elasticsearch.version>
+    <httpclient.version>4.5.2</httpclient.version>
+    <httpcore.version>4.4.13</httpcore.version>
+    <log4j-api.version>2.11.1</log4j-api.version>
 
     <!-- Caching -->
-    <cache2k.version>1.2.0.Final</cache2k.version>
+    <cache2k.version>1.6.0.Final</cache2k.version>
 
     <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
     <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
@@ -260,8 +262,43 @@
       </dependency>
       <dependency>
         <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-core</artifactId>
+        <version>${elasticsearch.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
         <version>${elasticsearch.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+        <version>${elasticsearch.version}</version>
+      </dependency>
+      <!-- added to avoid conflicts with es client -->
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j-api.version}</version>
+      </dependency>
+      <!-- Version used by the ElasticSearch client -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${httpclient.version}</version>
+        <type>jar</type>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>${httpcore.version}</version>
+        <type>jar</type>
       </dependency>
 
       <!-- Caching -->
@@ -275,17 +312,6 @@
         <groupId>org.cache2k</groupId>
         <artifactId>cache2k-api</artifactId>
         <version>${cache2k.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>${apache.httpcomponents.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore-nio</artifactId>
-        <version>${apache.httpcomponents.version}</version>
-        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

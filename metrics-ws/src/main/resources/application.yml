@@ -8,5 +8,5 @@
 cache:
   expire_after: ${metrics.cache.expire_after}
 es:
-  index_name: ${metrics.es.index_name}
+  index: ${metrics.es.index}
   hosts: ${metrics.es.hosts}
