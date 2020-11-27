@@ -46,7 +46,9 @@ public class MetricsConfiguration {
 
   @Bean
   public MetricsService metricsService(
-      @Value("${cache.expire_after}") String expireAfter, @Value("${es.index}") String esIndex, RestHighLevelClient esClient) {
+      @Value("${cache.expire_after}") String expireAfter,
+      @Value("${es.index}") String esIndex,
+      RestHighLevelClient esClient) {
     return new EsMetricsService(esIndex, Long.parseLong(expireAfter), esClient);
   }
 
@@ -64,18 +66,16 @@ public class MetricsConfiguration {
       }
     }
 
-    SniffOnFailureListener sniffOnFailureListener =
-      new SniffOnFailureListener();
+    SniffOnFailureListener sniffOnFailureListener = new SniffOnFailureListener();
 
     RestClientBuilder builder =
-      RestClient.builder(hosts)
-        .setRequestConfigCallback(
-          requestConfigBuilder ->
-            requestConfigBuilder
-              .setConnectTimeout(esConfig.getConnectTimeout())
-              .setSocketTimeout(esConfig.getSocketTimeout()))
-        .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
-
+        RestClient.builder(hosts)
+            .setRequestConfigCallback(
+                requestConfigBuilder ->
+                    requestConfigBuilder
+                        .setConnectTimeout(esConfig.getConnectTimeout())
+                        .setSocketTimeout(esConfig.getSocketTimeout()))
+            .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS);
 
     if (esConfig.getSniffInterval() > 0) {
       builder.setFailureListener(sniffOnFailureListener);
@@ -84,20 +84,24 @@ public class MetricsConfiguration {
     RestHighLevelClient highLevelClient = new RestHighLevelClient(builder);
 
     if (esConfig.getSniffInterval() > 0) {
-      Sniffer sniffer = Sniffer.builder(highLevelClient.getLowLevelClient())
-        .setSniffIntervalMillis(esConfig.getSniffInterval())
-        .setSniffAfterFailureDelayMillis(esConfig.getSniffAfterFailureDelay())
-        .build();
+      Sniffer sniffer =
+          Sniffer.builder(highLevelClient.getLowLevelClient())
+              .setSniffIntervalMillis(esConfig.getSniffInterval())
+              .setSniffAfterFailureDelayMillis(esConfig.getSniffAfterFailureDelay())
+              .build();
       sniffOnFailureListener.setSniffer(sniffer);
 
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        sniffer.close();
-        try {
-          highLevelClient.close();
-        } catch (IOException e) {
-          throw new IllegalStateException("Couldn't close ES client", e);
-        }
-      }));
+      Runtime.getRuntime()
+          .addShutdownHook(
+              new Thread(
+                  () -> {
+                    sniffer.close();
+                    try {
+                      highLevelClient.close();
+                    } catch (IOException e) {
+                      throw new IllegalStateException("Couldn't close ES client", e);
+                    }
+                  }));
     }
     return highLevelClient;
   }

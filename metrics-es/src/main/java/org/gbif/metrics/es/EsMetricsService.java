@@ -189,7 +189,6 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
         DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
   }
 
-
   @Override
   public void flush() {
     countCache.removeAll();
