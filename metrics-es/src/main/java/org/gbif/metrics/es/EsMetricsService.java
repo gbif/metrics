@@ -19,16 +19,13 @@ import org.gbif.metrics.MetricsCacheService;
 import org.gbif.metrics.MetricsService;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpHost;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
@@ -36,7 +33,6 @@ import org.cache2k.integration.CacheLoader;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -82,13 +78,13 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   // Cache for aggregation queries
   private final Cache<AggregationQuery, Map<String, Long>> aggregationsCache;
 
-  private final Config config;
+  private final String esIndex;
 
-  private final RestHighLevelClient restClient;
+  private final RestHighLevelClient esClient;
 
-  public EsMetricsService(Config config) {
-    this.config = config;
-    restClient = buildClient(config);
+  public EsMetricsService(String esIndex, long expireCacheAfter, RestHighLevelClient esClient) {
+    this.esIndex = esIndex;
+    this.esClient = esClient;
     countCache =
         new Cache2kBuilder<CountQuery, Long>() {}.loader(
                 new CacheLoader<CountQuery, Long>() {
@@ -97,7 +93,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
                     return loadCount(key);
                   }
                 })
-            .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+            .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
             .refreshAhead(true)
             .build();
 
@@ -109,7 +105,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
                     return loadAggregation(key);
                   }
                 })
-            .expireAfterWrite(config.getExpireCacheAfter(), TimeUnit.MILLISECONDS)
+            .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
             .refreshAhead(true)
             .build();
   }
@@ -117,7 +113,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   /** Loader function for the count queries cache. */
   private Long loadCount(CountQuery countQuery) {
     try {
-      return restClient.count(buildCountRequest(countQuery), RequestOptions.DEFAULT).getCount();
+      return esClient.count(buildCountRequest(countQuery), RequestOptions.DEFAULT).getCount();
     } catch (IOException ex) {
       LOG.error("Error executing CountQuery {}", countQuery, ex);
       throw new RuntimeException(ex);
@@ -128,7 +124,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private Map<String, Long> loadAggregation(AggregationQuery aggregationQuery) {
     try {
       SearchResponse response =
-          restClient.search(buildCountsAggregateRequest(aggregationQuery), RequestOptions.DEFAULT);
+          esClient.search(buildCountsAggregateRequest(aggregationQuery), RequestOptions.DEFAULT);
       List<? extends Terms.Bucket> buckets =
           ((Terms) response.getAggregations().get(aggregationQuery.getDimension())).getBuckets();
       Map<String, Long> aggregation = new LinkedHashMap<>(buckets.size());
@@ -150,11 +146,9 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private CountRequest buildCountRequest(CountQuery countQuery) {
     BoolQueryBuilder bool = QueryBuilders.boolQuery();
     countQuery.getParameters().forEach(p -> bool.filter().add(buildQuery(p)));
-    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    searchSourceBuilder.query(bool);
     CountRequest countRequest = new CountRequest();
-    countRequest.source(searchSourceBuilder);
-    countRequest.indices(config.getIndexName());
+    countRequest.query(bool);
+    countRequest.indices(esIndex);
     return countRequest;
   }
 
@@ -179,7 +173,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     searchSourceBuilder.aggregation(aggregation);
     SearchRequest searchRequest = new SearchRequest();
     searchRequest.source(searchSourceBuilder);
-    searchRequest.indices(config.getIndexName());
+    searchRequest.indices(esIndex);
     return searchRequest;
   }
 
@@ -193,23 +187,6 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     }
     return QueryBuilders.termQuery(
         DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
-  }
-
-  /** Elasticsearch client builder. */
-  private static RestHighLevelClient buildClient(Config config) {
-    Objects.requireNonNull(config);
-    Objects.requireNonNull(config.getHosts());
-    if (config.getHosts().isEmpty()) {
-      throw new IllegalArgumentException("Hosts configuration is empty");
-    }
-
-    HttpHost[] hosts = new HttpHost[config.getHosts().size()];
-    for (int i = 0; i < config.getHosts().size(); i++) {
-      URL urlHost = config.getHosts().get(i);
-      hosts[i] = new HttpHost(urlHost.getHost(), urlHost.getPort(), urlHost.getProtocol());
-    }
-
-    return new RestHighLevelClient(RestClient.builder(hosts).setMaxRetryTimeoutMillis(180_000));
   }
 
   @Override
