@@ -16,7 +16,7 @@
 package org.gbif.metrics.ws.client;
 
 import org.gbif.api.service.metrics.CubeService;
-import org.gbif.ws.client.ClientFactory;
+import org.gbif.ws.client.ClientBuilder;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -32,12 +32,13 @@ public class CubeWsClientIT {
 
   private CubeService wsClient;
 
-  @LocalServerPort int localServerPort;
+  @LocalServerPort
+  int localServerPort;
 
   @BeforeEach
   public void init() {
-    ClientFactory clientFactory = new ClientFactory("http://localhost:" + localServerPort);
-    wsClient = clientFactory.newInstance(CubeWsClient.class);
+    ClientBuilder clientBuilder = new ClientBuilder();
+    wsClient = clientBuilder.withUrl("http://localhost:" + localServerPort).build(CubeWsClient.class);
   }
 
   /**
@@ -47,7 +48,6 @@ public class CubeWsClientIT {
   @Disabled
   @Test
   public void schema() {
-    assertTrue(
-        wsClient.getSchema().size() > 0, "CubeIo schema says no rollups which can't be true");
+    assertTrue(wsClient.getSchema().size() > 0, "CubeIo schema says no rollups which can't be true");
   }
 }

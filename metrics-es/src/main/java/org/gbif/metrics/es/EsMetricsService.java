@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
-import org.cache2k.integration.CacheLoader;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -86,25 +85,13 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     this.esIndex = esIndex;
     this.esClient = esClient;
     countCache =
-        new Cache2kBuilder<CountQuery, Long>() {}.loader(
-                new CacheLoader<CountQuery, Long>() {
-                  @Override
-                  public Long load(final CountQuery key) throws Exception {
-                    return loadCount(key);
-                  }
-                })
+        new Cache2kBuilder<CountQuery, Long>() {}.loader(this::loadCount)
             .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
             .refreshAhead(true)
             .build();
 
     aggregationsCache =
-        new Cache2kBuilder<AggregationQuery, Map<String, Long>>() {}.loader(
-                new CacheLoader<AggregationQuery, Map<String, Long>>() {
-                  @Override
-                  public Map<String, Long> load(final AggregationQuery key) throws Exception {
-                    return loadAggregation(key);
-                  }
-                })
+        new Cache2kBuilder<AggregationQuery, Map<String, Long>>() {}.loader(this::loadAggregation)
             .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
             .refreshAhead(true)
             .build();
@@ -198,13 +185,13 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   @Override
   public void refresh(CountQuery countQuery) {
     LOG.info("Expiring and refreshing {}", countQuery);
-    countCache.expireAt(countQuery, Expiry.REFRESH);
+    countCache.invoke(countQuery, e -> e.setExpiryTime(Expiry.REFRESH));
   }
 
   @Override
   public void refresh(AggregationQuery aggregationQuery) {
     LOG.info("Expiring and refreshing {}", aggregationQuery);
-    aggregationsCache.expireAt(aggregationQuery, Expiry.REFRESH);
+    aggregationsCache.invoke(aggregationQuery, e -> e.setExpiryTime(Expiry.REFRESH));
   }
 
   @Override

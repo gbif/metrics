@@ -16,7 +16,7 @@
 package org.gbif.metrics.ws.client;
 
 import org.gbif.api.service.occurrence.OccurrenceDatasetIndexService;
-import org.gbif.ws.client.ClientFactory;
+import org.gbif.ws.client.ClientBuilder;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -36,8 +36,8 @@ public class OccurrenceDatasetIndexWsClientIT {
 
   @BeforeEach
   public void init() {
-    ClientFactory clientFactory = new ClientFactory("http://localhost:" + localServerPort);
-    wsClient = clientFactory.newInstance(OccurrenceDatasetIndexWsClient.class);
+    ClientBuilder clientBuilder = new ClientBuilder();
+    wsClient = clientBuilder.withUrl("http://localhost:" + localServerPort).build(OccurrenceDatasetIndexWsClient.class);
   }
 
   /** Ensures that the read works without throwing exception. */
