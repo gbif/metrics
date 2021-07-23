@@ -37,7 +37,10 @@ public class OccurrenceDatasetIndexWsClientIT {
   @BeforeEach
   public void init() {
     ClientBuilder clientBuilder = new ClientBuilder();
-    wsClient = clientBuilder.withUrl("http://localhost:" + localServerPort).build(OccurrenceDatasetIndexWsClient.class);
+    wsClient =
+        clientBuilder
+            .withUrl("http://localhost:" + localServerPort)
+            .build(OccurrenceDatasetIndexWsClient.class);
   }
 
   /** Ensures that the read works without throwing exception. */
