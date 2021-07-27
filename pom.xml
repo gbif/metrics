@@ -34,7 +34,7 @@
     <jdkLevel>1.8</jdkLevel>
 
     <zookeeper.version>3.4.14</zookeeper.version>
-    <feign.version>11.5</feign.version>
+    <feign.version>10.11</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
     <gbif-api.version>0.154</gbif-api.version>
     <gbif-common-ws.version>1.15</gbif-common-ws.version>
