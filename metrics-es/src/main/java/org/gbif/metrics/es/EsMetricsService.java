@@ -1,6 +1,4 @@
 /*
- * Copyright 2020 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,12 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
-import lombok.NoArgsConstructor;
-
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
@@ -50,6 +42,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** MetricsSevice based on Elasticsearch. */
 public class EsMetricsService implements MetricsService, MetricsCacheService {
