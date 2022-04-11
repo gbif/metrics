@@ -5,8 +5,12 @@
 #  port:
 #  server:
 
+#Cache2k config
 cache:
-  expire_after: ${metrics.cache.expire_after}
+  expireAfterWrite: ${metrics.cache.expireAfterWrite}
+  entryCapacity: ${metrics.cache.entryCapacity}
+  refreshAhead: ${metrics.cache.refreshAhead}
+
 es:
   index: ${metrics.es.index}
   hosts: ${metrics.es.hosts}

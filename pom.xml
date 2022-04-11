@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>54</version>
+    <version>56</version>
   </parent>
 
   <groupId>org.gbif.metrics</groupId>
@@ -33,6 +33,7 @@
 
     <jdkLevel>1.8</jdkLevel>
 
+    <lombok.version>1.18.22</lombok.version>
     <zookeeper.version>3.4.14</zookeeper.version>
     <feign.version>10.11</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
@@ -93,6 +94,12 @@
   -->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>

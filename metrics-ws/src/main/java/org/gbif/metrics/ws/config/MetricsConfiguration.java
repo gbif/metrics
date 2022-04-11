@@ -44,12 +44,18 @@ public class MetricsConfiguration {
     return new EsConfig();
   }
 
+  @ConfigurationProperties(prefix = "cache")
+  @Bean
+  public EsMetricsService.CacheConfig cacheConfig() {
+    return new EsMetricsService.CacheConfig();
+  }
+
   @Bean
   public MetricsService metricsService(
-      @Value("${cache.expire_after}") String expireAfter,
+      EsMetricsService.CacheConfig cacheConfig,
       @Value("${es.index}") String esIndex,
       RestHighLevelClient esClient) {
-    return new EsMetricsService(esIndex, Long.parseLong(expireAfter), esClient);
+    return new EsMetricsService(esIndex, cacheConfig, esClient);
   }
 
   @Bean

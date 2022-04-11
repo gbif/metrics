@@ -26,6 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import lombok.NoArgsConstructor;
+
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
@@ -81,19 +87,30 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private final RestHighLevelClient esClient;
 
-  public EsMetricsService(String esIndex, long expireCacheAfter, RestHighLevelClient esClient) {
+
+  @Data
+  @NoArgsConstructor
+  public static class CacheConfig {
+    private long expireAfterWrite;
+    private long entryCapacity;
+    private boolean refreshAhead;
+  }
+
+  public EsMetricsService(String esIndex, CacheConfig cacheConfig, RestHighLevelClient esClient) {
     this.esIndex = esIndex;
     this.esClient = esClient;
     countCache =
         new Cache2kBuilder<CountQuery, Long>() {}.loader(this::loadCount)
-            .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
-            .refreshAhead(true)
+            .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
+            .refreshAhead(cacheConfig.refreshAhead)
+            .entryCapacity(cacheConfig.entryCapacity)
             .build();
 
     aggregationsCache =
         new Cache2kBuilder<AggregationQuery, Map<String, Long>>() {}.loader(this::loadAggregation)
-            .expireAfterWrite(expireCacheAfter, TimeUnit.MILLISECONDS)
-            .refreshAhead(true)
+            .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
+            .refreshAhead(cacheConfig.refreshAhead)
+            .entryCapacity(cacheConfig.entryCapacity)
             .build();
   }
 

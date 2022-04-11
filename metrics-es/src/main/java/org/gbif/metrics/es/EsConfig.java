@@ -15,6 +15,13 @@
  */
 package org.gbif.metrics.es;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class EsConfig {
 
   // defaults
@@ -30,70 +37,4 @@ public class EsConfig {
   private int sniffInterval = SNIFF_INTERVAL_DEFAULT;
   private int sniffAfterFailureDelay = SNIFF_AFTER_FAILURE_DELAY_DEFAULT;
 
-  public EsConfig() {
-    super();
-  }
-
-  private EsConfig(
-      String[] hosts,
-      String index,
-      int connectTimeout,
-      int socketTimeout,
-      int sniffInterval,
-      int sniffAfterFailureDelay) {
-    this.hosts = hosts;
-    this.index = index;
-    this.connectTimeout = connectTimeout;
-    this.socketTimeout = socketTimeout;
-    this.sniffInterval = sniffInterval;
-    this.sniffAfterFailureDelay = sniffAfterFailureDelay;
-  }
-
-  public String[] getHosts() {
-    return hosts;
-  }
-
-  public void setHosts(String[] hosts) {
-    this.hosts = hosts;
-  }
-
-  public String getIndex() {
-    return index;
-  }
-
-  public void setIndex(String index) {
-    this.index = index;
-  }
-
-  public int getConnectTimeout() {
-    return connectTimeout;
-  }
-
-  public void setConnectTimeout(int connectTimeout) {
-    this.connectTimeout = connectTimeout;
-  }
-
-  public int getSocketTimeout() {
-    return socketTimeout;
-  }
-
-  public void setSocketTimeout(int socketTimeout) {
-    this.socketTimeout = socketTimeout;
-  }
-
-  public int getSniffInterval() {
-    return sniffInterval;
-  }
-
-  public void setSniffInterval(int sniffInterval) {
-    this.sniffInterval = sniffInterval;
-  }
-
-  public int getSniffAfterFailureDelay() {
-    return sniffAfterFailureDelay;
-  }
-
-  public void setSniffAfterFailureDelay(int sniffAfterFailureDelay) {
-    this.sniffAfterFailureDelay = sniffAfterFailureDelay;
-  }
 }

@@ -25,6 +25,12 @@
   </repositories>
 
   <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- GBIF -->
     <dependency>
       <groupId>org.gbif</groupId>
