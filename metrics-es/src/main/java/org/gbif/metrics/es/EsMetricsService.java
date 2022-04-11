@@ -82,7 +82,6 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private final RestHighLevelClient esClient;
 
-
   @Data
   @NoArgsConstructor
   public static class CacheConfig {

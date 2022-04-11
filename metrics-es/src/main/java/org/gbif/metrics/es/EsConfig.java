@@ -34,5 +34,4 @@ public class EsConfig {
   private int socketTimeout = SOCKET_TIMEOUT_DEFAULT;
   private int sniffInterval = SNIFF_INTERVAL_DEFAULT;
   private int sniffAfterFailureDelay = SNIFF_AFTER_FAILURE_DELAY_DEFAULT;
-
 }
