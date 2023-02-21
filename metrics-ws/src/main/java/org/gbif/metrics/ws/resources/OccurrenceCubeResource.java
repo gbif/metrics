@@ -37,6 +37,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * A simple generic resource that will look up a numerical count from the named cube and address
  * provided. Should no address be provided, a default builder which counts all records is used.
@@ -56,16 +62,88 @@ public class OccurrenceCubeResource {
   }
 
   /** Looks up an addressable count from the cube. */
+  @Tag(name = "Occurrence metrics")
+  @Operation(
+    operationId = "getOccurrenceCount",
+    summary = "Occurrence counts",
+    description = "Returns occurrence counts for a predefined set of dimensions.\n\n" +
+      "The supported dimensions are enumerated in the [/occurrence/count/schema](#operation/getOccurrenceCountSchema) " +
+      "service. The keys should be supplied as query parameters.\n\n" +
+      "An example for the count of georeferenced observations from Canada: " +
+      "[`/occurrence/count?country=CA&isGeoreferenced=true&basisOfRecord=OBSERVATION`](https://api.gbif.org/v1/occurrence/count?country=CA&isGeoreferenced=true&basisOfRecord=OBSERVATION)."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Count returned."),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid query.",
+        content = @Content)
+    })
   @GetMapping("count")
   public Long count(@ProvidedCountQuery CountQuery countQuery) {
     return metricsService.count(countQuery);
   }
 
+  @Tag(name = "Occurrence metrics")
+  @Operation(
+    operationId = "getOccurrenceCountSchema",
+    summary = "Supported occurrence count metrics",
+    description = "List the metrics supported by the service."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Supported metrics.")
+    })
+  /** @return The public API schema */
+  @GetMapping("count/schema")
+  public List<Rollup> getSchema() {
+    // External Occurrence cube definition
+    return org.gbif.api.model.metrics.cube.OccurrenceCube.ROLLUPS;
+  }
+
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryBasisOfRecord",
+    summary = "Occurrence inventory by basis of record",
+    description = "Lists occurrence counts by basis of record."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned.")
+    })
   @GetMapping("counts/basisOfRecord")
   public Map<String, Long> getBasisOfRecordCounts() {
     return metricsService.countAggregation(AggregationQuery.ofBasisOfRecord());
   }
 
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryCountry",
+    summary = "Occurrence inventory by country",
+    description = "Lists occurrence counts for all countries covered by the data " +
+      "published by the given country."
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "publishingCountry",
+    description = "Limit to data published by a particular country."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned."),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid query.",
+        content = @Content)
+    })
   @GetMapping("counts/countries")
   public Map<String, Long> getCountries(
       @RequestParam(value = "publishingCountry", required = false) String publishingCountry) {
@@ -73,6 +151,34 @@ public class OccurrenceCubeResource {
         AggregationQuery.ofCountriesOfPublishingCountry(publishingCountry));
   }
 
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryDataset",
+    summary = "Occurrence inventory by datasets",
+    description = "Lists occurrence counts for datasets that cover a given taxon or country."
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "country",
+    description = "Limit to occurrences in an ISO 3166 country or area."
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "nubKey",
+    hidden = true
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "taxonKey",
+    description = "Limit to occurrences of a particular taxon."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned."),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid query.",
+        content = @Content)
+    })
   @GetMapping("counts/datasets")
   public Map<String, Long> getDatasets(
       @RequestParam(value = "country", required = false) String country,
@@ -93,11 +199,44 @@ public class OccurrenceCubeResource {
     return metricsService.countAggregation(AggregationQuery.ofDatasets(parameters));
   }
 
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryKingdom",
+    summary = "Occurrence inventory by kingdom",
+    description = "Lists occurrence counts by kingdom."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned.")
+    })
   @GetMapping("counts/kingdom")
   public Map<String, Long> getKingdomCounts() {
     return metricsService.countAggregation(AggregationQuery.ofKingdom());
   }
 
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryPublishingCountry",
+    summary = "Occurrence inventory by publishing country",
+    description = "Lists occurrence counts for all countries that publish data " +
+      "about the given country."
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "country",
+    description = "Count only occurrences from a country or area."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned."),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid query.",
+        content = @Content)
+    })
   @GetMapping("counts/publishingCountries")
   public Map<String, Long> getPublishingCountries(
       @RequestParam(value = "country", required = false) String country) {
@@ -105,19 +244,33 @@ public class OccurrenceCubeResource {
         AggregationQuery.ofPublishingCountriesOfCountry(country));
   }
 
+  @Tag(name = "Occurrence inventories")
+  @Operation(
+    operationId = "getOccurrenceInventoryYear",
+    summary = "Occurrence inventory by year",
+    description = "Lists occurrence counts by year."
+  )
+  @io.swagger.v3.oas.annotations.Parameter (
+    name = "year",
+    description = "Limit to occurrences from a particular year or range of years.",
+    example = "1981,1991"
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(
+        responseCode = "200",
+        description = "Inventory counts returned."),
+      @ApiResponse(
+        responseCode = "400",
+        description = "Invalid query.",
+        content = @Content)
+    })
   @GetMapping("counts/year")
   public Map<String, Long> getYearCounts(
       @RequestParam(value = "year", required = false) String year) {
     Range<Integer> range = parseYearRange(year);
     return metricsService.countAggregation(
         AggregationQuery.ofYearRange(range.lowerEndpoint(), range.upperEndpoint()));
-  }
-
-  /** @return The public API schema */
-  @GetMapping("count/schema")
-  public List<Rollup> getSchema() {
-    // External Occurrence cube definition
-    return org.gbif.api.model.metrics.cube.OccurrenceCube.ROLLUPS;
   }
 
   @VisibleForTesting

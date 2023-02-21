@@ -15,7 +15,7 @@
 
   <name>Metrics :: Mother POM</name>
   <description>Libraries to handle the accumulation and serving of metrics</description>
-  <url>http://github.org/gbif/metrics</url>
+  <url>https://github.org/gbif/metrics</url>
 
   <scm>
     <connection>scm:git:git@github.com:gbif/metrics.git</connection>
@@ -29,6 +29,7 @@
     <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
     <spring-cloud-openfeign.version>2.2.6.RELEASE</spring-cloud-openfeign.version>
     <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
+    <springdoc-openapi-ui.version>1.5.8</springdoc-openapi-ui.version>
     <main.basedir>${project.basedir}</main.basedir>
 
     <jdkLevel>1.8</jdkLevel>
@@ -37,8 +38,8 @@
     <zookeeper.version>3.4.14</zookeeper.version>
     <feign.version>10.11</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
-    <gbif-api.version>0.166</gbif-api.version>
-    <gbif-common-ws.version>1.23-SNAPSHOT</gbif-common-ws.version>
+    <gbif-api.version>1.1.0-SNAPSHOT</gbif-api.version>
+    <gbif-common-ws.version>1.24</gbif-common-ws.version>
     <gbif-common.version>0.59</gbif-common.version>
     <guava.version>19.0</guava.version>
     <logback.version>1.2.3</logback.version>
@@ -148,6 +149,11 @@
         <groupId>de.codecentric</groupId>
         <artifactId>spring-boot-admin-starter-client</artifactId>
         <version>${spring-boot-admin.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>${springdoc-openapi-ui.version}</version>
       </dependency>
 
       <dependency>
