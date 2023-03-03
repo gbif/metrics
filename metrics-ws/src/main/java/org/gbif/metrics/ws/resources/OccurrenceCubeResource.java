@@ -13,6 +13,8 @@
  */
 package org.gbif.metrics.ws.resources;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 import org.gbif.api.model.metrics.cube.Rollup;
 import org.gbif.metrics.MetricsService;
 import org.gbif.metrics.es.AggregationQuery;
@@ -154,7 +156,7 @@ public class OccurrenceCubeResource {
   @Tag(name = "Occurrence inventories")
   @Operation(
     operationId = "getOccurrenceInventoryDataset",
-    summary = "Occurrence inventory by datasets",
+    summary = "Occurrence inventory by dataset",
     description = "Lists occurrence counts for datasets that cover a given taxon or country."
   )
   @io.swagger.v3.oas.annotations.Parameter (
@@ -199,6 +201,7 @@ public class OccurrenceCubeResource {
     return metricsService.countAggregation(AggregationQuery.ofDatasets(parameters));
   }
 
+  @Hidden
   @Tag(name = "Occurrence inventories")
   @Operation(
     operationId = "getOccurrenceInventoryKingdom",
