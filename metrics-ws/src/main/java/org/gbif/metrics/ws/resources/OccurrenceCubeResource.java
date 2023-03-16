@@ -13,8 +13,6 @@
  */
 package org.gbif.metrics.ws.resources;
 
-import io.swagger.v3.oas.annotations.Hidden;
-
 import org.gbif.api.model.metrics.cube.Rollup;
 import org.gbif.metrics.MetricsService;
 import org.gbif.metrics.es.AggregationQuery;
@@ -39,7 +37,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -84,6 +85,7 @@ public class OccurrenceCubeResource {
         description = "Invalid query.",
         content = @Content)
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0100"))
   @GetMapping("count")
   public Long count(@ProvidedCountQuery CountQuery countQuery) {
     return metricsService.count(countQuery);
@@ -101,6 +103,7 @@ public class OccurrenceCubeResource {
         responseCode = "200",
         description = "Supported metrics.")
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0120"))
   /** @return The public API schema */
   @GetMapping("count/schema")
   public List<Rollup> getSchema() {
@@ -120,6 +123,7 @@ public class OccurrenceCubeResource {
         responseCode = "200",
         description = "Inventory counts returned.")
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0200"))
   @GetMapping("counts/basisOfRecord")
   public Map<String, Long> getBasisOfRecordCounts() {
     return metricsService.countAggregation(AggregationQuery.ofBasisOfRecord());
@@ -146,6 +150,7 @@ public class OccurrenceCubeResource {
         description = "Invalid query.",
         content = @Content)
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0220"))
   @GetMapping("counts/countries")
   public Map<String, Long> getCountries(
       @RequestParam(value = "publishingCountry", required = false) String publishingCountry) {
@@ -181,6 +186,7 @@ public class OccurrenceCubeResource {
         description = "Invalid query.",
         content = @Content)
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0210"))
   @GetMapping("counts/datasets")
   public Map<String, Long> getDatasets(
       @RequestParam(value = "country", required = false) String country,
@@ -240,6 +246,7 @@ public class OccurrenceCubeResource {
         description = "Invalid query.",
         content = @Content)
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0230"))
   @GetMapping("counts/publishingCountries")
   public Map<String, Long> getPublishingCountries(
       @RequestParam(value = "country", required = false) String country) {
@@ -268,6 +275,7 @@ public class OccurrenceCubeResource {
         description = "Invalid query.",
         content = @Content)
     })
+  @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0200"))
   @GetMapping("counts/year")
   public Map<String, Long> getYearCounts(
       @RequestParam(value = "year", required = false) String year) {
