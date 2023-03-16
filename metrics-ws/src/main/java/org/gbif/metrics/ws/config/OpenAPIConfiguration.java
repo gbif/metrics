@@ -16,7 +16,6 @@ package org.gbif.metrics.ws.config;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springdoc.core.customizers.OpenApiCustomiser;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Component;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.tags.Tag;
 
 /**
  * Java configuration of the OpenAPI specification.
@@ -40,12 +38,6 @@ public class OpenAPIConfiguration {
   @Bean
   public OpenApiCustomiser sortTagsByOrderExtension() {
     return openApi -> {
-      // Sort tags (end up as main sections on the left) by custom Extension value.
-      openApi.setTags(openApi.getTags()
-        .stream()
-        .sorted(tagOrder())
-        .collect(Collectors.toList()));
-
       // Sort operations (path+method) by something
       Paths paths = openApi.getPaths().entrySet()
         .stream()
@@ -54,13 +46,6 @@ public class OpenAPIConfiguration {
 
       openApi.setPaths(paths);
     };
-  }
-
-  Comparator<Tag> tagOrder() {
-    return Comparator.comparing(tag ->
-      tag.getExtensions() == null ?
-        "__" + tag.getName() :
-        ((Map)tag.getExtensions().get("x-Order")).get("Order").toString());
   }
 
   private String getOperationTag(PathItem pathItem) {
