@@ -42,11 +42,14 @@ public class OpenAPIConfiguration {
   public OpenApiCustomiser sortTagsByOrderExtension() {
     return openApi -> {
       // Sort operations (path+method) by custom Extension value.
-      Paths paths = openApi.getPaths().entrySet()
-        .stream()
-        .sorted(Comparator.comparing(entry -> getOperationTag(entry.getValue())))
-        .peek(e -> LOG.info("{} ← {}", getOperationTag(e.getValue()), e.getKey()))
-        .collect(Paths::new, (map, item) -> map.addPathItem(item.getKey(), item.getValue()), Paths::putAll);
+      Paths paths =
+          openApi.getPaths().entrySet().stream()
+              .sorted(Comparator.comparing(entry -> getOperationTag(entry.getValue())))
+              .peek(e -> LOG.info("{} ← {}", getOperationTag(e.getValue()), e.getKey()))
+              .collect(
+                  Paths::new,
+                  (map, item) -> map.addPathItem(item.getKey(), item.getValue()),
+                  Paths::putAll);
 
       openApi.setPaths(paths);
     };
@@ -54,18 +57,18 @@ public class OpenAPIConfiguration {
 
   private String getOperationTag(PathItem pathItem) {
     return Stream.of(
-        pathItem.getGet(),
-        pathItem.getHead(),
-        pathItem.getPost(),
-        pathItem.getPut(),
-        pathItem.getDelete(),
-        pathItem.getOptions(),
-        pathItem.getTrace(),
-        pathItem.getPatch())
-      .filter(Objects::nonNull)
-      .map(op -> getOperationOrder(op))
-      .findFirst()
-      .orElse("");
+            pathItem.getGet(),
+            pathItem.getHead(),
+            pathItem.getPost(),
+            pathItem.getPut(),
+            pathItem.getDelete(),
+            pathItem.getOptions(),
+            pathItem.getTrace(),
+            pathItem.getPatch())
+        .filter(Objects::nonNull)
+        .map(op -> getOperationOrder(op))
+        .findFirst()
+        .orElse("");
   }
 
   /**
@@ -73,7 +76,9 @@ public class OpenAPIConfiguration {
    */
   private String getOperationOrder(Operation op) {
     if (op.getExtensions() != null && op.getExtensions().containsKey("x-Order")) {
-      return ((Map)op.getExtensions().get("x-Order")).get("Order").toString() + "_" + op.getOperationId();
+      return ((Map) op.getExtensions().get("x-Order")).get("Order").toString()
+          + "_"
+          + op.getOperationId();
     }
     return op.getOperationId();
   }
