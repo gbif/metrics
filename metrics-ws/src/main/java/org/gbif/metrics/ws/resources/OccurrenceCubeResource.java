@@ -40,6 +40,7 @@ import com.google.common.collect.Range;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -86,34 +87,47 @@ public class OccurrenceCubeResource {
       value = {
         @io.swagger.v3.oas.annotations.Parameter(
             name = "basisOfRecord",
-            description = "Count records with a particular basisOfRecord."),
+            description = "Count records with a particular basisOfRecord.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "country",
-            description = "Count records in the given country."),
+            description = "Count records in the given country.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "datasetKey",
-            description = "Count records in a dataset."),
+            description = "Count records in a dataset.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "isGeoreferenced",
-            description = "Count only georeferenced (or not) records."),
+            description = "Count only georeferenced (or not) records.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "issue",
-            description = "Count only records with this issue."),
+            description = "Count only records with this issue.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "protocol",
-            description = "Count records retrieved using the chosen protocol."),
+            description = "Count records retrieved using the chosen protocol.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "publishingCountry",
-            description = "Count records published by the given country."),
+            description = "Count records published by the given country.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "taxonKey",
-            description = "Count records of a particular taxon."),
+            description = "Count records of a particular taxon.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "typeStatus",
-            description = "Count records with this type status."),
+            description = "Count records with this type status.",
+            in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "year",
-            description = "Count records from this year."),
+            description = "Count records from this year.",
+            in = ParameterIn.QUERY),
+        @io.swagger.v3.oas.annotations.Parameter(
+            name = "countQuery",
+            hidden = true)
       })
   @ApiResponses(
       value = {
