@@ -125,9 +125,7 @@ public class OccurrenceCubeResource {
             name = "year",
             description = "Count records from this year.",
             in = ParameterIn.QUERY),
-        @io.swagger.v3.oas.annotations.Parameter(
-            name = "countQuery",
-            hidden = true)
+        @io.swagger.v3.oas.annotations.Parameter(name = "countQuery", hidden = true)
       })
   @ApiResponses(
       value = {
