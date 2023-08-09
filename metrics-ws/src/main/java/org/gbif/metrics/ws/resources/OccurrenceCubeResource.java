@@ -39,6 +39,7 @@ import com.google.common.collect.Range;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -75,6 +76,51 @@ public class OccurrenceCubeResource {
       "An example for the count of georeferenced observations from Canada: " +
       "[`/occurrence/count?country=CA&isGeoreferenced=true&basisOfRecord=OBSERVATION`](https://api.gbif.org/v1/occurrence/count?country=CA&isGeoreferenced=true&basisOfRecord=OBSERVATION).",
     extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0100"))
+  )
+  @Parameters(
+    // curl -Ss https://api.gbif.org/v1/occurrence/count/schema | jq -r '.[].dimensions[].key' | sort -u
+    value = {
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "basisOfRecord",
+        description = "Count records with a particular basisOfRecord."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "country",
+        description = "Count records in the given country."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "datasetKey",
+        description = "Count records in a dataset."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "isGeoreferenced",
+        description = "Count only georeferenced (or not) records."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "issue",
+        description = "Count only records with this issue."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "protocol",
+        description = "Count records retrieved using the chosen protocol."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "publishingCountry",
+        description = "Count records published by the given country."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "taxonKey",
+        description = "Count records of a particular taxon."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "typeStatus",
+        description = "Count records with this type status."
+      ),
+      @io.swagger.v3.oas.annotations.Parameter(
+        name = "year",
+        description = "Count records from this year."
+      ),
+    }
   )
   @ApiResponses(
     value = {
