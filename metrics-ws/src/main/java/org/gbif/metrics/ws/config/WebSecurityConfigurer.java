@@ -13,7 +13,6 @@
  */
 package org.gbif.metrics.ws.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,16 +28,14 @@ public class WebSecurityConfigurer {
 
   @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        authorizeRequests ->
-          authorizeRequests.anyRequest().permitAll())
-      .httpBasic(AbstractHttpConfigurer::disable)
-      .sessionManagement(
-        sessionManagement ->
-          sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .cors(AbstractHttpConfigurer::disable)
-      .csrf(AbstractHttpConfigurer::disable)
-      .formLogin(AbstractAuthenticationFilterConfigurer::permitAll);
+    http.authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().permitAll())
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            sessionManagement ->
+                sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .cors(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .formLogin(AbstractAuthenticationFilterConfigurer::permitAll);
 
     return http.build();
   }

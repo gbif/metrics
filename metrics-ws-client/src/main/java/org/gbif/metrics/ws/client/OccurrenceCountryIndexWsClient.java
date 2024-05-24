@@ -52,9 +52,7 @@ public interface OccurrenceCountryIndexWsClient extends OccurrenceCountryIndexSe
     return sortResponse(map);
   }
 
-  @GetMapping(
-      value = "occurrence/counts/countries",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/counts/countries", produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getCountries(
       @RequestParam(value = "publishingCountry", required = false) String publishingCountry);
 
