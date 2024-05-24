@@ -20,7 +20,7 @@ import org.gbif.metrics.es.CountQuery;
 import org.gbif.metrics.es.Parameter;
 import org.gbif.metrics.ws.provider.ProvidedCountQuery;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -306,7 +306,7 @@ public class OccurrenceCubeResource {
 
   @VisibleForTesting
   protected static Range<Integer> parseYearRange(String year) {
-    final int now = 1901 + new Date().getYear();
+    final int now = Calendar.getInstance().get(Calendar.YEAR) + 1;
     if (Strings.isNullOrEmpty(year)) {
       // return all years between 1500 and now
       return Range.open(1500, now);

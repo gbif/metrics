@@ -22,8 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Functions;
@@ -49,8 +48,7 @@ public interface OccurrenceDatasetIndexWsClient extends OccurrenceDatasetIndexSe
     return sortResponse(datasets);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/datasets",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getDatasets(

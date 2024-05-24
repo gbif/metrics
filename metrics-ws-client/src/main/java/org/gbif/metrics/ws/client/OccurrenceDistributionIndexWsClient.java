@@ -22,8 +22,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Functions;
@@ -41,8 +40,7 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
     return sortResponse(map);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/basisOfRecord",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getBasisOfRecordCountsInternal();
@@ -55,8 +53,7 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
     return sortResponse(map);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/kingdom",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getKingdomCountsInternal();
@@ -68,8 +65,7 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
         .collect(Collectors.toMap(e -> Integer.valueOf(e.getKey()), Map.Entry::getValue));
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/year",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getYearCounts(@RequestParam(value = "year", required = false) String year);

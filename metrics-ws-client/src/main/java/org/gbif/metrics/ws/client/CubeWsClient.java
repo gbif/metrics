@@ -25,8 +25,7 @@ import java.util.Map.Entry;
 
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.google.common.base.Preconditions;
 
@@ -43,16 +42,10 @@ public interface CubeWsClient extends CubeService {
     return count(params);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
-      value = "occurrence/count",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/count", produces = MediaType.APPLICATION_JSON_VALUE)
   Long count(@SpringQueryMap Map<String, String> params);
 
-  @RequestMapping(
-      method = RequestMethod.GET,
-      value = "occurrence/count/schema",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/count/schema", produces = MediaType.APPLICATION_JSON_VALUE)
   @Override
   List<Rollup> getSchema();
 }

@@ -66,7 +66,7 @@ public class OpenAPIConfiguration {
             pathItem.getTrace(),
             pathItem.getPatch())
         .filter(Objects::nonNull)
-        .map(op -> getOperationOrder(op))
+        .map(this::getOperationOrder)
         .findFirst()
         .orElse("");
   }

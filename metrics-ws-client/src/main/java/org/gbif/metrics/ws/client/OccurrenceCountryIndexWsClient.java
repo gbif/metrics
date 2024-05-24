@@ -20,8 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Functions;
@@ -39,8 +38,7 @@ public interface OccurrenceCountryIndexWsClient extends OccurrenceCountryIndexSe
     return sortResponse(map);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/publishingCountries",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getPublishingCountries(
@@ -54,8 +52,7 @@ public interface OccurrenceCountryIndexWsClient extends OccurrenceCountryIndexSe
     return sortResponse(map);
   }
 
-  @RequestMapping(
-      method = RequestMethod.GET,
+  @GetMapping(
       value = "occurrence/counts/countries",
       produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getCountries(
