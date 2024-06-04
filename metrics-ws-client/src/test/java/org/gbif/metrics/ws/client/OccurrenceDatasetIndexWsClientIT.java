@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.web.server.LocalServerPort;
 
 @Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,7 +30,8 @@ public class OccurrenceDatasetIndexWsClientIT {
   private static final int ANIMALIA_KEY = 1;
   private OccurrenceDatasetIndexService wsClient;
 
-  @LocalServerPort int localServerPort;
+  @LocalServerPort
+  int localServerPort;
 
   @BeforeEach
   public void init() {
