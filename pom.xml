@@ -25,10 +25,11 @@
   </scm>
 
   <properties>
-    <spring-boot.version>3.2.5</spring-boot.version>
-    <spring-cloud-zookeeper.version>4.1.1</spring-cloud-zookeeper.version>
-    <spring-cloud-openfeign.version>4.1.1</spring-cloud-openfeign.version>
-    <spring-boot-admin.version>3.2.3</spring-boot-admin.version>
+
+    <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+    <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
+    <spring-cloud-openfeign.version>2.2.10.RELEASE</spring-cloud-openfeign.version>
+    <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
     <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
     <main.basedir>${project.basedir}</main.basedir>
 
@@ -42,17 +43,17 @@
     <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
     <gbif-common.version>0.60</gbif-common.version>
     <guava.version>32.1.2-jre</guava.version>
-    <logback.version>1.4.14</logback.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <logback.version>1.2.3</logback.version>
     <janino-logback.version>2.5.10</janino-logback.version>
-    <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
-    <slf4j.version>2.0.13</slf4j.version>
+    <logstash-encoder.version>6.6</logstash-encoder.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
 
     <!-- Elasticsearch -->
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <httpclient.version>4.5.2</httpclient.version>
     <httpcore.version>4.4.13</httpcore.version>
-    <log4j-api.version>2.22.0</log4j-api.version>
+    <log4j-api.version>2.11.1</log4j-api.version>
 
     <!-- Caching -->
     <cache2k.version>2.6.1.Final</cache2k.version>
