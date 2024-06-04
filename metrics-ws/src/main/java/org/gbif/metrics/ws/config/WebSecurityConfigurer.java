@@ -29,7 +29,7 @@ public class WebSecurityConfigurer {
 
   @Bean
   public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
+    http.authorizeRequests(
         authorizeRequests ->
           authorizeRequests.anyRequest().permitAll())
       .httpBasic(AbstractHttpConfigurer::disable)
