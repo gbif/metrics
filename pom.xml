@@ -243,7 +243,7 @@
       <dependency>
         <groupId>net.logstash.logback</groupId>
         <artifactId>logstash-logback-encoder</artifactId>
-        <version>${logstash-logback-encoder.version}</version>
+        <version>${logstash-encoder.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.fasterxml.jackson.core</groupId>
