@@ -33,7 +33,7 @@
     <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
     <main.basedir>${project.basedir}</main.basedir>
 
-    <jdkLevel>17</jdkLevel>
+    <jdkLevel>11</jdkLevel>
 
     <lombok.version>1.18.32</lombok.version>
     <zookeeper.version>3.8.1</zookeeper.version>
