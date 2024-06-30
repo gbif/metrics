@@ -17,7 +17,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
+
 /** Query to obtain simple occurrence counts based on a list of parameters. */
+@Getter
 public class CountQuery {
 
   private final Set<Parameter> parameters;
@@ -51,11 +54,6 @@ public class CountQuery {
   @Override
   public int hashCode() {
     return Objects.hash(parameters);
-  }
-
-  /** @return list of parameters used by the count query */
-  public Set<Parameter> getParameters() {
-    return parameters;
   }
 
   /**
