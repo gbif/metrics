@@ -13,31 +13,103 @@
  */
 package org.gbif.metrics.es;
 
+import org.gbif.api.vocabulary.BasisOfRecord;
+import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.EndpointType;
+import org.gbif.api.vocabulary.OccurrenceIssue;
+import org.gbif.api.vocabulary.TypeStatus;
+
 import java.util.Objects;
+import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /** Query parameter. */
+@Getter
+@AllArgsConstructor
 public class Parameter {
 
   private final String name;
-  private final String value;
+  private final Object value;
+  private final ParameterType type;
 
-  /**
-   * @param name parameter name/key
-   * @param value parameter value
-   */
   public Parameter(String name, String value) {
     this.name = name;
-    this.value = value;
+    this.type = determineType(name);
+    this.value = parseValue(value, this.type);
   }
 
-  /** @return parameter name/key */
-  public String getName() {
-    return name;
+  private ParameterType determineType(String name) {
+    switch (name) {
+      case "basisOfRecord":
+        return ParameterType.BASIS_OF_RECORD;
+      case "country":
+        return ParameterType.COUNTRY;
+      case "datasetKey":
+        return ParameterType.UUID;
+      case "isGeoreferenced":
+        return ParameterType.BOOLEAN;
+      case "issue":
+        return ParameterType.OCCURRENCE_ISSUE;
+      case "protocol":
+        return ParameterType.ENDPOINT_TYPE;
+      case "publishingCountry":
+        return ParameterType.COUNTRY;
+      case "taxonKey":
+        return ParameterType.INTEGER;
+      case "typeStatus":
+        return ParameterType.TYPE_STATUS;
+      case "year":
+        return ParameterType.RANGE;
+      case "countQuery":
+        return ParameterType.STRING;
+      default:
+        throw new IllegalArgumentException("Invalid parameter name: " + name);
+    }
   }
 
-  /** @return parameter value */
-  public String getValue() {
-    return value;
+  private Object  parseValue(String value, ParameterType type) {
+    switch (type) {
+      case BOOLEAN:
+        return Boolean.parseBoolean(value);
+      case INTEGER:
+        try {
+          return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("Invalid integer value: " + value);
+        }
+      case STRING:
+        return value;
+      case UUID:
+        try {
+          return UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException("Invalid UUID value: " + value);
+        }
+      case BASIS_OF_RECORD:
+        return BasisOfRecord.valueOf(value.toUpperCase());
+      case COUNTRY:
+        return Country.valueOf(value.toUpperCase());
+      case OCCURRENCE_ISSUE:
+        return OccurrenceIssue.valueOf(value.toUpperCase());
+      case TYPE_STATUS:
+        return TypeStatus.valueOf(value.toUpperCase());
+      case ENDPOINT_TYPE:
+        return EndpointType.valueOf(value.toUpperCase());
+      case RANGE:
+        try {
+          if (value.contains(",")) {
+            return new YearRange(value);
+          } else {
+            return Integer.parseInt(value.trim());
+          }
+        } catch (NumberFormatException e) {
+          throw new IllegalArgumentException("Invalid year value(s): " + value);
+        }
+      default:
+        throw new IllegalArgumentException("Unsupported parameter type: " + type);
+    }
   }
 
   @Override
