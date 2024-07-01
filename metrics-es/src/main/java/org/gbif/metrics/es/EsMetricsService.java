@@ -177,14 +177,20 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   /** Simple query builders for ranges and terms. */
   private QueryBuilder buildQuery(Parameter parameter) {
-    if (parameter.getValue().contains(",")) {
-      String[] values = parameter.getValue().split(",");
+    if (parameter.getValue() instanceof YearRange) {
       return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()))
-          .gte(values[0])
-          .lte(values[1]);
+        .gte(((YearRange) parameter.getValue()).getStartYear())
+        .lte(((YearRange) parameter.getValue()).getEndYear());
+    }
+    if ((parameter.getValue().getClass().equals(String.class) && parameter.getValue().toString().contains(","))) {
+      String[] values = parameter.getValue().toString().split(",");
+
+      return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()))
+        .gte(values[0])
+        .lte(values[1]);
     }
     return QueryBuilders.termQuery(
-        DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
+      DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
   }
 
   @Override
