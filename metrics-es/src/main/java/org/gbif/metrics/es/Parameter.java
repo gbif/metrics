@@ -69,7 +69,7 @@ public class Parameter {
     }
   }
 
-  private Object  parseValue(String value, ParameterType type) {
+  private Object parseValue(String value, ParameterType type) {
     switch (type) {
       case BOOLEAN:
         return Boolean.parseBoolean(value);
