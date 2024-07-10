@@ -13,7 +13,16 @@
  */
 package org.gbif.metrics.ws.resources;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.UUID;
+
 import org.gbif.api.model.metrics.cube.Rollup;
+import org.gbif.api.vocabulary.BasisOfRecord;
+import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.EndpointType;
+import org.gbif.api.vocabulary.OccurrenceIssue;
+import org.gbif.api.vocabulary.TypeStatus;
 import org.gbif.metrics.MetricsService;
 import org.gbif.metrics.es.AggregationQuery;
 import org.gbif.metrics.es.CountQuery;
@@ -88,42 +97,52 @@ public class OccurrenceCubeResource {
         @io.swagger.v3.oas.annotations.Parameter(
             name = "basisOfRecord",
             description = "Count records with a particular basisOfRecord.",
+            schema = @Schema(implementation = BasisOfRecord.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "country",
             description = "Count records in the given country.",
+            schema = @Schema(implementation = Country.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "datasetKey",
             description = "Count records in a dataset.",
+            schema = @Schema(implementation = UUID.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "isGeoreferenced",
             description = "Count only georeferenced (or not) records.",
+            schema = @Schema(implementation = Boolean.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "issue",
             description = "Count only records with this issue.",
+            schema = @Schema(implementation = OccurrenceIssue.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "protocol",
             description = "Count records retrieved using the chosen protocol.",
+            schema = @Schema(implementation = EndpointType.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "publishingCountry",
             description = "Count records published by the given country.",
+            schema = @Schema(implementation = Country.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "taxonKey",
             description = "Count records of a particular taxon.",
+          schema = @Schema(implementation = Integer.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "typeStatus",
             description = "Count records with this type status.",
+            schema = @Schema(implementation = TypeStatus.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "year",
-            description = "Count records from this year.",
+            description = "Count records from this year to current year or given range",
+            schema = @Schema(implementation = Integer.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "countQuery",

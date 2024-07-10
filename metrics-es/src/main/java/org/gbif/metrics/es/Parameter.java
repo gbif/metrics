@@ -13,17 +13,17 @@
  */
 package org.gbif.metrics.es;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.TypeStatus;
-
-import java.util.Objects;
-import java.util.UUID;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /** Query parameter. */
 @Getter
@@ -45,6 +45,7 @@ public class Parameter {
       case "basisOfRecord":
         return ParameterType.BASIS_OF_RECORD;
       case "country":
+      case "publishingCountry":
         return ParameterType.COUNTRY;
       case "datasetKey":
         return ParameterType.UUID;
@@ -54,8 +55,6 @@ public class Parameter {
         return ParameterType.OCCURRENCE_ISSUE;
       case "protocol":
         return ParameterType.ENDPOINT_TYPE;
-      case "publishingCountry":
-        return ParameterType.COUNTRY;
       case "taxonKey":
         return ParameterType.INTEGER;
       case "typeStatus":
@@ -88,15 +87,28 @@ public class Parameter {
           throw new IllegalArgumentException("Invalid UUID value: " + value);
         }
       case BASIS_OF_RECORD:
-        return BasisOfRecord.valueOf(value.toUpperCase());
+        return VocabularyUtils.lookup(value, BasisOfRecord.class)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid basis of record: " + value));
       case COUNTRY:
-        return Country.valueOf(value.toUpperCase());
+        Optional<Country> countryOptional = VocabularyUtils.lookup(value, Country.class);
+        if (countryOptional.isPresent()) {
+          return countryOptional.get();
+        }
+        Country country = Country.fromIsoCode(value);
+        if (country == null) {
+          throw new IllegalArgumentException("Invalid country or country ISO code: " + value);
+        }
+
+        return country;
       case OCCURRENCE_ISSUE:
-        return OccurrenceIssue.valueOf(value.toUpperCase());
+        return VocabularyUtils.lookup(value, OccurrenceIssue.class)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid occurrence issue: " + value));
       case TYPE_STATUS:
-        return TypeStatus.valueOf(value.toUpperCase());
+        return VocabularyUtils.lookup(value, TypeStatus.class)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid type status: " + value));
       case ENDPOINT_TYPE:
-        return EndpointType.valueOf(value.toUpperCase());
+        return VocabularyUtils.lookup(value, EndpointType.class)
+          .orElseThrow(() -> new IllegalArgumentException("Invalid protocol: " + value));
       case RANGE:
         try {
           if (value.contains(",")) {
