@@ -38,8 +38,8 @@
     <zookeeper.version>3.4.14</zookeeper.version>
     <feign.version>10.11</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
-    <gbif-api.version>1.9.0</gbif-api.version>
-    <gbif-common-ws.version>1.24</gbif-common-ws.version>
+    <gbif-api.version>1.16.5</gbif-api.version>
+    <gbif-common-ws.version>1.26</gbif-common-ws.version>
     <gbif-common.version>0.59</gbif-common.version>
     <guava.version>19.0</guava.version>
     <logback.version>1.2.3</logback.version>
