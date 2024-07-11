@@ -21,7 +21,6 @@ import lombok.Getter;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
-import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.TypeStatus;
 
@@ -92,14 +91,13 @@ public class Parameter {
       case COUNTRY:
         Optional<Country> countryOptional = VocabularyUtils.lookup(value, Country.class);
         if (countryOptional.isPresent()) {
-          return countryOptional.get();
+          return countryOptional.get().getIso2LetterCode();
         }
         Country country = Country.fromIsoCode(value);
         if (country == null) {
           throw new IllegalArgumentException("Invalid country or country ISO code: " + value);
         }
-
-        return country;
+        return country.getIso2LetterCode();
       case OCCURRENCE_ISSUE:
         return VocabularyUtils.lookup(value, OccurrenceIssue.class)
           .orElseThrow(() -> new IllegalArgumentException("Invalid occurrence issue: " + value));
@@ -107,8 +105,7 @@ public class Parameter {
         return VocabularyUtils.lookup(value, TypeStatus.class)
           .orElseThrow(() -> new IllegalArgumentException("Invalid type status: " + value));
       case ENDPOINT_TYPE:
-        return VocabularyUtils.lookup(value, EndpointType.class)
-          .orElseThrow(() -> new IllegalArgumentException("Invalid protocol: " + value));
+        return VocabularyUtils.parseEndpointType(value);
       case RANGE:
         try {
           if (value.contains(",")) {
