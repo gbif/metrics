@@ -69,6 +69,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     fieldsMap.put("issue", "issues");
     fieldsMap.put("year", "year");
     fieldsMap.put("kingdom", "gbifClassification.kingdom.keyword");
+    fieldsMap.put("protocol","protocol");
     DIMENSION_TO_ES_FIELD = Collections.unmodifiableMap(fieldsMap);
   }
 
