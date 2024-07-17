@@ -21,7 +21,6 @@ import org.gbif.api.vocabulary.TypeStatus;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -80,13 +79,8 @@ public class Parameter {
           throw new IllegalArgumentException("Invalid integer value: " + value);
         }
       case STRING:
-        return value;
       case UUID:
-        try {
-          return UUID.fromString(value);
-        } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException("Invalid UUID value: " + value);
-        }
+        return value;
       case BASIS_OF_RECORD:
         return VocabularyUtils.lookup(value, BasisOfRecord.class)
             .orElseThrow(() -> new IllegalArgumentException("Invalid basis of record: " + value));
