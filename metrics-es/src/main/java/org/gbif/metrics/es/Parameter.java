@@ -13,16 +13,17 @@
  */
 package org.gbif.metrics.es;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.TypeStatus;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /** Query parameter. */
 @Getter
@@ -67,7 +68,7 @@ public class Parameter {
     }
   }
 
-  private Object  parseValue(String value, ParameterType type) {
+  private Object parseValue(String value, ParameterType type) {
     switch (type) {
       case BOOLEAN:
         return Boolean.parseBoolean(value);
@@ -78,16 +79,11 @@ public class Parameter {
           throw new IllegalArgumentException("Invalid integer value: " + value);
         }
       case STRING:
-        return value;
       case UUID:
-        try {
-          return UUID.fromString(value);
-        } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException("Invalid UUID value: " + value);
-        }
+        return value;
       case BASIS_OF_RECORD:
         return VocabularyUtils.lookup(value, BasisOfRecord.class)
-          .orElseThrow(() -> new IllegalArgumentException("Invalid basis of record: " + value));
+            .orElseThrow(() -> new IllegalArgumentException("Invalid basis of record: " + value));
       case COUNTRY:
         Optional<Country> countryOptional = VocabularyUtils.lookup(value, Country.class);
         if (countryOptional.isPresent()) {
@@ -100,10 +96,10 @@ public class Parameter {
         return country.getIso2LetterCode();
       case OCCURRENCE_ISSUE:
         return VocabularyUtils.lookup(value, OccurrenceIssue.class)
-          .orElseThrow(() -> new IllegalArgumentException("Invalid occurrence issue: " + value));
+            .orElseThrow(() -> new IllegalArgumentException("Invalid occurrence issue: " + value));
       case TYPE_STATUS:
         return VocabularyUtils.lookup(value, TypeStatus.class)
-          .orElseThrow(() -> new IllegalArgumentException("Invalid type status: " + value));
+            .orElseThrow(() -> new IllegalArgumentException("Invalid type status: " + value));
       case ENDPOINT_TYPE:
         return VocabularyUtils.parseEndpointType(value);
       case RANGE:
