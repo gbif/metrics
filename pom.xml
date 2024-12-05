@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>58-SNAPSHOT</version>
+    <version>59</version>
   </parent>
 
   <groupId>org.gbif.metrics</groupId>
@@ -40,8 +40,8 @@
     <curator.version>5.5.0</curator.version>
     <feign.version>13.2.1</feign.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
-    <gbif-api.version>1.16.4-SNAPSHOT</gbif-api.version>
-    <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
+    <gbif-api.version>2.0.0</gbif-api.version>
+    <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
     <gbif-common.version>0.60</gbif-common.version>
     <guava.version>32.1.2-jre</guava.version>
     <slf4j.version>1.7.30</slf4j.version>
