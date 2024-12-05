@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,7 +30,8 @@ public class CubeWsClientIT {
 
   private CubeService wsClient;
 
-  @LocalServerPort int localServerPort;
+  @LocalServerPort
+  int localServerPort;
 
   @BeforeEach
   public void init() {
@@ -46,7 +47,6 @@ public class CubeWsClientIT {
   @Disabled
   @Test
   public void schema() {
-    assertTrue(
-        wsClient.getSchema().size() > 0, "CubeIo schema says no rollups which can't be true");
+    assertFalse(wsClient.getSchema().isEmpty(), "CubeIo schema says no rollups which can't be true");
   }
 }

@@ -13,6 +13,10 @@
  */
 package org.gbif.metrics.ws.resources;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.UUID;
+
 import org.gbif.api.model.metrics.cube.Rollup;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
@@ -25,12 +29,11 @@ import org.gbif.metrics.es.CountQuery;
 import org.gbif.metrics.es.Parameter;
 import org.gbif.metrics.ws.provider.ProvidedCountQuery;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +53,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -130,7 +132,7 @@ public class OccurrenceCubeResource {
         @io.swagger.v3.oas.annotations.Parameter(
             name = "taxonKey",
             description = "Count records of a particular taxon.",
-            schema = @Schema(implementation = Integer.class),
+          schema = @Schema(implementation = Integer.class),
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(
             name = "typeStatus",
@@ -142,7 +144,9 @@ public class OccurrenceCubeResource {
             description = "Count records from this year to current year or given range",
             schema = @Schema(implementation = Integer.class),
             in = ParameterIn.QUERY),
-        @io.swagger.v3.oas.annotations.Parameter(name = "countQuery", hidden = true)
+        @io.swagger.v3.oas.annotations.Parameter(
+            name = "countQuery",
+            hidden = true)
       })
   @ApiResponses(
       value = {
@@ -321,7 +325,7 @@ public class OccurrenceCubeResource {
 
   @VisibleForTesting
   protected static Range<Integer> parseYearRange(String year) {
-    final int now = 1901 + new Date().getYear();
+    final int now = Calendar.getInstance().get(Calendar.YEAR) + 1;
     if (Strings.isNullOrEmpty(year)) {
       // return all years between 1500 and now
       return Range.open(1500, now);
