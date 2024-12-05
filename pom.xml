@@ -26,6 +26,8 @@
 
   <properties>
 
+    <jdkLevel>11</jdkLevel>
+
     <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
     <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
     <spring-cloud-openfeign.version>2.2.10.RELEASE</spring-cloud-openfeign.version>
