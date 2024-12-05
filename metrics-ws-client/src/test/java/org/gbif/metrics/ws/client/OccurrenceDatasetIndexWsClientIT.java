@@ -30,8 +30,7 @@ public class OccurrenceDatasetIndexWsClientIT {
   private static final int ANIMALIA_KEY = 1;
   private OccurrenceDatasetIndexService wsClient;
 
-  @LocalServerPort
-  int localServerPort;
+  @LocalServerPort int localServerPort;
 
   @BeforeEach
   public void init() {

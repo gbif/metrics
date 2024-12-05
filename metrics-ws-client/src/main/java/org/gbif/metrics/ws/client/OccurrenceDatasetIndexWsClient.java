@@ -48,9 +48,7 @@ public interface OccurrenceDatasetIndexWsClient extends OccurrenceDatasetIndexSe
     return sortResponse(datasets);
   }
 
-  @GetMapping(
-      value = "occurrence/counts/datasets",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/counts/datasets", produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getDatasets(
       @RequestParam(value = "country", required = false) String country,
       @RequestParam(value = "nubKey", required = false) Integer nubKey);

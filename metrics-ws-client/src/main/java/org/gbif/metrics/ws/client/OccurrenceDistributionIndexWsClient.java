@@ -53,9 +53,7 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
     return sortResponse(map);
   }
 
-  @GetMapping(
-      value = "occurrence/counts/kingdom",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/counts/kingdom", produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getKingdomCountsInternal();
 
   @Override
@@ -65,9 +63,7 @@ public interface OccurrenceDistributionIndexWsClient extends OccurrenceDistribut
         .collect(Collectors.toMap(e -> Integer.valueOf(e.getKey()), Map.Entry::getValue));
   }
 
-  @GetMapping(
-      value = "occurrence/counts/year",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "occurrence/counts/year", produces = MediaType.APPLICATION_JSON_VALUE)
   Map<String, Long> getYearCounts(@RequestParam(value = "year", required = false) String year);
 
   static <T extends Comparable<T>> SortedMap<T, Long> sortResponse(Map<T, Long> map) {

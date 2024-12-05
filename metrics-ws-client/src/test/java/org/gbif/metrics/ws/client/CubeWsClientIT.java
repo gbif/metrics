@@ -30,8 +30,7 @@ public class CubeWsClientIT {
 
   private CubeService wsClient;
 
-  @LocalServerPort
-  int localServerPort;
+  @LocalServerPort int localServerPort;
 
   @BeforeEach
   public void init() {
@@ -47,6 +46,7 @@ public class CubeWsClientIT {
   @Disabled
   @Test
   public void schema() {
-    assertFalse(wsClient.getSchema().isEmpty(), "CubeIo schema says no rollups which can't be true");
+    assertFalse(
+        wsClient.getSchema().isEmpty(), "CubeIo schema says no rollups which can't be true");
   }
 }
