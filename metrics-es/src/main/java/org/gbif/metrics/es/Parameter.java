@@ -56,7 +56,7 @@ public class Parameter {
       case "protocol":
         return ParameterType.ENDPOINT_TYPE;
       case "taxonKey":
-        return ParameterType.INTEGER;
+        return ParameterType.STRING;
       case "typeStatus":
         return ParameterType.TYPE_STATUS;
       case "year":

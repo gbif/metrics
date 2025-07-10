@@ -17,8 +17,6 @@ import org.gbif.metrics.MetricsCacheService;
 import org.gbif.metrics.MetricsService;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,24 +52,22 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private static final int AGG_SIZE = 30_000;
   private static final int SHARD_SIZE = 10_000;
 
-  // Map of dimensions/parameter.name to Elasticsearch fields
-  private static final Map<String, String> DIMENSION_TO_ES_FIELD;
+  private final String defaultChecklistKey;
 
-  static {
-    Map<String, String> fieldsMap = new HashMap<>();
-    fieldsMap.put("basisOfRecord", "basisOfRecord");
-    fieldsMap.put("country", "countryCode");
-    fieldsMap.put("isGeoreferenced", "hasCoordinate");
-    fieldsMap.put("taxonKey", "gbifClassification.taxonKey");
-    fieldsMap.put("datasetKey", "datasetKey");
-    fieldsMap.put("publishingCountry", "publishingCountry");
-    fieldsMap.put("typeStatus", "typeStatus");
-    fieldsMap.put("issue", "issues");
-    fieldsMap.put("year", "year");
-    fieldsMap.put("kingdom", "gbifClassification.kingdom.keyword");
-    fieldsMap.put("protocol", "protocol");
-    DIMENSION_TO_ES_FIELD = Collections.unmodifiableMap(fieldsMap);
-  }
+  // Map of dimensions/parameter.name to Elasticsearch fields
+  private static final Map<String, String> DIMENSION_TO_STATIC_ES_FIELD = Map.of(
+    "basisOfRecord", "basisOfRecord",
+    "country", "countryCode",
+    "isGeoreferenced", "hasCoordinate",
+    "datasetKey", "datasetKey",
+    "publishingCountry", "publishingCountry",
+    "typeStatus", "typeStatus",
+    "issue", "issues",
+    "year", "year");
+
+  private static final Map<String, String> DIMENSION_TO_TAXONOMIC_FIELD = Map.of(
+      "kingdom", "classifications.%s.kingdom",
+      "taxonKey", "classifications.%s.taxonKeys");
 
   // Cache for count queries
   private final Cache<CountQuery, Long> countCache;
@@ -91,9 +87,10 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     private boolean refreshAhead;
   }
 
-  public EsMetricsService(String esIndex, CacheConfig cacheConfig, RestHighLevelClient esClient) {
+  public EsMetricsService(String esIndex, String defaultChecklistKey, CacheConfig cacheConfig, RestHighLevelClient esClient) {
     this.esIndex = esIndex;
     this.esClient = esClient;
+    this.defaultChecklistKey = defaultChecklistKey;
     countCache =
         new Cache2kBuilder<CountQuery, Long>() {}.loader(this::loadCount)
             .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
@@ -151,6 +148,21 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     return countRequest;
   }
 
+  public String mapDimensionToEsField(String dimension) {
+    if (dimension == null) {
+      return null;
+    }
+
+    if (DIMENSION_TO_STATIC_ES_FIELD.containsKey(dimension)) {
+      return DIMENSION_TO_STATIC_ES_FIELD.get(dimension);
+    }
+
+    if (DIMENSION_TO_TAXONOMIC_FIELD.containsKey(dimension)) {
+      return String.format(DIMENSION_TO_TAXONOMIC_FIELD.get(dimension), defaultChecklistKey);
+    }
+    return null;
+  }
+
   /**
    * Builds a {@link SearchRequest} with the aggregation parameters from a {@link AggregationQuery}.
    */
@@ -158,7 +170,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     TermsAggregationBuilder aggregation =
         AggregationBuilders.terms(aggregationQuery.getDimension())
             .order(BucketOrder.count(true)) // Order by count
-            .field(DIMENSION_TO_ES_FIELD.get(aggregationQuery.getDimension()))
+            .field(mapDimensionToEsField(aggregationQuery.getDimension()))
             .size(AGG_SIZE)
             .shardSize(SHARD_SIZE);
     BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -179,7 +191,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   /** Simple query builders for ranges and terms. */
   private QueryBuilder buildQuery(Parameter parameter) {
     if (parameter.getValue() instanceof YearRange) {
-      return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()))
+      return QueryBuilders.rangeQuery(mapDimensionToEsField(parameter.getName()))
           .gte(((YearRange) parameter.getValue()).getStartYear())
           .lte(((YearRange) parameter.getValue()).getEndYear());
     }
@@ -187,12 +199,12 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
         && parameter.getValue().toString().contains(","))) {
       String[] values = parameter.getValue().toString().split(",");
 
-      return QueryBuilders.rangeQuery(DIMENSION_TO_ES_FIELD.get(parameter.getName()))
+      return QueryBuilders.rangeQuery(mapDimensionToEsField(parameter.getName()))
           .gte(values[0])
           .lte(values[1]);
     }
     return QueryBuilders.termQuery(
-        DIMENSION_TO_ES_FIELD.get(parameter.getName()), parameter.getValue());
+      mapDimensionToEsField(parameter.getName()), parameter.getValue());
   }
 
   @Override
