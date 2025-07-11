@@ -63,7 +63,8 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     "publishingCountry", "publishingCountry",
     "typeStatus", "typeStatus",
     "issue", "issues",
-    "year", "year");
+    "year", "year",
+    "protocol", "protocol");
 
   private static final Map<String, String> DIMENSION_TO_TAXONOMIC_FIELD = Map.of(
       "kingdom", "classifications.%s.kingdom",
