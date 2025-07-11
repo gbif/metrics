@@ -55,20 +55,22 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private final String defaultChecklistKey;
 
   // Map of dimensions/parameter.name to Elasticsearch fields
-  private static final Map<String, String> DIMENSION_TO_STATIC_ES_FIELD = Map.of(
-    "basisOfRecord", "basisOfRecord",
-    "country", "countryCode",
-    "isGeoreferenced", "hasCoordinate",
-    "datasetKey", "datasetKey",
-    "publishingCountry", "publishingCountry",
-    "typeStatus", "typeStatus",
-    "issue", "issues",
-    "year", "year",
-    "protocol", "protocol");
+  private static final Map<String, String> DIMENSION_TO_STATIC_ES_FIELD =
+      Map.of(
+          "basisOfRecord", "basisOfRecord",
+          "country", "countryCode",
+          "isGeoreferenced", "hasCoordinate",
+          "datasetKey", "datasetKey",
+          "publishingCountry", "publishingCountry",
+          "typeStatus", "typeStatus",
+          "issue", "issues",
+          "year", "year",
+          "protocol", "protocol");
 
-  private static final Map<String, String> DIMENSION_TO_TAXONOMIC_FIELD = Map.of(
-      "kingdom", "classifications.%s.kingdom",
-      "taxonKey", "classifications.%s.taxonKeys");
+  private static final Map<String, String> DIMENSION_TO_TAXONOMIC_FIELD =
+      Map.of(
+          "kingdom", "classifications.%s.kingdom",
+          "taxonKey", "classifications.%s.taxonKeys");
 
   // Cache for count queries
   private final Cache<CountQuery, Long> countCache;
@@ -88,7 +90,11 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     private boolean refreshAhead;
   }
 
-  public EsMetricsService(String esIndex, String defaultChecklistKey, CacheConfig cacheConfig, RestHighLevelClient esClient) {
+  public EsMetricsService(
+      String esIndex,
+      String defaultChecklistKey,
+      CacheConfig cacheConfig,
+      RestHighLevelClient esClient) {
     this.esIndex = esIndex;
     this.esClient = esClient;
     this.defaultChecklistKey = defaultChecklistKey;
@@ -205,7 +211,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
           .lte(values[1]);
     }
     return QueryBuilders.termQuery(
-      mapDimensionToEsField(parameter.getName()), parameter.getValue());
+        mapDimensionToEsField(parameter.getName()), parameter.getValue());
   }
 
   @Override
