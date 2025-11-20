@@ -279,6 +279,11 @@ public class OccurrenceCubeResource {
       operationId = "getOccurrenceInventoryKingdom",
       summary = "Occurrence inventory by kingdom",
       description = "Lists occurrence counts by kingdom.")
+  @io.swagger.v3.oas.annotations.Parameter(
+    name = "checklistKey",
+    description = "*Experimental.* The checklist key. This determines which taxonomy will be used for "
+      + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
+      + "backbone taxonomy will be used.")
   @ApiResponses(
       value = {@ApiResponse(responseCode = "200", description = "Inventory counts returned.")})
   @GetMapping("counts/kingdom")
