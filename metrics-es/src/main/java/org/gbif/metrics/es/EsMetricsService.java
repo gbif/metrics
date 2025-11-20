@@ -71,8 +71,8 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     fieldsMap.put("typeStatus", "typeStatus");
     fieldsMap.put("issue", "issues");
     fieldsMap.put("year", "year");
-    fieldsMap.put("protocol","protocol");
-    fieldsMap.put("checklistKey","checklistKey");
+    fieldsMap.put("protocol", "protocol");
+    fieldsMap.put("checklistKey", "checklistKey");
     DIMENSION_TO_ES_FIELD = Collections.unmodifiableMap(fieldsMap);
   }
 
@@ -93,14 +93,17 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   }
 
   private String getDimensionToEsField(AggregationQuery aggregationQuery) {
-    Optional<Parameter> checklistKeyParam = getChecklistKeyParameter(aggregationQuery.getParameters());
+    Optional<Parameter> checklistKeyParam =
+        getChecklistKeyParameter(aggregationQuery.getParameters());
     if (aggregationQuery.getDimension().equalsIgnoreCase("kingdom")) {
-      String checklistKey = checklistKeyParam.map(parameter -> parameter.getValue().toString()).orElse(defaultChecklistKey);
+      String checklistKey =
+          checklistKeyParam
+              .map(parameter -> parameter.getValue().toString())
+              .orElse(defaultChecklistKey);
       return "classifications." + checklistKey + ".kingdom.classificationKeys.KINGDOM";
     }
     return DIMENSION_TO_ES_FIELD.get(aggregationQuery.getDimension());
   }
-
 
   /**
    * Consolidated helper for determining ES field for a parameter using a collection of parameters
@@ -109,7 +112,10 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private String getDimensionToEsField(Parameter parameter, Collection<Parameter> ctxParameters) {
     Optional<Parameter> checklistKeyParamOpt = getChecklistKeyParameter(ctxParameters);
     if (parameter.getName().equalsIgnoreCase("taxonKey")) {
-      String checklistKey = checklistKeyParamOpt.map(checklistKeyParam -> checklistKeyParam.getValue().toString()).orElse(defaultChecklistKey);
+      String checklistKey =
+          checklistKeyParamOpt
+              .map(checklistKeyParam -> checklistKeyParam.getValue().toString())
+              .orElse(defaultChecklistKey);
       return "classifications." + checklistKey + ".taxonKeys";
     }
     return DIMENSION_TO_ES_FIELD.get(parameter.getName());
@@ -123,7 +129,11 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     private boolean refreshAhead;
   }
 
-  public EsMetricsService(String esIndex, CacheConfig cacheConfig, RestHighLevelClient esClient, String defaultChecklistKey ) {
+  public EsMetricsService(
+      String esIndex,
+      CacheConfig cacheConfig,
+      RestHighLevelClient esClient,
+      String defaultChecklistKey) {
     this.esIndex = esIndex;
     this.esClient = esClient;
     this.defaultChecklistKey = defaultChecklistKey;
@@ -213,19 +223,19 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   private QueryBuilder buildQuery(Parameter parameter, Collection<Parameter> ctxParameters) {
     if (parameter.getValue() instanceof YearRange) {
       return QueryBuilders.rangeQuery(getDimensionToEsField(parameter, ctxParameters))
-        .gte(((YearRange) parameter.getValue()).getStartYear())
-        .lte(((YearRange) parameter.getValue()).getEndYear());
+          .gte(((YearRange) parameter.getValue()).getStartYear())
+          .lte(((YearRange) parameter.getValue()).getEndYear());
     }
     if ((parameter.getValue().getClass().equals(String.class)
         && parameter.getValue().toString().contains(","))) {
       String[] values = parameter.getValue().toString().split(",");
 
       return QueryBuilders.rangeQuery(getDimensionToEsField(parameter, ctxParameters))
-        .gte(values[0])
-        .lte(values[1]);
+          .gte(values[0])
+          .lte(values[1]);
     }
     return QueryBuilders.termQuery(
-      getDimensionToEsField(parameter, ctxParameters), parameter.getValue());
+        getDimensionToEsField(parameter, ctxParameters), parameter.getValue());
   }
 
   // Small delegating wrappers to keep existing usage sites unchanged.

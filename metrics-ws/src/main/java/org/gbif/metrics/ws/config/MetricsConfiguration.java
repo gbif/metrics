@@ -53,7 +53,8 @@ public class MetricsConfiguration {
       EsMetricsService.CacheConfig cacheConfig,
       @Value("${es.index}") String esIndex,
       RestHighLevelClient esClient,
-      @Value("${defaultChecklistKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}") String defaultChecklistKey) {
+      @Value("${defaultChecklistKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}")
+          String defaultChecklistKey) {
     return new EsMetricsService(esIndex, cacheConfig, esClient, defaultChecklistKey);
   }
 

@@ -13,10 +13,6 @@
  */
 package org.gbif.metrics.ws.resources;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.util.UUID;
-
 import org.gbif.api.model.metrics.cube.Rollup;
 import org.gbif.api.vocabulary.BasisOfRecord;
 import org.gbif.api.vocabulary.Country;
@@ -34,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +50,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -146,12 +144,13 @@ public class OccurrenceCubeResource {
             in = ParameterIn.QUERY),
         @io.swagger.v3.oas.annotations.Parameter(name = "countQuery", hidden = true),
         @io.swagger.v3.oas.annotations.Parameter(
-          name = "checklistKey",
-          description = "*Experimental.* The checklist key. This determines which taxonomy will be used for "
-            + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
-            + "backbone taxonomy will be used.",
-          schema = @Schema(implementation = String.class),
-          in = ParameterIn.QUERY)
+            name = "checklistKey",
+            description =
+                "*Experimental.* The checklist key. This determines which taxonomy will be used for "
+                    + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
+                    + "backbone taxonomy will be used.",
+            schema = @Schema(implementation = String.class),
+            in = ParameterIn.QUERY)
       })
   @ApiResponses(
       value = {
@@ -239,10 +238,11 @@ public class OccurrenceCubeResource {
       name = "taxonKey",
       description = "Limit to occurrences of a particular taxon.")
   @io.swagger.v3.oas.annotations.Parameter(
-    name = "checklistKey",
-    description = "*Experimental.* The checklist key. This determines which taxonomy will be used for "
-      + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
-      + "backbone taxonomy will be used.")
+      name = "checklistKey",
+      description =
+          "*Experimental.* The checklist key. This determines which taxonomy will be used for "
+              + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
+              + "backbone taxonomy will be used.")
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Inventory counts returned."),
@@ -280,14 +280,16 @@ public class OccurrenceCubeResource {
       summary = "Occurrence inventory by kingdom",
       description = "Lists occurrence counts by kingdom.")
   @io.swagger.v3.oas.annotations.Parameter(
-    name = "checklistKey",
-    description = "*Experimental.* The checklist key. This determines which taxonomy will be used for "
-      + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
-      + "backbone taxonomy will be used.")
+      name = "checklistKey",
+      description =
+          "*Experimental.* The checklist key. This determines which taxonomy will be used for "
+              + "the search in conjunction with other taxon keys. If this is not specified, the GBIF "
+              + "backbone taxonomy will be used.")
   @ApiResponses(
       value = {@ApiResponse(responseCode = "200", description = "Inventory counts returned.")})
   @GetMapping("counts/kingdom")
-  public Map<String, Long> getKingdomCounts(@RequestParam(value = "checklistKey", required = false) String checklistKey) {
+  public Map<String, Long> getKingdomCounts(
+      @RequestParam(value = "checklistKey", required = false) String checklistKey) {
     return metricsService.countAggregation(AggregationQuery.ofKingdom(checklistKey));
   }
 
