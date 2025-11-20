@@ -55,14 +55,14 @@ public class Parameter {
         return ParameterType.OCCURRENCE_ISSUE;
       case "protocol":
         return ParameterType.ENDPOINT_TYPE;
+      case "checklistKey":
       case "taxonKey":
+      case "countQuery":
         return ParameterType.STRING;
       case "typeStatus":
         return ParameterType.TYPE_STATUS;
       case "year":
         return ParameterType.RANGE;
-      case "countQuery":
-        return ParameterType.STRING;
       default:
         throw new IllegalArgumentException("Invalid parameter name: " + name);
     }

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 /** Metrics query to obtain simple dimensions/fields and counts based on a list of parameters. */
@@ -75,7 +76,13 @@ public class AggregationQuery {
     return BASIS_OF_RECORD;
   }
 
-  public static AggregationQuery ofKingdom() {
+  public static AggregationQuery ofKingdom(String checklistKey) {
+    if (checklistKey != null) {
+      return new AggregationQuery(
+          "kingdom",
+          Collections.singleton(new Parameter("checklistKey", checklistKey)),
+        key -> VocabularyUtils.lookup(key, Kingdom.class).map(Enum::name).orElse(key));
+    }
     return KINGDOM;
   }
 
