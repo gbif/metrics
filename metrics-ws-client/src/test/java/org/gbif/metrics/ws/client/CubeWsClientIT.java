@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -30,7 +30,8 @@ public class CubeWsClientIT {
 
   private CubeService wsClient;
 
-  @LocalServerPort int localServerPort;
+  @LocalServerPort
+  int localServerPort;
 
   @BeforeEach
   public void init() {
