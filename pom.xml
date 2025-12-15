@@ -67,7 +67,7 @@
     <elasticsearch.version>7.11.2</elasticsearch.version>
     <httpclient.version>4.5.2</httpclient.version>
     <httpcore.version>4.4.13</httpcore.version>
-    <log4j-api.version>2.11.1</log4j-api.version>
+    <log4j-api.version>2.24.3</log4j-api.version>
 
     <!-- Caching -->
     <cache2k.version>2.6.1.Final</cache2k.version>
@@ -289,6 +289,8 @@
         <artifactId>jakarta.validation-api</artifactId>
         <version>${jakarta-validation.version}</version>
       </dependency>
+
+      <!-- Logging -->
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
@@ -330,6 +332,21 @@
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
         <version>${elasticsearch.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+        <version>${elasticsearch.version}</version>
       </dependency>
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
@@ -346,11 +363,6 @@
         <artifactId>elasticsearch</artifactId>
         <version>${elasticsearch.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-client-sniffer</artifactId>
-        <version>${elasticsearch.version}</version>
-      </dependency>
       <!-- added to avoid conflicts with es client -->
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -362,7 +374,6 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${httpclient.version}</version>
-        <type>jar</type>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -374,7 +385,6 @@
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore</artifactId>
         <version>${httpcore.version}</version>
-        <type>jar</type>
       </dependency>
 
       <!-- Caching -->
