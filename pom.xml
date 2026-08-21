@@ -25,6 +25,8 @@
   </scm>
 
   <properties>
+    <!-- Overrides motherpom's java.version=11; compiler plugin uses <release>${java.version}</release> -->
+    <java.version>17</java.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <jdkLevel>17</jdkLevel>
@@ -62,9 +64,9 @@
     <logstash-encoder.version>9.0</logstash-encoder.version>
 
     <!-- Elasticsearch -->
-    <elasticsearch.version>7.11.2</elasticsearch.version>
-    <httpclient.version>4.5.2</httpclient.version>
-    <httpcore.version>4.4.13</httpcore.version>
+    <elasticsearch.version>9.5.0</elasticsearch.version>
+    <httpclient.version>4.5.14</httpclient.version>
+    <httpcore.version>4.4.16</httpcore.version>
     <log4j-api.version>2.24.3</log4j-api.version>
 
     <!-- Caching -->
@@ -337,19 +339,9 @@
 
       <!-- ES -->
       <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-high-level-client</artifactId>
+        <groupId>co.elastic.clients</groupId>
+        <artifactId>elasticsearch-java</artifactId>
         <version>${elasticsearch.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
@@ -359,16 +351,6 @@
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-client</artifactId>
-        <version>${elasticsearch.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-core</artifactId>
-        <version>${elasticsearch.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
         <version>${elasticsearch.version}</version>
       </dependency>
       <!-- added to avoid conflicts with es client -->
