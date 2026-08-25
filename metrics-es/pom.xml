@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif.metrics</groupId>
     <artifactId>metrics-motherpom</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
+    <version>2.1.0</version>
   </parent>
 
   <artifactId>metrics-es</artifactId>
