@@ -17,15 +17,18 @@ import org.gbif.metrics.MetricsService;
 import org.gbif.metrics.es.EsConfig;
 import org.gbif.metrics.es.EsMetricsService;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.sniff.SniffOnFailureListener;
 import org.elasticsearch.client.sniff.Sniffer;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,14 +55,18 @@ public class MetricsConfiguration {
   public MetricsService metricsService(
       EsMetricsService.CacheConfig cacheConfig,
       @Value("${es.index}") String esIndex,
-      RestHighLevelClient esClient,
+      ElasticsearchClient esClient,
       @Value("${defaultChecklistKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}")
           String defaultChecklistKey) {
     return new EsMetricsService(esIndex, cacheConfig, esClient, defaultChecklistKey);
   }
 
-  @Bean
-  public RestHighLevelClient buildClient(EsConfig esConfig) {
+  /**
+   * Owns sniffer + client so Spring can tear them down in the right order: sniffer first, then
+   * {@link ElasticsearchClient#close()} (closes transport + underlying RestClient).
+   */
+  @Bean(destroyMethod = "close")
+  public EsClientLifecycle esClientLifecycle(EsConfig esConfig) {
     HttpHost[] hosts = new HttpHost[esConfig.getHosts().length];
     int i = 0;
     for (String host : esConfig.getHosts()) {
@@ -87,28 +94,49 @@ public class MetricsConfiguration {
       builder.setFailureListener(sniffOnFailureListener);
     }
 
-    RestHighLevelClient highLevelClient = new RestHighLevelClient(builder);
+    RestClient restClient = builder.build();
+    RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+    ElasticsearchClient client = new ElasticsearchClient(transport);
 
+    Sniffer sniffer = null;
     if (esConfig.getSniffInterval() > 0) {
-      Sniffer sniffer =
-          Sniffer.builder(highLevelClient.getLowLevelClient())
+      sniffer =
+          Sniffer.builder(restClient)
               .setSniffIntervalMillis(esConfig.getSniffInterval())
               .setSniffAfterFailureDelayMillis(esConfig.getSniffAfterFailureDelay())
               .build();
       sniffOnFailureListener.setSniffer(sniffer);
-
-      Runtime.getRuntime()
-          .addShutdownHook(
-              new Thread(
-                  () -> {
-                    sniffer.close();
-                    try {
-                      highLevelClient.close();
-                    } catch (IOException e) {
-                      throw new IllegalStateException("Couldn't close ES client", e);
-                    }
-                  }));
     }
-    return highLevelClient;
+
+    return new EsClientLifecycle(client, sniffer);
+  }
+
+  @Bean
+  public ElasticsearchClient buildClient(EsClientLifecycle esClientLifecycle) {
+    return esClientLifecycle.client();
+  }
+
+  /** Closes sniffer (if any) before the ES client/transport/RestClient. */
+  static final class EsClientLifecycle implements Closeable {
+    private final ElasticsearchClient client;
+    private final Sniffer sniffer;
+
+    EsClientLifecycle(ElasticsearchClient client, Sniffer sniffer) {
+      this.client = client;
+      this.sniffer = sniffer;
+    }
+
+    ElasticsearchClient client() {
+      return client;
+    }
+
+    @Override
+    public void close() throws IOException {
+      if (sniffer != null) {
+        sniffer.close();
+      }
+      // Closes transport and the underlying RestClient / HTTP connections.
+      client.close();
+    }
   }
 }

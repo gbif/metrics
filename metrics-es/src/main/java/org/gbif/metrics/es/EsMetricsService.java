@@ -17,6 +17,7 @@ import org.gbif.metrics.MetricsCacheService;
 import org.gbif.metrics.MetricsService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,22 +27,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.LongTermsBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.CountResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
+import co.elastic.clients.util.NamedValue;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.core.CountRequest;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +83,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private final String esIndex;
 
-  private final RestHighLevelClient esClient;
+  private final ElasticsearchClient esClient;
 
   private static Optional<Parameter> getChecklistKeyParameter(Collection<Parameter> parameters) {
     return parameters.stream()
@@ -132,7 +131,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   public EsMetricsService(
       String esIndex,
       CacheConfig cacheConfig,
-      RestHighLevelClient esClient,
+      ElasticsearchClient esClient,
       String defaultChecklistKey) {
     this.esIndex = esIndex;
     this.esClient = esClient;
@@ -155,7 +154,9 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   /** Loader function for the count queries cache. */
   private Long loadCount(CountQuery countQuery) {
     try {
-      return esClient.count(buildCountRequest(countQuery), RequestOptions.DEFAULT).getCount();
+      CountResponse response =
+          esClient.count(c -> c.index(esIndex).query(buildBoolQuery(countQuery.getParameters())));
+      return response.count();
     } catch (IOException ex) {
       LOG.error("Error executing CountQuery {}", countQuery, ex);
       throw new RuntimeException(ex);
@@ -165,17 +166,33 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
   /** Loader function for the aggregation queries cache. */
   private Map<String, Long> loadAggregation(AggregationQuery aggregationQuery) {
     try {
-      SearchResponse response =
-          esClient.search(buildCountsAggregateRequest(aggregationQuery), RequestOptions.DEFAULT);
-      List<? extends Terms.Bucket> buckets =
-          ((Terms) response.getAggregations().get(aggregationQuery.getDimension())).getBuckets();
+      String dimension = aggregationQuery.getDimension();
+      SearchResponse<Void> response =
+          esClient.search(
+              s ->
+                  s.index(esIndex)
+                      .size(0)
+                      .query(buildAggregationQuery(aggregationQuery))
+                      .aggregations(
+                          dimension,
+                          a ->
+                              a.terms(
+                                  t ->
+                                      t.field(getDimensionToEsField(aggregationQuery))
+                                          .size(AGG_SIZE)
+                                          .shardSize(SHARD_SIZE)
+                                          .order(
+                                              NamedValue.of("_count", SortOrder.Asc)))),
+              Void.class);
+
+      Aggregate aggregate = response.aggregations().get(dimension);
+      List<Map.Entry<String, Long>> buckets = extractTermsBuckets(aggregate);
       Map<String, Long> aggregation = new LinkedHashMap<>(buckets.size());
       // Results added in reverse order because the ES API returns them like that
       for (int i = buckets.size() - 1; i >= 0; i--) {
-        Terms.Bucket bucket = buckets.get(i);
+        Map.Entry<String, Long> bucket = buckets.get(i);
         aggregation.put(
-            aggregationQuery.getKeyLabelTransform().apply(bucket.getKeyAsString()),
-            bucket.getDocCount());
+            aggregationQuery.getKeyLabelTransform().apply(bucket.getKey()), bucket.getValue());
       }
       return aggregation;
     } catch (IOException ex) {
@@ -184,67 +201,105 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     }
   }
 
-  /** Builds an Elasticsearch {@link CountRequest} from a {@link CountQuery}. */
-  private CountRequest buildCountRequest(CountQuery countQuery) {
-    BoolQueryBuilder bool = QueryBuilders.boolQuery();
-    countQuery.getParameters().forEach(p -> bool.filter().add(buildQuery(p, countQuery)));
-    CountRequest countRequest = new CountRequest();
-    countRequest.query(bool);
-    countRequest.indices(esIndex);
-    return countRequest;
+  private static List<Map.Entry<String, Long>> extractTermsBuckets(Aggregate aggregate) {
+    List<Map.Entry<String, Long>> buckets = new ArrayList<>();
+    if (aggregate.isSterms()) {
+      for (StringTermsBucket bucket : aggregate.sterms().buckets().array()) {
+        // Same as HLRC Terms.Bucket#getKeyAsString()
+        buckets.add(Map.entry(termsBucketKeyAsString(bucket.key()), bucket.docCount()));
+      }
+    } else if (aggregate.isLterms()) {
+      for (LongTermsBucket bucket : aggregate.lterms().buckets().array()) {
+        String key =
+            bucket.keyAsString() != null ? bucket.keyAsString() : Long.toString(bucket.key());
+        buckets.add(Map.entry(key, bucket.docCount()));
+      }
+    } else {
+      // e.g. dterms — not used by current facets, fail loudly if mapping type changes
+      throw new IllegalStateException("Unexpected terms aggregation type: " + aggregate._kind());
+    }
+    return buckets;
   }
 
-  /**
-   * Builds a {@link SearchRequest} with the aggregation parameters from a {@link AggregationQuery}.
-   */
-  private SearchRequest buildCountsAggregateRequest(AggregationQuery aggregationQuery) {
-    TermsAggregationBuilder aggregation =
-        AggregationBuilders.terms(aggregationQuery.getDimension())
-            .order(BucketOrder.count(true)) // Order by count
-            .field(getDimensionToEsField(aggregationQuery))
-            .size(AGG_SIZE)
-            .shardSize(SHARD_SIZE);
-    BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+  /** Mirrors HLRC {@code getKeyAsString()} for string terms keys. */
+  private static String termsBucketKeyAsString(FieldValue key) {
+    if (key.isString()) {
+      return key.stringValue();
+    }
+    if (key.isLong()) {
+      return Long.toString(key.longValue());
+    }
+    if (key.isDouble()) {
+      return Double.toString(key.doubleValue());
+    }
+    if (key.isBoolean()) {
+      return Boolean.toString(key.booleanValue());
+    }
+    if (key.isNull()) {
+      return "null";
+    }
+    return key.toString();
+  }
+
+  private Query buildAggregationQuery(AggregationQuery aggregationQuery) {
+    List<Query> filters = new ArrayList<>();
     aggregationQuery
         .getParameters()
-        .forEach(parameter -> boolQueryBuilder.filter(buildQuery(parameter, aggregationQuery)));
-    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    searchSourceBuilder.query(
-        boolQueryBuilder.filter().isEmpty() ? QueryBuilders.matchAllQuery() : boolQueryBuilder);
-    searchSourceBuilder.size(0);
-    searchSourceBuilder.aggregation(aggregation);
-    SearchRequest searchRequest = new SearchRequest();
-    searchRequest.source(searchSourceBuilder);
-    searchRequest.indices(esIndex);
-    return searchRequest;
+        .forEach(parameter -> filters.add(buildQuery(parameter, aggregationQuery.getParameters())));
+    if (filters.isEmpty()) {
+      return Query.of(q -> q.matchAll(m -> m));
+    }
+    return Query.of(q -> q.bool(b -> b.filter(filters)));
+  }
+
+  private Query buildBoolQuery(Collection<Parameter> parameters) {
+    List<Query> filters = new ArrayList<>();
+    parameters.forEach(p -> filters.add(buildQuery(p, parameters)));
+    return Query.of(q -> q.bool(b -> b.filter(filters)));
   }
 
   /** Consolidated query builder that uses the provided context parameters to resolve ES fields. */
-  private QueryBuilder buildQuery(Parameter parameter, Collection<Parameter> ctxParameters) {
-    if (parameter.getValue() instanceof YearRange) {
-      return QueryBuilders.rangeQuery(getDimensionToEsField(parameter, ctxParameters))
-          .gte(((YearRange) parameter.getValue()).getStartYear())
-          .lte(((YearRange) parameter.getValue()).getEndYear());
+  private Query buildQuery(Parameter parameter, Collection<Parameter> ctxParameters) {
+    String field = getDimensionToEsField(parameter, ctxParameters);
+    if (parameter.getValue() instanceof YearRange yearRange) {
+      return Query.of(
+          q ->
+              q.range(
+                  r ->
+                      r.number(
+                          n ->
+                              n.field(field)
+                                  .gte((double) yearRange.getStartYear())
+                                  .lte((double) yearRange.getEndYear()))));
     }
-    if ((parameter.getValue().getClass().equals(String.class)
-        && parameter.getValue().toString().contains(","))) {
+    if (parameter.getValue().getClass().equals(String.class)
+        && parameter.getValue().toString().contains(",")) {
       String[] values = parameter.getValue().toString().split(",");
-
-      return QueryBuilders.rangeQuery(getDimensionToEsField(parameter, ctxParameters))
-          .gte(values[0])
-          .lte(values[1]);
+      return Query.of(
+          q ->
+              q.range(
+                  r ->
+                      r.untyped(
+                          u ->
+                              u.field(field)
+                                  .gte(JsonData.of(values[0]))
+                                  .lte(JsonData.of(values[1])))));
     }
-    return QueryBuilders.termQuery(
-        getDimensionToEsField(parameter, ctxParameters), parameter.getValue());
+    return Query.of(q -> q.term(t -> t.field(field).value(toFieldValue(parameter.getValue()))));
   }
 
-  // Small delegating wrappers to keep existing usage sites unchanged.
-  private QueryBuilder buildQuery(Parameter parameter, AggregationQuery aggregationQuery) {
-    return buildQuery(parameter, aggregationQuery.getParameters());
-  }
-
-  private QueryBuilder buildQuery(Parameter parameter, CountQuery countQuery) {
-    return buildQuery(parameter, countQuery.getParameters());
+  /** Maps {@link Parameter} values to ES term values (bool / number / enum name / string). */
+  private static FieldValue toFieldValue(Object value) {
+    if (value instanceof Boolean b) {
+      return FieldValue.of(b);
+    }
+    if (value instanceof Number n) {
+      return FieldValue.of(n.longValue());
+    }
+    if (value instanceof Enum<?> e) {
+      return FieldValue.of(e.name());
+    }
+    return FieldValue.of(value.toString());
   }
 
   @Override
