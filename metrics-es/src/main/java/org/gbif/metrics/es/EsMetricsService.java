@@ -36,7 +36,6 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.CountResponse;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.json.JsonData;
 import co.elastic.clients.util.NamedValue;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
@@ -126,6 +125,8 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     private long expireAfterWrite;
     private long entryCapacity;
     private boolean refreshAhead;
+    // Max total number of buckets held by the aggregations cache, 0 to use entryCapacity
+    private long aggregationMaxWeight = 2_000_000;
   }
 
   public EsMetricsService(
@@ -143,12 +144,19 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
             .entryCapacity(cacheConfig.entryCapacity)
             .build();
 
-    aggregationsCache =
+    Cache2kBuilder<AggregationQuery, Map<String, Long>> aggregationsCacheBuilder =
         new Cache2kBuilder<AggregationQuery, Map<String, Long>>() {}.loader(this::loadAggregation)
             .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
-            .refreshAhead(cacheConfig.refreshAhead)
-            .entryCapacity(cacheConfig.entryCapacity)
-            .build();
+            .refreshAhead(cacheConfig.refreshAhead);
+    // Bound by number of buckets, a single entry can hold up to AGG_SIZE buckets
+    if (cacheConfig.aggregationMaxWeight > 0) {
+      aggregationsCacheBuilder
+          .weigher((key, value) -> Math.max(1, value.size()))
+          .maximumWeight(cacheConfig.aggregationMaxWeight);
+    } else {
+      aggregationsCacheBuilder.entryCapacity(cacheConfig.entryCapacity);
+    }
+    aggregationsCache = aggregationsCacheBuilder.build();
   }
 
   /** Loader function for the count queries cache. */
@@ -271,19 +279,6 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
                               n.field(field)
                                   .gte((double) yearRange.getStartYear())
                                   .lte((double) yearRange.getEndYear()))));
-    }
-    if (parameter.getValue().getClass().equals(String.class)
-        && parameter.getValue().toString().contains(",")) {
-      String[] values = parameter.getValue().toString().split(",");
-      return Query.of(
-          q ->
-              q.range(
-                  r ->
-                      r.untyped(
-                          u ->
-                              u.field(field)
-                                  .gte(JsonData.of(values[0]))
-                                  .lte(JsonData.of(values[1])))));
     }
     return Query.of(q -> q.term(t -> t.field(field).value(toFieldValue(parameter.getValue()))));
   }
