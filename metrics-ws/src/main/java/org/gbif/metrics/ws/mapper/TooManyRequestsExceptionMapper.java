@@ -15,6 +15,7 @@ package org.gbif.metrics.ws.mapper;
 
 import org.gbif.metrics.es.TooManyRequestsException;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ public class TooManyRequestsExceptionMapper {
   @ExceptionHandler(TooManyRequestsException.class)
   public ResponseEntity<Object> toResponse(TooManyRequestsException exception) {
     return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .header(HttpHeaders.RETRY_AFTER, "5")
         .contentType(MediaType.TEXT_PLAIN)
         .body(exception.getMessage());
   }

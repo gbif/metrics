@@ -144,7 +144,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     this.esIndex = esIndex;
     this.esClient = esClient;
     this.defaultChecklistKey = defaultChecklistKey;
-    this.aggregationPermits = new Semaphore(cacheConfig.maxConcurrentAggregations);
+    this.aggregationPermits = new Semaphore(Math.max(1, cacheConfig.maxConcurrentAggregations));
     countCache =
         new Cache2kBuilder<CountQuery, Long>() {}.loader(this::loadCount)
             .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
