@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -40,6 +41,7 @@ import co.elastic.clients.util.NamedValue;
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 import org.cache2k.expiry.Expiry;
+import org.cache2k.io.CacheLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +86,9 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   private final ElasticsearchClient esClient;
 
+  // Limits concurrent aggregation loads (cache misses) against Elasticsearch
+  private final Semaphore aggregationPermits;
+
   private static Optional<Parameter> getChecklistKeyParameter(Collection<Parameter> parameters) {
     return parameters.stream()
         .filter(p -> p.getName().equalsIgnoreCase("checklistKey"))
@@ -127,6 +132,8 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     private boolean refreshAhead;
     // Max total number of buckets held by the aggregations cache, 0 to use entryCapacity
     private long aggregationMaxWeight = 2_000_000;
+    // Max concurrent aggregation queries sent to Elasticsearch
+    private int maxConcurrentAggregations = 20;
   }
 
   public EsMetricsService(
@@ -137,6 +144,7 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     this.esIndex = esIndex;
     this.esClient = esClient;
     this.defaultChecklistKey = defaultChecklistKey;
+    this.aggregationPermits = new Semaphore(cacheConfig.maxConcurrentAggregations);
     countCache =
         new Cache2kBuilder<CountQuery, Long>() {}.loader(this::loadCount)
             .expireAfterWrite(cacheConfig.expireAfterWrite, TimeUnit.MILLISECONDS)
@@ -173,6 +181,9 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   /** Loader function for the aggregation queries cache. */
   private Map<String, Long> loadAggregation(AggregationQuery aggregationQuery) {
+    if (!aggregationPermits.tryAcquire()) {
+      throw new TooManyRequestsException("Too many concurrent aggregation requests");
+    }
     try {
       String dimension = aggregationQuery.getDimension();
       SearchResponse<Void> response =
@@ -190,15 +201,13 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
                                           .size(AGG_SIZE)
                                           .shardSize(SHARD_SIZE)
                                           .order(
-                                              NamedValue.of("_count", SortOrder.Asc)))),
+                                              NamedValue.of("_count", SortOrder.Desc)))),
               Void.class);
 
       Aggregate aggregate = response.aggregations().get(dimension);
       List<Map.Entry<String, Long>> buckets = extractTermsBuckets(aggregate);
       Map<String, Long> aggregation = new LinkedHashMap<>(buckets.size());
-      // Results added in reverse order because the ES API returns them like that
-      for (int i = buckets.size() - 1; i >= 0; i--) {
-        Map.Entry<String, Long> bucket = buckets.get(i);
+      for (Map.Entry<String, Long> bucket : buckets) {
         aggregation.put(
             aggregationQuery.getKeyLabelTransform().apply(bucket.getKey()), bucket.getValue());
       }
@@ -206,6 +215,8 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
     } catch (IOException ex) {
       LOG.error("Error executing AggregationQuery {}", aggregationQuery, ex);
       throw new RuntimeException(ex);
+    } finally {
+      aggregationPermits.release();
     }
   }
 
@@ -317,11 +328,24 @@ public class EsMetricsService implements MetricsService, MetricsCacheService {
 
   @Override
   public Long count(CountQuery countQuery) {
-    return countCache.get(countQuery);
+    try {
+      return countCache.get(countQuery);
+    } catch (CacheLoaderException ex) {
+      throw unwrap(ex);
+    }
   }
 
   @Override
   public Map<String, Long> countAggregation(AggregationQuery aggregationQuery) {
-    return aggregationsCache.get(aggregationQuery);
+    try {
+      return aggregationsCache.get(aggregationQuery);
+    } catch (CacheLoaderException ex) {
+      throw unwrap(ex);
+    }
+  }
+
+  /** Rethrows the loader exception so it is mapped to the right HTTP status. */
+  private static RuntimeException unwrap(CacheLoaderException ex) {
+    return ex.getCause() instanceof RuntimeException cause ? cause : ex;
   }
 }
