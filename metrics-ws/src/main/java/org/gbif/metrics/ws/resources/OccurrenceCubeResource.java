@@ -370,7 +370,7 @@ public class OccurrenceCubeResource {
       return result;
 
     } catch (IllegalArgumentException ex) {
-      LOG.error("Illegal year value {}", year, ex);
+      LOG.debug("Illegal year value {}", year);
       throw new IllegalArgumentException("Parameter " + year + " is not a valid year range");
     }
   }
