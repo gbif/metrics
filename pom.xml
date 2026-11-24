@@ -46,8 +46,8 @@
     <curator-framework.version>5.5.0-disable-connectstr-updates</curator-framework.version>
 
     <!-- GBIF dependencies -->
-    <gbif-api.version>2.2.2</gbif-api.version>
-    <gbif-common-ws.version>2.1.1</gbif-common-ws.version>
+    <gbif-api.version>2.4.30</gbif-api.version>
+    <gbif-common-ws.version>2.1.5</gbif-common-ws.version>
     <gbif-common.version>0.60</gbif-common.version>
 
     <!-- Other dependencies -->
