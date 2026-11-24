@@ -21,6 +21,7 @@ import org.gbif.api.vocabulary.TypeStatus;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,6 +30,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class Parameter {
+
+  private static final Pattern UUID_PATTERN =
+      Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+  private static final int MAX_STRING_LENGTH = 100;
 
   private final String name;
   private final Object value;
@@ -48,6 +53,7 @@ public class Parameter {
       case "publishingCountry":
         return ParameterType.COUNTRY;
       case "datasetKey":
+      case "checklistKey":
         return ParameterType.UUID;
       case "isGeoreferenced":
         return ParameterType.BOOLEAN;
@@ -55,9 +61,7 @@ public class Parameter {
         return ParameterType.OCCURRENCE_ISSUE;
       case "protocol":
         return ParameterType.ENDPOINT_TYPE;
-      case "checklistKey":
       case "taxonKey":
-      case "countQuery":
         return ParameterType.STRING;
       case "typeStatus":
         return ParameterType.TYPE_STATUS;
@@ -79,8 +83,15 @@ public class Parameter {
           throw new IllegalArgumentException("Invalid integer value: " + value);
         }
       case STRING:
-      case UUID:
+        if (value.length() > MAX_STRING_LENGTH || value.contains(",")) {
+          throw new IllegalArgumentException("Invalid value: " + value);
+        }
         return value;
+      case UUID:
+        if (!UUID_PATTERN.matcher(value).matches()) {
+          throw new IllegalArgumentException("Invalid UUID: " + value);
+        }
+        return value.toLowerCase();
       case BASIS_OF_RECORD:
         return VocabularyUtils.lookup(value, BasisOfRecord.class)
             .orElseThrow(() -> new IllegalArgumentException("Invalid basis of record: " + value));
