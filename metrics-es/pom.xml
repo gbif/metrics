@@ -9,7 +9,6 @@
   </parent>
 
   <artifactId>metrics-es</artifactId>
-  <version>2.1.1-SNAPSHOT</version>
 
   <name>Metrics :: Elasticsearch</name>
   <description>Metrics produced from Elasticsearch</description>
