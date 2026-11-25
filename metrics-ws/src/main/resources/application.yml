@@ -8,8 +8,13 @@
 #Cache2k config
 cache:
   expireAfterWrite: 3600000
+  # Count cache size; aggregations cache too when aggregationMaxWeight is 0
   entryCapacity: 1000000
   refreshAhead: true
+  # Max total buckets in the aggregations cache
+  aggregationMaxWeight: 2000000
+  # Max concurrent aggregation loads, 429 when exceeded (refresh-ahead loads included)
+  maxConcurrentAggregations: 20
 
 es:
   index: occurrence

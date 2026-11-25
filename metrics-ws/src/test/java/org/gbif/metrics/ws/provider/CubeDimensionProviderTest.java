@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 /**
@@ -63,5 +64,24 @@ public class CubeDimensionProviderTest {
 
     CountQuery countQuery = ((CountQuery) b.resolveArgument(null, null, webRequestMock, null));
     assertEquals(getInternallyBuilt(), countQuery);
+  }
+
+  @Test
+  public void testInvalidValues() {
+    assertInvalid("taxonKey", "0,9");
+    assertInvalid("taxonKey", "1".repeat(101));
+    assertInvalid("checklistKey", "foo");
+    assertInvalid("datasetKey", "1-1-1-1-1");
+    assertInvalid("countQuery", "x");
+  }
+
+  private void assertInvalid(String name, String value) {
+    Map<String, String[]> parameters = new HashMap<>();
+    parameters.put(name, new String[] {value});
+    when(webRequestMock.getParameterMap()).thenReturn(parameters);
+
+    CountQueryArgumentResolver b = new CountQueryArgumentResolver();
+    assertThrows(
+        IllegalArgumentException.class, () -> b.resolveArgument(null, null, webRequestMock, null));
   }
 }

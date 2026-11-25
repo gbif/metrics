@@ -29,9 +29,9 @@ import java.util.function.Function;
 /** Metrics query to obtain simple dimensions/fields and counts based on a list of parameters. */
 public class AggregationQuery {
 
-  // Transforms a string into a Country.name()
+  // Transforms a string into a Country.name(), unknown codes are kept as they are
   private static final Function<String, String> COUNTRY_LABEL_TRANSFORM =
-      key -> Country.fromIsoCode(key).name();
+      key -> Optional.ofNullable(Country.fromIsoCode(key)).map(Enum::name).orElse(key);
 
   // Pre-defined aggregations
   private static final AggregationQuery COUNTRY =
@@ -40,9 +40,11 @@ public class AggregationQuery {
       new AggregationQuery("publishingCountry", COUNTRY_LABEL_TRANSFORM);
   private static final AggregationQuery BASIS_OF_RECORD =
       new AggregationQuery(
-          "basisOfRecord", key -> VocabularyUtils.lookupEnum(key, BasisOfRecord.class).name());
+          "basisOfRecord",
+          key -> VocabularyUtils.lookup(key, BasisOfRecord.class).map(Enum::name).orElse(key));
   private static final AggregationQuery KINGDOM =
-      new AggregationQuery("kingdom", key -> VocabularyUtils.lookupEnum(key, Kingdom.class).name());
+      new AggregationQuery(
+          "kingdom", key -> VocabularyUtils.lookup(key, Kingdom.class).map(Enum::name).orElse(key));
 
   private final String dimension;
 
